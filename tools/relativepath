@@ -1,0 +1,29 @@
+#!/bin/sh
+#***********************************************************************
+# (C) Copyright Broadcom Corporation 2014
+#
+#**********************************************************************
+#
+# @filename relativepath
+#
+# @purpose Target specific make file to build Openapps features
+#
+# @component base
+#
+# @comments
+#
+# @create 11/15/2014
+#
+# @author sagrawal
+# @end
+#
+#*********************************************************************
+
+if [ $# -lt 2 ]; then
+        echo "Usage: $(basename $0) <base path> <target path>"
+        exit 1
+fi
+
+relative=$(perl -MFile::Spec -e 'print File::Spec->abs2rel("'$2'","'$1'")')
+
+echo $relative

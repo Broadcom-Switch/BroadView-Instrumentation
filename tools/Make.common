@@ -1,0 +1,628 @@
+#
+#/*****************************************************************************
+#*
+#* (C) Copyright Broadcom Corporation 2015
+#*
+#* Licensed under the Apache License, Version 2.0 (the "License");
+#* you may not use this file except in compliance with the License.
+#*
+#* You may obtain a copy of the License at
+#* http://www.apache.org/licenses/LICENSE-2.0
+#*
+#* Unless required by applicable law or agreed to in writing, software
+#* distributed under the License is distributed on an "AS IS" BASIS,
+#* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#* See the License for the specific language governing permissions and
+#* limitations under the License.
+#*
+#***************************************************************************/
+
+#
+# The valid command line targets begin in the section "Command Line Targets".
+#
+
+# This make file is common for all builds.  It is expected that
+# several global variables have already been defined:
+# 	CROSS_COMPILE - base name of the cross compiler tools
+# 	OPENAPPS_BASE - top level directory of the OPENAPPS code
+# 	OPENAPPS_OUTPATH       - directory where the generated output is placed
+# 	platform      - Linux platform -- used primarily by the SDK
+#
+
+#
+# SDK make variables:
+# 	MAKE_LOCAL 	 - the name of a local makefile to be included by Make.config
+# 	NO_LOCAL_TARGETS - if set, do not copy targets to the SDK directory (leave in output)
+# 	QUIET      	 - reduces the output of the SDK make process (defined based on dmode)
+# 	SDK      	 - top level directory of the SDK code
+# 	SDKBUILD 	 - directory for SDK generated output relative to $(SDK)
+#
+
+#
+# Get the version info for this build from package.cfg
+#
+
+ifeq ($(BCM_REL_NUM),)
+   BCM_REL_NUM=0
+endif
+
+ifeq ($(BCM_VER_NUM),)
+   BCM_VER_NUM=0
+endif
+
+ifeq ($(BCM_MAINT_NUM),)
+   BCM_MAINT_NUM=0
+endif
+
+ifeq ($(BCM_BUILD_NUM),)
+   BCM_BUILD_NUM=1
+endif
+
+export BCM_REL_NUM
+export BCM_VER_NUM
+export BCM_MAINT_NUM
+export BCM_BUILD_NUM
+
+ifneq ($(OUTPATH),)
+   OPENAPPS_OUTPATH:=$(OUTPATH)
+   export OPENAPPS_OUTPATH
+endif
+export OUTPATH :=
+
+RELEASE_FILE = $(abspath $(OPENAPPS_BASE)/RELEASE)
+OPENAPPS_RELEASE = broadview-$(BCM_REL_NUM).$(BCM_VER_NUM).$(BCM_MAINT_NUM).$(BCM_BUILD_NUM)
+OPENAPPS_RELEASE_NUMBER = $(BCM_REL_NUM)$(BCM_VER_NUM)$(BCM_MAINT_NUM)$(BCM_BUILD_NUM)
+
+
+ifeq ($(NO_LOCAL_TARGETS),)
+  export NO_LOCAL_TARGETS=1
+endif
+
+ifeq ($(CPU_BASE_DIR),)
+   CPU_BASE_DIR = $(abspath $(OPENAPPS_BASE)/platform/cpu/)
+endif
+export CPU_BASE_DIR
+
+#
+# Make variables
+#
+export AR      = $(CROSS_COMPILE)ar
+export AS      = $(CROSS_COMPILE)as
+export CC      = $(CROSS_COMPILE)gcc
+export LD      = $(CROSS_COMPILE)ld
+export NM      = $(CROSS_COMPILE)nm
+export OBJCOPY = $(CROSS_COMPILE)objcopy
+export OBJDUMP = $(CROSS_COMPILE)objdump
+export PERL    = perl
+export RANLIB  = $(CROSS_COMPILE)ranlib
+export RM      = rm
+export SED     = sed
+export SPLINT  = splint
+export STRIP   = $(CROSS_COMPILE)strip
+
+#
+# Other variables:
+# 	OPENAPPS_BUILD_DELIVERABLES_DIR - the directory containing the results of building
+# 			   E.g., the /tftpboot/ directory
+#   OPENAPPS_LIBRARIES_DIR    - the directory in which the linkable objects will be placed
+# 	OPENAPPS_CFLAGS   - CFLAGS that only apply to OPENAPPS (i.e., not the SDK)
+# 	PACKAGES_DIR	   - the directory into which the openapps packages are generated
+# 	dmode            - for debugging.  The following are valid values:
+#                               d  -- turn off optimization and enable debug symbols to be generated.
+#                                     This includes setting the SDK variables DEBUG_SYMBOLS
+#                                     and DEBUG_OPTIMIZE such that our settings in CFLAGS
+#                                     are used and not overridden by SDK settings.
+# 				i  -- turn on only POSIX IEEE Std 1003.2 APIs
+# 				m  -- turn on some make debugging
+# 				p  -- turn on profiling code generation for gprof tool
+# 				r  -- turn on debugging for the rpcgen script
+# 				vv -- echoes the SDK compiler invocation commands
+#				   -- any value will cause some make variables to be displayed
+#
+
+ifeq ($(OPENAPPS_BUILD_DELIVERABLES_DIR),)
+   OPENAPPS_BUILD_DELIVERABLES_DIR=$(abspath $(OPENAPPS_OUTPATH)/build/)
+endif
+export OPENAPPS_BUILD_DELIVERABLES_DIR
+
+OPENAPP_DELIVERABLES_DIR ?= $(abspath $(OPENAPPS_OUTPATH)/deliverables/)
+export OPENAPP_DELIVERABLES_DIR
+
+ifeq ($(OPENAPPS_LIBRARIES_DIR),)
+   OPENAPPS_LIBRARIES_DIR=$(abspath $(OPENAPPS_OUTPATH)/libraries)
+endif
+export OPENAPPS_LIBRARIES_DIR
+
+PACKAGES_DIR ?= $(abspath $(OPENAPPS_OUTPATH)/packages)
+
+ifneq ($(dmode),)
+   ifeq ($(findstring d,$(dmode)),d)
+      OPENAPPS_CFLAGS += -ggdb2 -O0
+      export DEBUG_OPTIMIZE = -ggdb2 -O0
+   else
+      OPENAPPS_CFLAGS += -O2
+   endif
+   ifeq ($(findstring i,$(dmode)),i)
+      # for now, not turning on ansi -- too many warnings
+      #OPENAPPS_CFLAGS += -ansi -pedantic -D_POSIX_SOURCE -D_POSIX_C_SOURCE=2
+      # _XOPEN_SOURCE implies POSIX support (see features.h)
+      OPENAPPS_CFLAGS += -D_XOPEN_SOURCE=700
+   endif
+   ifeq ($(findstring m,$(dmode)),m)
+      export DEBUG_PARMS += --debug=v,j,m
+   endif
+   ifeq ($(findstring p,$(dmode)),p)
+      export CFLAGS += -pg
+      export LDFLAGS += -pg
+   endif
+   ifeq ($(findstring vv,$(dmode)),)
+      export QUIET = 1
+   endif
+else
+   OPENAPPS_CFLAGS += -O2
+   ifeq ($(QUIET),)
+      export QUIET = 1
+   endif
+endif
+
+export dmode
+
+#FEATURE_LIST and DISPATCH_LIST depends on the modules present in this package
+ifeq ($(FEATURE_LIST),)
+   FEATURE_LIST = L3
+endif
+ifeq ($(DISPATCH_LIST),)
+   DISPATCH_LIST = RPC
+endif
+
+OPENAPPS_SDKFLAGS += $(foreach feature,$(FEATURE_LIST), -DINCLUDE_$(feature))
+OPENAPPS_SDKFLAGS += $(foreach dispatch,$(DISPATCH_LIST), -DOPENAPPS_$(dispatch)_SUPPORT)
+OPENAPPS_SDKFLAGS += $(foreach dispatch,$(DISPATCH_LIST), -DBCM_$(dispatch)_SUPPORT)
+
+DYNLIB_FLAGS = -fPIC
+
+export CFLAGS += -Wall -Wimplicit-function-declaration -DOPENAPPS_BUILDING_LIB $(DYNLIB_FLAGS) -Werror
+
+export OPENAPPS_CFLAGS
+export OPENAPPS_SDKFLAGS
+
+
+#To create list of files recursively
+rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
+
+#
+# Variables for Source Archiving
+#
+# The relative path of OPENAPPS_OUTPATH directory w.r.t the OPENAPPS_BASE
+# would be helpful
+#
+outpath_relative = $(shell $(OPENAPPS_BASE)/tools/relativepath $(OPENAPPS_BASE) $(OPENAPPS_OUTPATH))
+
+
+include $(OPENAPPS_BASE)/tools/Make.common.platform
+
+ifneq ("$(wildcard $(OPENAPPS_BASE)/tools/Make.common.local)","")
+ifeq ($(SBPLUGIN), sdk)
+   add_target:=sdk-extract
+   del_sdk:=sdk-delete
+   SDK_LOCAL = sdk
+else
+   add_target:=opennsl-cdp-extract
+endif
+   include $(OPENAPPS_BASE)/tools/Make.common.local
+else
+ifeq ($(SBPLUGIN), sdk)
+   SDK_LOCAL = sdk-patch sdk
+endif
+endif
+
+
+#
+# First declare most of the targets in this make file to be phony (not real files)
+#
+.PHONY: clean clean-all dump-variables openapps sdk all release log bst rest modulemgr bviewbstapp sbredirector sbsdk openappsdoc
+
+.DEFAULT_GOAL := all
+
+#
+# Command Line Targets
+#
+# The following group of targets may be specified on the command line.
+#
+
+#
+# These targets are the usual targets for complete builds:
+#
+# all		  : builds everything and is the default target
+# examples        : builds the example applications.
+# openapps        : builds the openapps shared object library.
+# sdk             : builds the switch SDK.
+
+ifeq ($(SBPLUGIN), sdk)
+
+   ifeq ($(MAKE_LOCAL),)
+      export MAKE_LOCAL=$(abspath $(OPENAPPS_BASE)/tools/Make.local)
+   endif
+
+   INCDIR_SDK = $(SDK)/include
+   export INCDIR_SDK
+
+   OPENAPPS_SDK_NAME = sdk-all-$(VERSION)
+   export OPENAPPS_SDK_NAME
+
+   ifeq ($(SDK),)
+      export SDK = $(abspath $(OPENAPPS_OUTPATH)/$(OPENAPPS_SDK_NAME)/)
+   endif
+
+   ifeq ($(SDK_PATCH),)
+      export SDK_PATCH:=$(abspath $(OPENAPPS_BASE)/vendor/bcm_sdk/)
+   endif
+
+   ifeq ($(SDKBUILD),)
+       export SDKBUILD:=../sdk
+   endif
+
+   ifeq ($(VERSION), 6.4.0)
+      OPENAPPS_SDK_PATCH = sdk-6.4.0-p1.patch
+	  export CFLAGS += -DOPENAPPS_SDK_VERSION_NUM=60400
+      export OPENAPPS_SDK_PATCH
+   endif
+
+   ifeq ($(VERSION), 6.4.3)
+      OPENAPPS_SDK_PATCH = sdk-6.4.3-p1.patch
+	  export CFLAGS += -DOPENAPPS_SDK_VERSION_NUM=60403
+      ADD_TO_CFLAGS += -fPIC
+ifneq ($(TARGETOS_VARIANT),wrx_3.7)
+ifneq ($(TARGETOS_VARIANT),ubuntu_12)
+      ADD_TO_CFLAGS += -mlongcall
+endif
+endif
+      export ADD_TO_CFLAGS
+      export OPENAPPS_SDK_PATCH
+   endif
+
+   export openapps_so_version = 1
+   export openapps_so_library = $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libbcmsdk.so.$(openapps_so_version))
+
+   PLAT_OBJS += \
+	$(SDK)/$(SDKBUILD)/unix-user/$(platform)/version.o \
+	$(SDK)/$(SDKBUILD)/unix-user/$(platform)/socdiag.o \
+	$(SDK)/$(SDKBUILD)/unix-user/$(platform)/src/sal/appl/pci_common.o \
+	$(SDK)/$(SDKBUILD)/unix-user/$(platform)/platform_defines.o
+
+   target += sbsdk
+   sbdriver = sdksbplugin
+   VENDOR_LIB = bcmsdk
+
+   dynamic_sb_lib = $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbsdk.so
+ifneq (,$(filter vendor_init,$(COMPONENTS)))
+	dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so
+endif
+    dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libbcmsdk.so
+endif
+
+ifeq ($(SBPLUGIN), opennsl)
+   OPENAPPS_OPENNSL_NAME = opennsl-$(VERSION)-cdp
+   export OPENAPPS_OPENNSL_NAME
+
+   ifeq ($(OPENNSL),)
+      export OPENNSL = $(abspath $(OPENAPPS_OUTPATH)/$(OPENAPPS_OPENNSL_NAME)/)
+   endif
+
+   INCDIR_OPENNSL = $(OPENNSL)/include
+   export INCDIR_OPENNSL
+
+   target += sbopennsl
+   sbdriver = openapps_opennsl_cdp
+   VENDOR_LIB = opennsl
+ifeq ($(CPU),gto)
+ifeq ($(TARGETOS_VARIANT),brl_2.0)
+   export OPENNSL_PLATFORM = gto-trident-brl20
+endif   
+endif
+
+ifeq ($(CPU),x86_64)
+ifeq ($(TARGETOS_VARIANT),ubuntu_12)
+   export OPENNSL_PLATFORM = im-x86-trident-ub12
+endif   
+endif
+
+   dynamic_sb_lib = $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbopennsl.so
+ifneq (,$(filter vendor_init,$(COMPONENTS)))
+	dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so
+endif
+   dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so
+
+endif
+
+#CHIP specific macros
+ifeq ($(PLATFORM), td2_svk)
+    export CFLAGS += -DBVIEW_CHIP_TD2
+else 
+  ifeq ($(PLATFORM), th_svk)
+    export CFLAGS += -DBVIEW_CHIP_TOMAHAWK
+  else 
+    ifeq ($(PLATFORM), im_n2948_6xlm)
+      export CFLAGS += -DBVIEW_CHIP_TD2
+    endif
+  endif
+endif
+
+ifeq ($(PLATFORM), fc7-pclinux)
+  export CFLAGS += -DBVIEW_CHIP_PCLINUX
+endif
+
+
+ifneq (,$(filter vendor_init,$(COMPONENTS)))
+   target += vendorinit
+endif
+
+ifneq (,$(filter bst,$(COMPONENTS)))
+    app_target += bst
+    app_arc += $(OPENAPPS_OUTPATH)/bst/bst.a
+endif
+
+ifneq ($(TARGETOS_VARIANT),wrl_2.0)
+MYCFLAGS := $(CFLAGS)
+else
+MYCFLAGS := 
+endif 
+
+static_lib += \
+	$(sb_pclinux_arc) \
+	$(OPENAPPS_OUTPATH)/log/log.a \
+	$(OPENAPPS_OUTPATH)/system/system.a \
+	$(OPENAPPS_OUTPATH)/modulemgr/modulemgr.a \
+	$(OPENAPPS_OUTPATH)/sbredirector/sbredirector.a \
+	$(OPENAPPS_OUTPATH)/vend_cjson/vend_cjson.a \
+	$(OPENAPPS_OUTPATH)/rest/rest.a \
+	$(app_arc)
+
+dynamic_lib += \
+		-lpthread -lrt -lm \
+		$(dynamic_sb_lib)
+
+release:
+	@touch $(OPENAPPS_OUTPATH)/version.h
+	@echo "#define RELEASE_STRING ""\"$(BCM_REL_NUM).$(BCM_VER_NUM).$(BCM_MAINT_NUM).$(BCM_BUILD_NUM)\"" > $(OPENAPPS_OUTPATH)/version.h
+
+all: release openapps_out_dir $(add_target) openapps $(target) log system modulemgr sbredirector vend_cjson rest $(app_target) bviewbstapp
+	$(CC) $(CFLAGS) -I$(OPENAPPS_BASE)/src/public -I$(OPENAPPS_OUTPATH) -c $(OPENAPPS_BASE)/src/apps/agent/agent.c -o $(OPENAPPS_OUTPATH)/agent.o
+	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/BroadViewAgent $(OPENAPPS_OUTPATH)/agent.o \
+		-Wl,--start-group \
+			$(static_lib) \
+		-Wl,--end-group \
+		-L$(OPENAPP_DELIVERABLES_DIR) \
+		-Wl,-Bdynamic $(dynamic_lib)
+	cp -rf $(OPENAPPS_BUILD_DELIVERABLES_DIR)/* $(OPENAPP_DELIVERABLES_DIR)
+
+bviewbstapp : release $(OPENAPP_DELIVERABLES_DIR) 
+	@echo Making bviewbstapp 
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bst_app/ $@
+	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/BroadViewBstApp $(OPENAPPS_OUTPATH)/bviewbstapp/bstapp_main.o \
+	-Wl,--start-group \
+	$(OPENAPPS_OUTPATH)/vend_cjson/vend_cjson.a \
+	$(OPENAPPS_OUTPATH)/bviewbstapp/bviewbstapp.a \
+	-Wl,--end-group \
+	-Wl,-Bdynamic \
+	-lpthread -lm
+
+clean-bviewbstapp debug-bviewbstapp:
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bst_app/ $@
+
+
+modulemgr clean-modulemgr debug-modulemgr:
+	@echo Making Module Manager
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/module_mgr/ $@
+
+rest clean-rest debug-rest:
+	@echo Making REST 
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/nb_plugin/rest/ $@
+
+bst clean-bst debug-bst:
+	@echo Making BST
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/apps/bst/ $@
+
+$(openapps_so_library): $(OPENAPPS_BUILD_DELIVERABLES_DIR) ${SDK_LOCAL}  
+	$(eval openapps_lib_files := $(call rwildcard,$(OPENAPPS_OUTPATH)/libraries/,*.a))
+ifeq ($(TARGETOS_VARIANT),wrl_2.0)
+	$(LD) -shared -soname $(@F) -o $@ $(PLAT_OBJS) --whole-archive $(openapps_lib_files) --no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+else
+	$(CC) ${CFLAGS} -shared -Wl,-soname,$(@F) -o $@ $(PLAT_OBJS) -Wl,--whole-archive $(openapps_lib_files) -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+endif
+	$(STRIP) --strip-unneeded $@
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf $(@F) $(basename $(basename $(basename $(@F)))).so
+
+openapps: $(sbdriver)
+
+sdksbplugin: $(openapps_so_library)
+
+vend_cjson clean-vend_cjson debug-vend_cjson:
+	@echo Making CJSON
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/cjson/ $@
+
+system clean-system debug-system::
+	@echo Making System
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/system/ $@
+
+log clean-log debug-log:
+	@echo Making bviewLogging
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/logging/ $@
+
+sbsdk clean-sbsdk debug-sbsdk::
+	@echo Making SB-SDK
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/sb_plugin/sb_brcm/ $@
+ifeq ($(TARGETOS_VARIANT),wrl_2.0)
+	$(LD) -shared -soname libsbsdk.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbsdk.so.1 $(PLAT_OBJS) --whole-archive $(OPENAPPS_OUTPATH)/sbsdk/sbsdk.a --no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+else
+	$(CC) ${CFLAGS} -shared -Wl,-soname,libsbsdk.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbsdk.so.1 $(PLAT_OBJS) -Wl,--whole-archive $(OPENAPPS_OUTPATH)/sbsdk/sbsdk.a -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+endif
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf libsbsdk.so.1 libsbsdk.so
+
+sbopennsl clean-sbopennsl debug-sbopennsl::
+	@echo Making SB-OPENNSL
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/sb_plugin/sb_brcm/ $@
+	$(CC) ${CFLAGS} -shared -Wl,-soname,libsbopennsl.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbopennsl.so.1 -Wl,--whole-archive $(OPENAPPS_OUTPATH)/sbopennsl/sbopennsl.a -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf libsbopennsl.so.1 libsbopennsl.so
+
+
+
+vendorinit clean-vendorinit debug-vendorinit::
+	@echo Making VENDOR INIT
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/driver/ $@
+ifeq ($(TARGETOS_VARIANT),wrl_2.0)
+	$(LD) -shared -soname libvendorinit.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so.1 $(PLAT_OBJS) --whole-archive $(OPENAPPS_OUTPATH)/vendorinit/vendorinit.a --no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+else
+	$(CC) ${CFLAGS} -shared -Wl,-soname,libvendorinit.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so.1 $(PLAT_OBJS) -Wl,--whole-archive $(OPENAPPS_OUTPATH)/vendorinit/vendorinit.a -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+endif
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf libvendorinit.so.1 libvendorinit.so
+
+
+sbredirector clean-sbredirector debug-sbredirector::
+	@echo Making SB-Redirector
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/sb_plugin/sb_redirector/ $@
+
+
+sdk-patch:
+ifneq ($(findstring $(VERSION),$(shell cat $(SDK)/RELEASE)),)
+	cd $(SDK); patch --forward -p1 < $(SDK_PATCH)/$(OPENAPPS_SDK_PATCH);$? > /dev/null
+else
+	@echo SDK Version mismatch. Exiting...
+	exit 1;
+endif
+
+
+sdk: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) $(KERNEL_PREREQ)
+	@echo Making SDK
+	mkdir -p $(abspath $(SDK)/$(SDKBUILD))
+	$(MAKE) $(DEBUG_PARMS) -C $(SDK)/systems/linux/user/$(platform)/
+	cp -fp $(abspath $(SDK)/$(SDKBUILD)/linux/user/$(platform)/*.ko) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko)
+	cp -fp $(abspath $(SDK)/$(SDKBUILD)/unix-user/$(platform))/*.a $(OPENAPPS_LIBRARIES_DIR)
+
+openapps_opennsl_odp: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) 
+	@echo Making OPENNSL
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENNSL)/output/$(OPENNSL_PLATFORM)/
+	cp -fp $(abspath $(OPENNSL)/output/$(OPENNSL_PLATFORM)/build/*.ko) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko)
+	cp -fp $(abspath $(OPENNSL)/output/$(OPENNSL_PLATFORM)/build/libopennsl.so.*) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so.*)
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf libopennsl.so.1 libopennsl.so
+
+
+openapps_opennsl_cdp: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) 
+	@echo Making OPENNSL
+	cp -fp $(abspath $(OPENNSL)/bin/$(OPENNSL_PLATFORM)/*.ko) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko)
+	cp -fp $(abspath $(OPENNSL)/bin/$(OPENNSL_PLATFORM)/libopennsl.so.*) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so.*)
+	cd $(OPENAPPS_BUILD_DELIVERABLES_DIR);ln -sf libopennsl.so.1 libopennsl.so
+
+
+# Simple file that contains version information.
+
+ifneq ($(dmode),)
+tar_options = --show-transformed-names -v
+endif
+
+#
+# These are targets for cleaning:
+#
+# clean: cleans all but the SDK (which takes the longest time to build)
+# clean-all: cleans everything
+#
+
+clean:
+	for dir in $$(find $(OPENAPPS_OUTPATH) -maxdepth 1 -mindepth 1 -type d) ; do 	\
+		if [ "`basename $$dir`" != "sdk" ]; then 			\
+			(cd $$dir; $(RM) -rf *); 				\
+			rmdir $$dir; 						\
+		fi 								\
+	done
+	rm -f $(OPENAPPS_OUTPATH)/agent.o
+	rm -f $(OPENAPPS_OUTPATH)/version.h
+
+clean-all: $(del_sdk)
+	for dir in $$(find $(OPENAPPS_OUTPATH) -maxdepth 1 -mindepth 1 -type d) ; do 	\
+		(cd $$dir; $(RM) -rf *); 					\
+		rmdir $$dir; 							\
+	done
+ifeq ($(SBPLUGIN), sdk)
+	rm -rf $(SDK)/$(SDKBUILD)
+endif
+	rm -f $(OPENAPPS_OUTPATH)/agent.o
+	rm -f $(OPENAPPS_OUTPATH)/version.h
+	rm -rf $(PACKAGES_DIR)
+#
+# end of Command Line Targets
+#
+
+#
+# The rest of the targets are supporting targets.  These should never be specified in the make command.
+#
+
+openapps_out_dir: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) $(OPENAPP_DELIVERABLES_DIR)
+
+$(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) $(OPENAPP_DELIVERABLES_DIR):
+	mkdir -p $@
+
+
+#
+# Debugging targets
+#
+dump-variables:
+	@echo AR 			= $(AR)
+	@echo AS 			= $(AS)
+	@echo CC 			= $(CC)
+	@echo CFLAGS 		    	= $(CFLAGS)
+	@echo DYNLIB_FLAGS          = $(DYNLIB_FLAGS)
+	@echo CROSS_COMPILE 		= $(CROSS_COMPILE)
+	@echo DEBUG_OPTIMIZE 		= $(DEBUG_OPTIMIZE)
+	@echo DEBUG_PARMS 		= $(DEBUG_PARMS)
+	@echo DEBUG_SYMBOLS 		= $(DEBUG_SYMBOLS)
+	@echo OPENAPPS_BUILD_DELIVERABLES_DIR 		= $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	@echo OPENAPP_DELIVERABLES_DIR 	= $(OPENAPP_DELIVERABLES_DIR)
+	@echo CPU			= $(CPU)
+	@echo BCM_CPU_ARCH		= $(BCM_CPU_ARCH)
+	@echo TARGETOS_VARIANT          = $(TARGETOS_VARIANT)
+	@echo LD 			= $(LD)
+	@echo LDFLAGS 			= $(LDFLAGS)
+	@echo LINUX_INCLUDE 		= $(LINUX_INCLUDE)
+	@echo MAKE_LOCAL 		= $(MAKE_LOCAL)
+	@echo NM 			= $(NM)
+	@echo NO_LOCAL_TARGETS 		= $(NO_LOCAL_TARGETS)
+	@echo OBJCOPY 			= $(OBJCOPY)
+	@echo OBJDUMP 			= $(OBJDUMP)
+	@echo OPENAPPS_BASE 		= $(OPENAPPS_BASE)
+	@echo OPENAPPS_CFLAGS 		= $(OPENAPPS_CFLAGS)
+	@echo OPENAPPS_RELEASE 		= $(OPENAPPS_RELEASE)
+	@echo OPENAPPS_OUTPATH 		= $(OPENAPPS_OUTPATH)
+	@echo OF_ONIE_DIR 		= $(OF_ONIE_DIR)
+	@echo PERL 			= $(PERL)
+	@echo BCM_REL_NUM      = $(BCM_REL_NUM)
+	@echo BCM_VER_NUM      = $(BCM_VER_NUM)
+	@echo BCM_MAINT_NUM    = $(BCM_MAINT_NUM)
+	@echo BCM_BUILD_NUM    = $(BCM_BUILD_NUM)
+	@echo PLATFORM_CODE 		= $(PLATFORM_CODE)
+	@echo QUIET 			= $(QUIET)
+	@echo RANLIB 			= $(RANLIB)
+	@echo RM 			= $(RM)
+	@echo SDK 			= $(SDK)
+	@echo SDK_PATCH 		= $(SDK_PATCH)
+	@echo SDKBUILD 			= $(SDKBUILD)
+	@echo SDK_LOCAL 		= $(SDK_LOCAL)
+	@echo OPENAPPS_SDK_PATCH	= $(OPENAPPS_SDK_PATCH)
+	@echo SED 			= $(SED)
+	@echo SPLINT 			= $(SPLINT)
+	@echo STRIP 			= $(STRIP)
+	@echo VIEWNAME 			= $(VIEWNAME)
+	@echo a_generated_file 		= $(a_generated_file)
+	@echo build_specific_files 	= $(build_specific_files)
+	@echo core_archive 		= $(core_archive)
+	@echo dmode 			= $(dmode)
+	@echo platform 			= $(platform)
+	@echo openapps_so_library 	= $(openapps_so_library)
+	@echo sdk_release	    	= $(sdk_release)
+	@echo PLAT_LIBS 	    	= $(PLAT_LIBS)
+	@echo OUTPATH   	    	= $(OUTPATH)
+	@echo dynamic_sb_lib   	    	= $(dynamic_sb_lib)
