@@ -41,7 +41,12 @@ typedef struct _bstjson_configure_bst_feature_
     int bstEnable;
     int sendAsyncReports;
     int collectionInterval;
+    int statsInPercentage;
     int statUnitsInCells;
+    int bstMaxTriggers;
+    int sendSnapshotOnTrigger;
+    int triggerTransmitInterval;
+    int sendIncrementalReport;
 } BSTJSON_CONFIGURE_BST_FEATURE_t;
 
 

@@ -192,22 +192,4 @@ Appendix B
 
 Open Source Software
 
-bin/im_n2948_6xlm-x86_64-ubuntu_12/ - Interface Masters Niagara 2948-6XLM-OCP
-Modular Switch System
-
-BroadViewBstApp                 -> Contains cjson which is covered by MIT license
-BroadViewAgent                  -> Contains cjson which is covered by MIT license
-libvendorinit.so.1              -> Contains cjson which is covered by MIT license
-
-bin/th_svk-gto-brl_2.0/            - Broadcom Trident Switch Verification Kits
-
-BroadViewBstApp                 -> Contains cjson which is covered by MIT license
-BroadViewAgent                  -> Contains cjson which is covered by MIT license
-libvendorinit.so.1              -> Contains cjson which is covered by MIT license
-
-bin/td2_svk-gto-brl_2.0            - Broadcom Trident Switch Verification Kits
-
-BroadViewBstApp                 -> Contains cjson which is covered by MIT license
-BroadViewAgent                  -> Contains cjson which is covered by MIT license
-libvendorinit.so.1              -> Contains cjson which is covered by MIT license
-
+None

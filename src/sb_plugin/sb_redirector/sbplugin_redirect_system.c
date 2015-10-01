@@ -1177,3 +1177,99 @@ BVIEW_STATUS sbapi_system_asic_support_1588_get (int asic, bool * support1588)
   SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
   return rv;
 }
+
+/*********************************************************************
+* @brief       Get Supported Feature Mask
+*
+* @param[out]  featureMask            Supported Feature Mask
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or
+*                                     Failed to get asic type from unit or
+*                                     Failed to get asic capabilites for this unit
+*
+* @retval   BVIEW_STATUS_SUCCESS      Supported Feature Mask is successfully 
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbapi_system_feature_mask_get (int *featureMask)
+{
+  BVIEW_SB_SYSTEM_FEATURE_t *systemFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType = BVIEW_ASIC_TYPE_ALL;
+
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+
+  /* Get system south bound plug-in based on Asic type */
+  systemFeaturePtr =
+    (BVIEW_SB_SYSTEM_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                                  BVIEW_FEATURE_SYSTEM);
+  /* Validate System feature pointer and the data in the system feature */
+  if (systemFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }
+  else if ((systemFeaturePtr->numSupportedAsics) == 0)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }
+  else
+  {
+    /* Get number of units in the system */
+    *featureMask = systemFeaturePtr->featureMask;
+    rv = BVIEW_STATUS_SUCCESS;
+  }
+  /* Release Read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
+
+/*********************************************************************
+* @brief       Get Network OS
+*
+* @param[out]  buffer                 Pointer to network OS String
+* @param[in]   length                 length of the buffer
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure
+*                                     Failed to get network os
+*
+* @retval   BVIEW_STATUS_SUCCESS      Network OS is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbapi_system_network_os_get (uint8_t *buffer, int length)
+{
+  BVIEW_SB_SYSTEM_FEATURE_t *systemFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType = BVIEW_ASIC_TYPE_ALL;
+
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+
+  /* Get system south bound plug-in based on Asic type */
+  systemFeaturePtr =
+    (BVIEW_SB_SYSTEM_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                                  BVIEW_FEATURE_SYSTEM);
+  /* Validate System feature pointer and the data in the system feature */
+  if (systemFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }
+  else if ((systemFeaturePtr->system_network_os_get_cb) == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }
+  else
+  {
+    /* Get number of units in the system */
+    rv = systemFeaturePtr->system_network_os_get_cb (buffer, length);
+  }
+  /* Release Read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
+

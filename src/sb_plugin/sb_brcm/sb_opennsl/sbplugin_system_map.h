@@ -36,8 +36,11 @@ extern "C"
 #include "opennsl/stat.h"
 #include "opennsl/error.h"
 #include "shared/pbmp.h"
+#include "opennsl/trunk.h"
 #include "sbplugin.h"
 #include "sbplugin_system.h"
+
+#define  SBPLUGIN_NETWORK_OS   "openNSL" 
 
 /* TRIDENT 2      */ 
 #define SB_BRCM_56850_DEVICE_ID      0xb850

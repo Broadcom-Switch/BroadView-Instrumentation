@@ -30,10 +30,11 @@ extern "C" {
 
 
 #define MSG_QUEUE_ID_TO_BST  0x100
+#define MSG_QUEUE_ID_TO_BST_TRIGGER  0x108
 
 
 #define _BST_DEBUG
-#define _BST_DEBUG_LEVEL        0 
+#define _BST_DEBUG_LEVEL        0x00 
 
 #define _BST_DEBUG_TRACE        (0x1)
 #define _BST_DEBUG_INFO         (0x01 << 1)
@@ -53,13 +54,14 @@ extern "C" {
 
 /* Default values for BST configurations */
   /* bst enable */
-#define BVIEW_BST_DEFAULT_ENABLE    true  
+#define BVIEW_BST_DEFAULT_ENABLE    false  
 
-#define BVIEW_BST_PERIODIC_REPORT_DEFAULT true
+#define BVIEW_BST_PERIODIC_REPORT_DEFAULT false
   /* default bst collection interval.
      */
 #define BVIEW_BST_DEFAULT_INTERVAL  60
 #define BVIEW_BST_DEFAULT_STATS_UNITS  true
+#define BVIEW_BST_DEFAULT_STATS_PERCENTAGE false 
 #define BVIEW_BST_DEFAULT_TRACK_INGRESS   true
 #define BVIEW_BST_DEFAULT_TRACK_EGRESS    true
 #define BVIEW_BST_DEFAULT_TRACK_DEVICE    true
@@ -76,6 +78,10 @@ extern "C" {
 #define BVIEW_BST_DEFAULT_TRACK_E_RQE_Q      true
 #define BVIEW_BST_DEFAULT_TRACK_MODE         BVIEW_BST_MODE_CURRENT
 
+#define BVIEW_BST_DEFAULT_MAX_TRIGGERS 1
+#define BVIEW_BST_DEFAULT_SNAPSHOT_TRIGGER true 
+#define BVIEW_BST_DEFAULT_TRIGGER_INTERVAL 1 
+#define BVIEW_BST_DEFAULT_SEND_INCR_REPORT  1 
 #define BVIEW_BST_MAX_UNITS 8
 #define BVIEW_BST_TIME_CONVERSION_FACTOR 1000
 
@@ -109,8 +115,26 @@ typedef enum _bst_threshold_realm_ {
   BVIEW_BST_INGRESS_PORT_PG_THRESHOLD,
   BVIEW_BST_INGRESS_PORT_SP_THRESHOLD,
   BVIEW_BST_INGRESS_SP_THRESHOLD
-
 }BVIEW_BST_THRESHOLD_TYPE_t;
+
+
+typedef enum _bst_trigger_index_ {
+  BST_ID_DEVICE = 0,
+  BST_ID_ING_POOL,
+  BST_ID_PORT_POOL,
+  BST_ID_PRI_GROUP_SHARED, 
+  BST_ID_PRI_GROUP_HEADROOM,
+  BST_ID_EGR_POOL,
+  BST_ID_EGR_MCAST_POOL, 
+  BST_ID_UCAST, 
+  BST_ID_MCAST,
+  BST_ID_EGR_UCAST_PORT_SHARED,
+  BST_ID_EGR_PORT_SHARED, 
+  BST_ID_RQE_QUEUE, 
+  BST_ID_UCAST_GROUP, 
+  BST_ID_MAX
+}BST_TRIGGER_INDEX_t;
+
 
 #define BVIEW_BST_MAX_THRESHOLD_TYPE_MIN BVIEW_BST_DEVICE_THRESHOLD
 #define BVIEW_BST_MAX_THRESHOLD_TYPE_MAX BVIEW_BST_INGRESS_SP_THRESHOLD
@@ -123,6 +147,13 @@ typedef struct _bst_realm_to_threshold_ {
   BVIEW_BST_THRESHOLD_TYPE_t threshold;
 }BVIEW_BST_REALM_THRESHOLD_t;
 
+
+/* structure to map the trigger index to realm and counter */
+typedef struct _bst_trigger_realm_map_ {
+    BST_TRIGGER_INDEX_t index;
+    char *realm;
+    char *counter;
+}BST_REALM_COUNTER_INDEX_t;
 /* BST command enums */
 typedef enum _bst_cmd_ {
   /* Set group */
@@ -137,8 +168,15 @@ typedef enum _bst_cmd_ {
   BVIEW_BST_CMD_API_GET_TRACK,
   BVIEW_BST_CMD_API_GET_THRESHOLD,
   BVIEW_BST_CMD_API_TRIGGER_REPORT,
+  BVIEW_BST_CMD_API_CLEAR_TRIGGER_COUNT,
+  BVIEW_BST_CMD_API_ENABLE_BST_ON_TRIGGER,
+  BVIEW_BST_CMD_API_TRIGGER_COLLECT,
+   /*  Switch Properties */
+  BVIEW_BST_CMD_API_GET_SWITCH_PROPERTIES,
   BVIEW_BST_CMD_API_MAX
 }BVIEW_FEATURE_BST_CMD_API_t;
+
+#define BST_MAX_REST_API  BVIEW_BST_CMD_API_GET_SWITCH_PROPERTIES
 
  /* structures to hold the bst related params */
   typedef struct bst_config {
@@ -161,10 +199,13 @@ typedef enum _bst_cmd_ {
     int unit; /* variable to hold the asic type */
     void *cookie;
     int id; /* id passed from the request */
+    int version; /* json version */
     BVIEW_BST_REPORT_TYPE_t report_type; 
     char realm[JSON_MAX_NODE_LENGTH];
     unsigned int threshold_type;
     BVIEW_BST_THRESHOLD_CONFIG_t threshold;
+     /* trigger info */
+     BVIEW_BST_TRIGGER_INFO_t triggerInfo;
     union
     {
       /* feature params */
@@ -186,6 +227,7 @@ typedef enum _bst_cmd_ {
       BVIEW_BST_EGRESS_CPU_QUEUE_THRESHOLD_t             cpu_q_threshold;
       BVIEW_BST_EGRESS_RQE_QUEUE_THRESHOLD_t             rqe_q_threshold;
 
+
     }request;
   }BVIEW_BST_REQUEST_MSG_t;
 
@@ -196,8 +238,9 @@ typedef enum _bst_cmd_ {
     void *cookie;
     int id;
     BVIEW_BST_REPORT_TYPE_t report_type; 
-    BVIEW_ASIC_CAPABILITIES_t *asic_capabilities;
-    BVIEW_BST_REPORT_OPTIONS_t   options;
+    BVIEW_ASIC_CAPABILITIES_t  *asic_capabilities;
+    BVIEW_BST_REPORT_OPTIONS_t options;
+    BVIEW_SWITCH_PROPERTIES_t  *switchProperties;
     BVIEW_STATUS rv; /* return value for set request */
     union
     {
@@ -210,17 +253,18 @@ typedef enum _bst_cmd_ {
   typedef struct _bst_timer_s_ {
     unsigned int unit;
     bool in_use;
-    timer_t bstCollectionTimer;
+    timer_t bstTimer;
   }BVIEW_BST_TIMER_t;
 
   typedef struct _bst_data_ {
-    BVIEW_BST_TIMER_t bst_timer;
+    BVIEW_BST_TIMER_t bst_collection_timer;
+    BVIEW_BST_TIMER_t bst_trigger_timer;
     BVIEW_BST_CFG_PARAMS_t bst_config;
     BVIEW_BST_STAT_COLLECT_CONFIG_t  bst_stats_config;
   } BVIEW_BST_DATA_t;
 
 
-  typedef struct _bst_context_unit_info__
+typedef struct _bst_context_unit_info__
 {
   /* stats records */
   BVIEW_BST_REPORT_SNAPSHOT_t *stats_active_record_ptr;
@@ -229,31 +273,44 @@ typedef enum _bst_cmd_ {
   /* threshold records */
   BVIEW_BST_REPORT_SNAPSHOT_t *threshold_record_ptr;
 
+  /* place holder to store the default bst buffer settings */
+  BVIEW_BST_ASIC_SNAPSHOT_DATA_t bst_defaults;
+
   /* config data */
   BVIEW_BST_DATA_t *bst_data;
   /* lock for this unit */
   pthread_mutex_t bst_mutex;
+
+  /* Read-Write lock for config local data */
+  pthread_rwlock_t bst_configRWLock;
+
 
   /* asic capabilities */
   BVIEW_ASIC_CAPABILITIES_t asic_capabilities;
 
   /* trigger callback cookie */
   int cb_cookie;
+  unsigned int bst_trigger_count[BST_ID_MAX];
 
 } BVIEW_BST_UNIT_CXT_t;
 
 
-  typedef struct _bst_context_info__
-  {
-    BVIEW_BST_UNIT_CXT_t unit[BVIEW_BST_MAX_UNITS];
+typedef struct _bst_context_info__
+{
+  BVIEW_BST_UNIT_CXT_t unit[BVIEW_BST_MAX_UNITS];
+  /* Switch Properties*/
+  BVIEW_SWITCH_PROPERTIES_t  *switchProperties;
+  
   /* BST Key to Queue Message*/
-     key_t key1;
+  key_t key1;
+  key_t trigger_key;
   /* message queue id for bst */
   int recvMsgQid;
-  /* pthread ID*/
+  int recvTriggerMsgQid;
+    /* pthread ID*/
   pthread_t bst_thread;
-
-  } BVIEW_BST_CXT_t;
+  pthread_t bst_trigger_thread;
+} BVIEW_BST_CXT_t;
 
 
 typedef BVIEW_STATUS(*BVIEW_BST_API_HANDLER_t) (BVIEW_BST_REQUEST_MSG_t * msg_data);
@@ -293,7 +350,7 @@ typedef struct _feature_bst_api_
               return BVIEW_STATUS_FAILURE;                                          \
            }                                                                        \
          }
-/* Macro to release lock*/
+/*  to release lock*/
 #define BST_LOCK_GIVE(_unit)                                                        \
          {                                                                          \
            BVIEW_BST_UNIT_CXT_t *_ptr;                                              \
@@ -305,7 +362,51 @@ typedef struct _feature_bst_api_
                return BVIEW_STATUS_FAILURE;                                         \
             }                                                                       \
           }
-        
+
+
+
+/* Macro to acquire read lock */
+#define BST_RWLOCK_RD_LOCK(_unit)                             \
+{                                                                          \
+  BVIEW_BST_UNIT_CXT_t *_ptr;                                              \
+_ptr = BST_UNIT_PTR_GET (_unit);                                         \
+  if (pthread_rwlock_rdlock(&_ptr->bst_configRWLock) != 0)                    \
+  {                                                         \
+    LOG_POST (BVIEW_LOG_ERROR,                                            \
+        "Failed to take the rw lock for unit %d.\r\n",_unit);                 \
+    return BVIEW_STATUS_FAILURE;                                         \
+  }                                                                       \
+}
+
+
+/* Macro to acquire write lock */
+#define BST_RWLOCK_WR_LOCK(_unit)                             \
+{                                                                          \
+  BVIEW_BST_UNIT_CXT_t *_ptr;                                              \
+  _ptr = BST_UNIT_PTR_GET (_unit);                                         \
+  if (pthread_rwlock_wrlock(&_ptr->bst_configRWLock) != 0)                    \
+  {                                                         \
+    LOG_POST (BVIEW_LOG_ERROR,                                            \
+        "Failed to take the write lock for unit %d.\r\n",_unit);                 \
+    return BVIEW_STATUS_FAILURE;                          \
+  }                                                                       \
+}
+
+/* Macro to release RW lock */
+#define BST_RWLOCK_UNLOCK(_unit)                              \
+{                                                                          \
+  BVIEW_BST_UNIT_CXT_t *_ptr;                                              \
+  _ptr = BST_UNIT_PTR_GET (_unit);                                         \
+  if (pthread_rwlock_unlock(&_ptr->bst_configRWLock) != 0)                    \
+  {                                                         \
+    LOG_POST (BVIEW_LOG_ERROR,                                            \
+        "Failed to release the write lock for unit %d.\r\n",_unit);                 \
+    return BVIEW_STATUS_FAILURE;                          \
+  }                                                                       \
+}
+
+
+
 /* Macro to copy track structures to collction structure */
 #define BST_COPY_TRACK_TO_COLLECT(_track_ptr, _collect_ptr)                          \
             {                                                                        \
@@ -367,6 +468,29 @@ typedef struct _feature_bst_api_
               (_resp_ptr)->includeEgressRqeQueue =                                    \
               (_collect_ptr)->includeEgressRqeQueue;                                          \
            }
+
+/* Macro to copy response options structure with given value*/
+
+#define  BST_COPY_TO_RESP(_resp_ptr, _val_)                                 \
+            {                                                                              \
+              if (NULL == (_resp_ptr))                                                  \
+              {                                                                            \
+                 LOG_POST (BVIEW_LOG_ERROR, "Failed to copy c-json encoding options to response\r\n");\
+                 return BVIEW_STATUS_FAILURE;                                              \
+              }                                                                            \
+              (_resp_ptr)->includeDevice = _val_;                \
+              (_resp_ptr)->includeIngressPortPriorityGroup = _val_;                         \
+              (_resp_ptr)->includeIngressPortServicePool =  _val_;                          \
+              (_resp_ptr)->includeIngressServicePool =  _val_;                              \
+              (_resp_ptr)->includeEgressPortServicePool =    _val_;                         \
+              (_resp_ptr)->includeEgressServicePool =       _val_;                          \
+              (_resp_ptr)->includeEgressUcQueue =   _val_;                                  \
+              (_resp_ptr)->includeEgressUcQueueGroup =   _val_;                             \
+              (_resp_ptr)->includeEgressMcQueue =   _val_;                                  \
+              (_resp_ptr)->includeEgressCpuQueue =  _val_;                                  \
+              (_resp_ptr)->includeEgressRqeQueue =  _val_;                                  \
+           }
+
 
 
 #define _BST_INPUT_PARAMS_CHECK(_type, _capabilities, _p) do { \
@@ -501,6 +625,19 @@ BVIEW_STATUS bst_config_track_set (BVIEW_BST_REQUEST_MSG_t * msg_data);
 *
 *********************************************************************/
 BVIEW_STATUS bst_config_track_get(BVIEW_BST_REQUEST_MSG_t *msg_data);
+
+/*********************************************************************
+* @brief : application function to get switch properties
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : Inpput paramerts are invalid.
+* @retval  : BVIEW_STATUS_SUCCESS  : successfully retrieved the switch
+*                                    properties.
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS system_switch_properties_get (BVIEW_BST_REQUEST_MSG_t * msg_data);
 
 /*********************************************************************
 * @brief : application function to get the bst report and thresholds 
@@ -731,168 +868,7 @@ BVIEW_STATUS bst_update_data(BVIEW_BST_REPORT_TYPE_t type,unsigned int unit);
 *          application take a trigger report and sends the same to collector.
 *
 *************************************************************/
-BVIEW_STATUS bst_trigger_cb(int unit,void *cookie,BVIEW_BST_TRIGGER_TYPE type);
-
-/*********************************************************************
-* @brief : REST API handler to clear the bst stats
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note : This api posts the request to bst application to clear stats. 
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_clear_bst_statistics_impl(void *cookie,int asicId,int id,BSTJSON_CLEAR_BST_STATISTICS_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to clear the bst thresholds
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to clear stats.
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_clear_bst_thresholds_impl(void *cookie,int asicId,int id,BSTJSON_CLEAR_BST_THRESHOLDS_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to configure the bst feature params
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to configures bst feature params.
-*
-* @end
-*********************************************************************/
-BVIEW_STATUS bstjson_configure_bst_feature_impl(void *cookie,int asicId,int id,BSTJSON_CONFIGURE_BST_FEATURE_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to configure the bst thresholds 
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to configures bst thresholds.
-*            The validation for the input params for thresholds is done in this api.
-*            If the input is invalid, then error is returned
-*
-* @end
-*********************************************************************/
-BVIEW_STATUS bstjson_configure_bst_thresholds_impl(void *cookie,int asicId,int id,BSTJSON_CONFIGURE_BST_THRESHOLDS_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to configure the bst track params 
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to set the track params.
-*
-* @end
-*********************************************************************/
-BVIEW_STATUS bstjson_configure_bst_tracking_impl(void *cookie,int asicId,int id,BSTJSON_CONFIGURE_BST_TRACKING_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to get the bst feature params 
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to get the bst feature params.
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_get_bst_feature_impl(void *cookie,int asicId,int id,BSTJSON_GET_BST_FEATURE_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to get the bst report params 
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to get the bst report.
-*             As a response to this request the report is sent.
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_get_bst_report_impl(void *cookie,int asicId,int id,BSTJSON_GET_BST_REPORT_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to get the bst threshold 
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to get the bst thresholds.
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_get_bst_thresholds_impl(void *cookie,int asicId,int id,BSTJSON_GET_BST_THRESHOLDS_t *pCommand);
-
-/*********************************************************************
-* @brief : REST API handler to get the bst tracking params
-*
-* @param[in] cookie : pointer to the cookie
-* @param[in] asicId : asic id 
-* @param[in] id     : unit id
-* @param[in] pCommand : pointer to the input command structure
-*
-* @retval  : BVIEW_STATUS_SUCCESS : the message is successfully posted to bst queue.
-* @retval  : BVIEW_STATUS_FAILURE : failed to post the message to bst.
-* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
-*
-* @note    : This api posts the request to bst application to get the bst thresholds.
-*
-*********************************************************************/
-BVIEW_STATUS bstjson_get_bst_tracking_impl(void *cookie,int asicId,int id,BSTJSON_GET_BST_TRACKING_t *pCommand);
-
-
+BVIEW_STATUS bst_trigger_cb(int unit,void *cookie, BVIEW_BST_TRIGGER_INFO_t *triggerInfo);
 /*********************************************************************
  * @brief : function to return the api handler for the bst command type
  *
@@ -907,6 +883,133 @@ BVIEW_STATUS bstjson_get_bst_tracking_impl(void *cookie,int asicId,int id,BSTJSO
  *********************************************************************/
 BVIEW_STATUS bst_type_api_get (int type, BVIEW_BST_API_HANDLER_t *handler);
 
+
+/*********************************************************************
+* @brief : Deletes the trigger timer node for the given unit
+*
+* @param[in] unit : unit id for which  the timer needs to be deleted.
+*
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER -- Inpput paramerts are invalid. 
+* @retval  : BVIEW_STATUS_FAILURE -- timer is successfully deleted 
+* @retval  : BVIEW_STATUS_SUCCESS -- failed to delete the timer 
+*
+* @note  :
+*         
+*
+*********************************************************************/
+BVIEW_STATUS bst_trigger_timer_delete (int unit);
+
+
+/*********************************************************************
+* @brief : function to timer for the trigger report rate limit. 
+*
+* @param[in] unit : unit for which the trigger interval timer need to run.
+*
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER -- Inpput paramerts are invalid. 
+* @retval  : BVIEW_STATUS_FAILURE -- failed to add the timer 
+* @retval  : BVIEW_STATUS_SUCCESS -- timer is successfully added 
+*
+* @note : this api adds the timer to the linux timer thread, so when the timer 
+*         expires, we receive the callback and post message to the bst application.
+*         Upon receiving the event, bst application clears the trigger reports 
+*         counter which it maintains per realm - counter.
+*
+*********************************************************************/
+BVIEW_STATUS bst_trigger_timer_add (unsigned int  unit);
+/*********************************************************************
+* @brief : clear the trigger counters 
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : successfully cleared the trigger report count 
+* @retval  : BVIEW_STATUS_FAILURE : The clearing of count has failed.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
+*
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS bst_clear_trigger_count (BVIEW_BST_REQUEST_MSG_t * msg_data);
+
+/*********************************************************************
+*  @brief:  callback function to clear the trigger count  
+*
+* @param[in]   sigval : Data passed with notification after timer expires
+*
+* @retval  : BVIEW_STATUS_SUCCESS : message is successfully posted to bst.
+* @retval  : BVIEW_STATUS_FAILURE : failed to post message to bst.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameters to function.
+*
+* @note : when the trigger timer expires, this api is invoked in
+*         the timer context.
+*
+*********************************************************************/
+BVIEW_STATUS bst_trigger_timer_cb (union sigval sigval);
+
+/*********************************************************************
+*  @brief:  function to set the given realm in the include trigger report.  
+*
+* @param[in]   *realm : pointer to realm 
+* @param[in]   *realm : pointer to json encode options 
+*
+* @retval  : none : 
+*
+* @note :
+*
+*********************************************************************/
+void bst_set_realm_to_collect(char *realm, BVIEW_BST_REPORT_OPTIONS_t *options);
+
+/*********************************************************************
+* @brief : application function to process trigger messages 
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : when the request is successfully processed 
+* @retval  : BVIEW_STATUS_FAILURE : when the processing of the request failed. 
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : Inpput paramerts are invalid. 
+*
+* @note : This function is invoked in the bst thread context and used to 
+*         -- bst enable
+*         -- send the message to bst thread if the sending of trigger report is allowed. 
+*
+*********************************************************************/
+
+BVIEW_STATUS bst_process_trigger(BVIEW_BST_REQUEST_MSG_t *msg_data);
+
+/*********************************************************************
+* @brief : bst trigger main application function which does processing of 
+*          trigger messages
+*
+* @param[in] : none
+*
+* @retval  : BVIEW_STATUS_SUCCESS: 
+* @retval  : BVIEW_STATUS_FAILURE: Fails to process the trigger messages 
+*
+* @note  : This api is the processing thread of the bst trigger application. 
+*          All the incoming requests are processed. 
+*          Currently the assumption is made that if the 
+*          thread fails to read continously 10 or more messages,
+*          then there is some error and the thread exits.
+*
+*********************************************************************/
+
+BVIEW_STATUS bst_trigger_main(void);
+
+BVIEW_STATUS bst_enable_on_trigger(BVIEW_BST_REQUEST_MSG_t *msg_data, int bstEnable);
+
+
+/*********************************************************************
+* @brief :  re-enable bst on trigger timer expiry 
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : successfully cleared the trigger report count 
+* @retval  : BVIEW_STATUS_FAILURE : The re-enable has failed.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
+*
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS bst_enable_on_trigger_timer_expiry (BVIEW_BST_REQUEST_MSG_t * msg_data);
 
 #ifdef __cplusplus
 }

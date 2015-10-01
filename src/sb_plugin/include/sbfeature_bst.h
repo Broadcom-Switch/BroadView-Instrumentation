@@ -16,8 +16,8 @@
   *
   ***************************************************************************/
 
-#ifndef INCLUDE_SBPLUGIN_BST_H
-#define INCLUDE_SBPLUGIN_BST_H
+#ifndef INCLUDE_SBFEATURE_BST_H
+#define INCLUDE_SBFEATURE_BST_H
 
 #ifdef __cplusplus
 extern "C"
@@ -120,6 +120,8 @@ typedef struct _bst_sb_feature_
     /** register a callback to be invoked when a configured trigger goes off*/
     BVIEW_STATUS(*bst_register_trigger_cb) (int asic, BVIEW_BST_TRIGGER_CALLBACK_t callback, void *cookie);
 
+    /** Obtain Complete ASIC default buffer values  */
+    BVIEW_STATUS(*bst_default_snapshot_get_cb)(int asic, BVIEW_BST_ASIC_SNAPSHOT_DATA_t *snapshot);
 } BVIEW_SB_BST_FEATURE_t;
 
 #ifdef __cplusplus

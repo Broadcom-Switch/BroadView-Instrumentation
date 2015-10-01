@@ -28,7 +28,7 @@ extern "C"
 #include "sbplugin.h"
 
 /*********************************************************************
-* @brief    SDK South bound plugin init
+* @brief    South bound plugin init
 *
 * @retval   BVIEW_STATUS_SUCCESS if BST feature is
 *                                initialized successfully.

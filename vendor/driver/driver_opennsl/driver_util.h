@@ -20,10 +20,11 @@
 #define DRIVER_UTIL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define CMD_LEN_MAX 256
 
-int driverInit(void);
+int openapps_driver_init(bool debug, bool menu);
 extern int opennsl_driver_init(void)   ;
 int driverStart(void);
 

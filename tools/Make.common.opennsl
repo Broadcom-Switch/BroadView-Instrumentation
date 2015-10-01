@@ -1,0 +1,77 @@
+# -*- mode: makefile; -*-
+#/*****************************************************************************
+#*
+#* (C) Copyright Broadcom Corporation 2015
+#*
+#* Licensed under the Apache License, Version 2.0 (the "License");
+#* you may not use this file except in compliance with the License.
+#*
+#* You may obtain a copy of the License at
+#* http://www.apache.org/licenses/LICENSE-2.0
+#*
+#* Unless required by applicable law or agreed to in writing, software
+#* distributed under the License is distributed on an "AS IS" BASIS,
+#* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#* See the License for the specific language governing permissions and
+#* limitations under the License.
+#*
+#***************************************************************************/
+
+OPENAPPS_SDKFLAGS += $(foreach feature,$(FEATURE_LIST), -DINCLUDE_$(feature))
+export OPENAPPS_SDKFLAGS
+
+ifeq ($(SBPLUGIN),opennsl)
+   OPENAPPS_OPENNSL_NAME = opennsl-$(VERSION)-cdp
+   export OPENAPPS_OPENNSL_NAME
+
+   ifeq ($(OPENNSL),)
+      export OPENNSL = $(abspath $(OPENAPPS_OUTPATH)/$(OPENAPPS_OPENNSL_NAME)/)
+   endif
+
+   INCDIR_OPENNSL = $(OPENNSL)/include
+   export INCDIR_OPENNSL
+
+   vend_target += sbopennsl
+   sbdriver = openapps_opennsl_cdp
+   VENDOR_LIB = opennsl
+ifeq ($(CPU),gto)
+ifeq ($(TARGETOS_VARIANT),brl_2.0)
+   export OPENNSL_PLATFORM = gto-trident-brl20
+endif
+endif
+
+ifeq ($(CPU),x86_64)
+ifeq ($(TARGETOS_VARIANT),ubuntu_12)
+   export OPENNSL_PLATFORM = im-x86-trident-ub12
+endif
+endif
+
+   dynamic_sb_lib = $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbopennsl.so.1
+ifneq (,$(filter vendor_init,$(COMPONENTS)))
+        dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so.1
+endif
+   dynamic_sb_lib += $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so.1
+
+endif
+
+sbopennsl clean-sbopennsl debug-sbopennsl::
+	@echo Making SB-OPENNSL
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/sb_plugin/sb_brcm/ $@
+	$(CC) ${CFLAGS} -shared -Wl,-soname,libsbopennsl.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libsbopennsl.so.1 -Wl,--whole-archive $(OPENAPPS_OUTPATH)/sbopennsl/sbopennsl.a -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
+
+openapps_opennsl_odp: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR)
+	@echo Making OPENNSL
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENNSL)/output/$(OPENNSL_PLATFORM)/
+	cp -fp $(abspath $(OPENNSL)/output/$(OPENNSL_PLATFORM)/build/*.ko) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko)
+	cp -fp $(abspath $(OPENNSL)/output/$(OPENNSL_PLATFORM)/build/libopennsl.so.*) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so.*)
+
+
+openapps_opennsl_cdp: $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR)
+	@echo Making OPENNSL
+	cp -fp $(abspath $(OPENNSL)/bin/$(OPENNSL_PLATFORM)/*.ko) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko)
+	cp -fp $(abspath $(OPENNSL)/bin/$(OPENNSL_PLATFORM)/libopennsl.so.*) $(OPENAPPS_BUILD_DELIVERABLES_DIR)
+	$(STRIP) --strip-unneeded $(abspath $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libopennsl.so.*)
+

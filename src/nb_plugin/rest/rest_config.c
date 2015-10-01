@@ -198,9 +198,14 @@ static BVIEW_STATUS rest_config_read(REST_CONTEXT_t *rest)
 BVIEW_STATUS rest_config_init(REST_CONTEXT_t *rest)
 {
     BVIEW_STATUS status;
+    pthread_mutex_t *rest_mutex = NULL;
 
     /* aim to read */
     _REST_LOG(_REST_DEBUG_TRACE, "REST : Configuring ...");
+ 
+    /* create the mutex for agent_config data */
+    rest_mutex = &rest->config_mutex;
+    pthread_mutex_init (rest_mutex, NULL);
 
     status = rest_config_read(rest);
     if (status != BVIEW_STATUS_SUCCESS)
@@ -212,6 +217,4 @@ BVIEW_STATUS rest_config_init(REST_CONTEXT_t *rest)
 
     return BVIEW_STATUS_SUCCESS;
 }
-
-
 

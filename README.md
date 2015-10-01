@@ -1,20 +1,18 @@
-BroadView(TM) Instrumentation
-=============================
+BroadView
+======
+BroadView 2.0.4.3 Switch Specification and Software
 
 Overview
 ========
 
-The BroadView(TM) Instrumentation architecture allows unprecedented visibility
-into the interior of the silicon forwarding engine to enable i) diagnostics,
-ii) proactive analytics and network planning, and iii) optimized network
-provisioning.  The BroadView(TM) Instrumentation software package provides
-the BroadView APIs, documentation and example applications that will allow
-customers to innovate their own solutions.
+The BroadView Instrumentation Agent provides means to access the underlying silicon's 
+instrumentation features. The BroadView Instrumentation Agent software is provided in 
+source code form, and is designed to work in a Linux environment.
 
 Documentation
 =============
 
-Detailed documentation can be found at `doc/html/index.html`.
+Detailed documentation can be found at http://Broadcom-Switch.github.io/BroadView-Instrumentation/doc/html/index.html.
 
 Legal
 =====
@@ -26,3 +24,4 @@ License
 
 Licenses for the software are available at the applicable level of the
 software repository under the "LICENSE" file
+

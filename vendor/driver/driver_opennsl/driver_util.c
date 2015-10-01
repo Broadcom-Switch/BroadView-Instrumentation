@@ -18,15 +18,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
 #include <sal/commdefs.h>
 #include <sal/driver.h>
 #include <opennsl/error.h>
 #include <opennsl/cosq.h>
 #include <opennsl/vlan.h>
 #include <opennsl/switch.h>
+#include "example_server.h"
 
-
+#ifndef CDP_EXCLUDE
+extern void bview_system_init_ph2(void *param);
+#endif
 #define soc_ndev 1
 #define DEFAULT_VLAN 1
 
@@ -64,11 +69,19 @@ int switch_default_vlan_config(int unit)
 }
 
 
-int driverInit(void)
+int openapps_driver_init(bool debug, bool menu)
 {
-  int                 rc = 1;
+  int       rc = 1;
   int i= 0, pri = 0;
-
+  static int systemMappingInitialized = 0;
+#ifndef CDP_EXCLUDE
+  pthread_t agentThread;
+#endif
+  if(systemMappingInitialized != 0)
+  {
+    printf("\r\nDriver is already initialized.\r\n");
+    return 0;
+  }
   rc = opennsl_driver_init();
   if (rc != 0)
   {
@@ -84,29 +97,25 @@ int driverInit(void)
     }
   }
 
-
-  return rc;
-}
-
-int openapps_driver_init(void)
-{
-  int rc;
-  static int systemMappingInitialized = 0;
-
-  if(systemMappingInitialized != 0)
-  {
-    printf("\r\nDriver is already initialized.\r\n");
-    return 0;
-  }
-  rc = driverInit();
   if (0 != rc)
   {
     printf("\r\nError initializing driver, rc = %d.\r\n", rc);
     return -1;
   }
   systemMappingInitialized = 1;
+  if (true == debug)
+  {
+#ifndef CDP_EXCLUDE
+    rc = pthread_create(&agentThread, NULL, (void *)&bview_system_init_ph2, (void *)NULL);
+    if (rc != 0)
+    {
+      printf("Failed to create Agent Thread \n");
+    }
 
-  return 0;
+    example_server_main();
+#endif
+  }
+   return 0;
 }
 
 

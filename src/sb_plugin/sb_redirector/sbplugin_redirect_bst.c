@@ -1902,3 +1902,66 @@ BVIEW_STATUS sbapi_bst_register_trigger (int asic,
   SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
   return rv;
 }
+
+
+/*********************************************************************
+* @brief       Get BST default buffer values 
+*
+* @param[in]     asic                  Unit number
+* @param[out]    snapshot              BST snapshot
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      BST snapshot get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  BST snapshot get functionality is 
+*                                     not supported on this unit
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_default_snapshot_get (int asic,
+                                     BVIEW_BST_ASIC_SNAPSHOT_DATA_t * snapshot)
+{
+  BVIEW_SB_BST_FEATURE_t *bstFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType;
+
+  /* Get asic type of the unit */
+  if (sbapi_system_unit_to_asic_type_get (asic, &asicType) !=
+      BVIEW_STATUS_SUCCESS)
+  {
+    SB_REDIRECT_DEBUG_PRINT (BVIEW_LOG_ERROR,
+                             "(%s:%d) Failed to get asic type for unit %d \n",
+                             __FILE__, __LINE__, asic);
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+  /* Get best matching south bound feature functions based on Asic type */
+  bstFeaturePtr =
+    (BVIEW_SB_BST_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                               BVIEW_FEATURE_BST);
+  /* Validate feature pointer and south bound handler. 
+   * Call south bound handler                        */    
+  if (bstFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }  
+  else if (bstFeaturePtr->bst_default_snapshot_get_cb == NULL)
+  {
+    rv = BVIEW_STATUS_UNSUPPORTED;
+  }
+  else
+  { 
+    rv = bstFeaturePtr->bst_default_snapshot_get_cb (asic, snapshot);
+  }
+  /* Release read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
+
+

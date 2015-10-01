@@ -19,6 +19,7 @@
 #include "sbplugin.h"
 #include "sbplugin_common_bst.h"
 #include "sbplugin_common_system.h"
+#include "sbplugin_common_packet_trace.h"
 #include "sbplugin_common.h"
 #include "sb_redirector_api.h"
 
@@ -26,7 +27,8 @@
 BVIEW_SB_BST_FEATURE_t       bcmBst;
 /* SYSTEM feature data structure*/
 BVIEW_SB_SYSTEM_FEATURE_t    bcmSystem;
-
+/* Packet Trace feature data structure*/
+BVIEW_SB_PT_FEATURE_t       bcmPT;
 /* SB Plugin data structure*/
 BVIEW_SB_PLUGIN_t sbPlugin;
 
@@ -34,7 +36,7 @@ BVIEW_SB_PLUGIN_t sbPlugin;
 int sbSdkDebugFlag = false;
 
 /*********************************************************************
-* @brief    SDK South bound plugin init
+* @brief    South bound plugin init
 *
 * @retval   BVIEW_STATUS_SUCCESS if BST feature is
 *                                initialized successfully.
@@ -55,7 +57,7 @@ BVIEW_STATUS  sbplugin_common_init ()
   rv = sbplugin_common_system_init (&bcmSystem);
   if (rv != BVIEW_STATUS_SUCCESS)
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to Register SDK plugin");
+    SB_LOG (BVIEW_LOG_ERROR,"Failed to Register plugin");
     return rv;
   }
   sbPlugin.featureList[featureIndex] = (BVIEW_SB_FEATURE_t *)&bcmSystem;
@@ -66,17 +68,29 @@ BVIEW_STATUS  sbplugin_common_init ()
   rv = sbplugin_common_bst_init (&bcmBst);
   if (rv != BVIEW_STATUS_SUCCESS)
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to Intialize SDK BST feature");
+    SB_LOG (BVIEW_LOG_ERROR,"Failed to Intialize BST feature");
     return rv;
   }
   sbPlugin.featureList[featureIndex] = (BVIEW_SB_FEATURE_t *)&bcmBst;
   sbPlugin.numSupportedFeatures++;
+  bcmSystem.featureMask |= BVIEW_FEATURE_BST; 
+  featureIndex++;
 
-  /* Register SDK plugin to the sb-redirector*/
+  /* Init Packet Trace Feature*/
+  rv = sbplugin_common_packet_trace_init (&bcmPT);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    SB_LOG (BVIEW_LOG_ERROR,"Failed to Intialize Packet Trace feature");
+    return rv;
+  }
+  sbPlugin.featureList[featureIndex] = (BVIEW_SB_FEATURE_t *)&bcmPT;
+  sbPlugin.numSupportedFeatures++;
+  bcmSystem.featureMask |= BVIEW_FEATURE_PACKET_TRACE; 
+  /* Register plugin to the sb-redirector*/
   rv = sb_plugin_register (sbPlugin);
   if (rv != BVIEW_STATUS_SUCCESS)
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to Register SDK plugin");
+    SB_LOG (BVIEW_LOG_ERROR,"Failed to Register plugin");
     return rv;
   }
 

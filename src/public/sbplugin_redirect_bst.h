@@ -662,6 +662,28 @@ BVIEW_STATUS sbapi_bst_clear_thresholds(int asic);
 *********************************************************************/
 BVIEW_STATUS sbapi_bst_register_trigger(int asic, BVIEW_BST_TRIGGER_CALLBACK_t callback, void *cookie);
 
+/*********************************************************************
+* @brief       Get BST default buffer values 
+*
+* @param[in]     asic                  Unit number
+* @param[out]    snapshot              BST snapshot
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      BST snapshot get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  BST snapshot get functionality is 
+*                                     not supported on this unit
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_default_snapshot_get (int asic,
+                                     BVIEW_BST_ASIC_SNAPSHOT_DATA_t * snapshot);
+
 
 #ifdef	__cplusplus
 }

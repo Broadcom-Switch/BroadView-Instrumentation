@@ -17,13 +17,20 @@ include $(realpath $(SDK)/make/Make.config)
 
 ifeq ($(SBPLUGIN), sdk)
 INCDIR_DRIVER_INIT =$(INCDIR_SDK)
-ifneq ($(PLATFORM), im_n2948_6xlm)
-searchdirs = ./driver_sdk/bcm_svk
+ifeq ($(PLATFORM), im_n2948_6xlm)
+  searchdirs = ./driver_sdk/n2948
 else
-searchdirs = ./driver_sdk/n2948
+  ifeq ($(PLATFORM), s6000)
+    searchdirs = ./driver_sdk/s6000
+  else
+    searchdirs = ./driver_sdk/bcm_svk
+  endif
 endif
 searchdirs += ./driver_sdk/common
+searchdirs += ./common
 CFLAGS += -I./driver_sdk/common
+CFLAGS += -I./common
+CFLAGS += -I../cjson
 #searchdirs = $(realpath $(OPENAPPS_BASE)/vendor/driver/driver_sdk)
 endif
 
@@ -31,6 +38,10 @@ ifeq ($(SBPLUGIN), opennsl)
 INCDIR_DRIVER_INIT =$(INCDIR_OPENNSL)
 CFLAGS +=-DCDP_PACKAGE
 searchdirs = ./driver_opennsl
+searchdirs += ./common
+CFLAGS += -I./common
+CFLAGS += -I./driver_opennsl
+CFLAGS += -I../cjson
 #searchdirs = $(realpath $(OPENAPPS_BASE)/vendor/driver/driver_opennsl)
 endif
 

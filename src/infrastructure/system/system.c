@@ -28,17 +28,24 @@
 #include "sbplugin_api.h"
 
 #ifdef FEAT_VENDOR_INIT
-extern int driverInit();
-#define VENDOR_PLATFORM_INIT()  driverInit();
+extern int openapps_driver_init(bool debug, bool menu);
+#define VENDOR_PLATFORM_INIT(debug, menu) openapps_driver_init(debug, menu);
 #else
-#define VENDOR_PLATFORM_INIT()  ;
+#define VENDOR_PLATFORM_INIT(debug,menu);
 #endif
+
+#ifdef FEAT_PT
+extern BVIEW_STATUS pt_main ();
+extern void pt_app_uninit();
+#endif
+
+extern  void driv_app_get_user_input();
 
 /*********************************************************************
 * @brief        Function used to initialize various system components
-*               Each component is initialized using a proper API
+*               such as module manager, redirector, agent and sbplugins
 *
-* @param[in]    NA
+* @param[in]    param 
 *
 * @retval       NA
 *
@@ -46,11 +53,9 @@ extern int driverInit();
 *
 * @end
 *********************************************************************/
-void system_init()
+void bview_system_init_ph2(void *param)
 {
  
-  /* Initialize platform */
-  VENDOR_PLATFORM_INIT(); 
 
   /*Initialize logging, Not handling error as openlog() does not return anything*/ 
   logging_init();
@@ -75,14 +80,43 @@ void system_init()
   {
     LOG_POST (BVIEW_LOG_CRITICAL, "Failed to initialize BST application\r\n");
   }  
+
+#ifdef FEAT_PT
+  /*Initialize PT application*/ 
+  if (pt_main() != BVIEW_STATUS_SUCCESS)
+  {
+    LOG_POST (BVIEW_LOG_CRITICAL, "Failed to initialize PT application\r\n");
+  } 
+#endif
   /*Initialize REST*/ 
   if (rest_init() != BVIEW_STATUS_SUCCESS)
   {
     LOG_POST (BVIEW_LOG_CRITICAL, "Failed to initialize REST \n All components must be De-initialized\r\n");
-    system_deinit();
+    bview_system_deinit();
   }  
 } 
 
+/*********************************************************************
+* @brief        Function used to initialize various system components
+*               such as openapps driver and calls phase-2 init
+*
+* @param[in]    debug     debug mode of openapps driver
+*
+* @retval       NA
+*
+* @note         NA
+*
+* @end
+*********************************************************************/
+void bview_system_init_ph1(bool vendor_debug , bool menu)
+{
+  /* Initialize platform */
+  VENDOR_PLATFORM_INIT(vendor_debug, menu);
+  if (false == vendor_debug)
+  {
+  bview_system_init_ph2(NULL); 
+  }
+}
 /*********************************************************************
 * @brief     Function used to deinitialize various system components
 *            Individual components are deinitialized using proper
@@ -98,7 +132,7 @@ void system_init()
 * @end
 *********************************************************************/
 
-void system_deinit()
+void bview_system_deinit()
 {
   /*Deinitialize logging, Not handling error as closelog() does not return anything*/ 
 
@@ -106,4 +140,7 @@ void system_deinit()
   /*TBD respective component owners to include appropriate function call*/ 
   logging_deinit();
   bst_app_uninit();
+#ifdef FEAT_PT
+  pt_app_uninit();
+#endif
 }  

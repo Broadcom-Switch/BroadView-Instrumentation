@@ -3,7 +3,7 @@ MODULE := bst
 CC ?= gcc
 AR ?= ar
 OPENAPPS_OUTPATH ?= .
-CFLAGS += -Wno-pointer-to-int-cast -Wall -g -I. -I../../public -I../../../public -I./api -I../../sb_plugin/include -I../../../vendor/cjson -I../../../platform
+CFLAGS += -Wall -g -I. -I../../public -I../../../public -I./api -I../../sb_plugin/include -I../../../vendor/cjson -I../../../platform
 
 # NOOP - no-operation, used to suppress "Nothing to do for ..." messages.
 NOOP  ?= @:

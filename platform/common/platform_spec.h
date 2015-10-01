@@ -31,5 +31,13 @@ extern "C"
 #include "tomahawk/platform.h"
 #endif
 
+#if defined(BVIEW_CHIP_PCLINUX)
+#include "pclinux/platform.h"
+#endif
+
+#if defined(BVIEW_CHIP_OVSDB)
+#include "UB-OVSDB/platform.h"
+#endif
+
 #endif /* INCLUDE_PLATFORM_SPEC_H */
 

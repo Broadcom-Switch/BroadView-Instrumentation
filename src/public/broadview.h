@@ -36,6 +36,8 @@ extern "C"
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+/** Maximum length of network os string*/
+#define BVIEW_NETWORK_OS_LEN_MAX       32
 
 /** Maximum supported asics on a platform */ 
 #define BVIEW_MAX_ASICS_ON_A_PLATFORM   1
@@ -52,6 +54,8 @@ extern "C"
 /** Maximum supported features per a sb plug-in (BVIEW_MAX_FEATURES+system feature) */
 #define BVIEW_SBPLUGIN_MAX_FEATURES    (BVIEW_MAX_FEATURES+1) 
 
+/** json version */
+#define BVIEW_JSON_VERSION   1 
     /** Indicates various status codes.
     *  This status codes are typically used as return values for function 
     *  calls. However, they can be used elsewhere as well to indicate
@@ -74,6 +78,7 @@ extern "C"
         BVIEW_STATUS_INVALID_MEMORY,
         BVIEW_STATUS_OUTOFRANGE,
         BVIEW_STATUS_INIT_FAILED,
+        BVIEW_STATUS_INVALID_ID,
         BVIEW_STATUS_DUPLICATE  /** If the entry is alreadey present */ 
     } BVIEW_STATUS;
 
@@ -93,6 +98,24 @@ extern "C"
 #ifndef _STDINT_H
     typedef unsigned long long uint64_t;
     typedef unsigned char uint8_t;
+#endif
+#endif
+
+#if (CPU==gto)||(CPU==xlp)
+    #define ENV32BIT
+#elif (CPU==x86_64)||(CPU==pclinux)
+    #define ENV64BIT
+#else 
+    #define ENV32BIT  /* Default environment */
+#endif
+	
+#ifdef ENV32BIT
+    typedef unsigned long int ptr_to_uint_t;
+    #define PRI_PTR_TO_UINT_FMT "lx" 
+#else
+#ifdef ENV64BIT
+	typedef unsigned long long int ptr_to_uint_t;
+    #define PRI_PTR_TO_UINT_FMT "llx" 
 #endif
 #endif
 

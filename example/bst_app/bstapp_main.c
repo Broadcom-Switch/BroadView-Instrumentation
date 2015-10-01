@@ -47,10 +47,35 @@ int main(int argc, char** argv)
     rv = bstapp_logging_init();
     _BSTAPP_ASSERT(rv == 0);
     
-    /* spawn off the agent communicator as a spearate thread */
-    rv = pthread_create(&httpThread, NULL, (void *)&bstapp_communicate_with_agent, (void *)&config);
-    _BSTAPP_ASSERT(rv == 0);
-    
+   /* No argument given */    
+   if(argc == 1 )
+    {
+        /* spawn off the agent communicator as a spearate thread */
+        rv = pthread_create(&httpThread, NULL, (void *)&bstapp_communicate_with_agent, (void *)&config);
+        _BSTAPP_ASSERT(rv == 0);
+    }
+   /* Argument given */
+   else if(argc == 2)
+    {
+        /*Argument equal to -d the Debug menu driven communication starts */
+        if (strcmp(argv[1],"-d") == 0)
+        {
+            bstapp_debug_menu((void *)&config);
+        }
+        else if(strcmp(argv[1],"-help") == 0)
+        {
+            /*Help string */
+            printf("\n\nArguments\tUsage "
+                   "\nNone\tDefault "
+                   "\n-d\tDebug Mode "
+                   "\n-help\tHelp String \n");
+        }
+        else
+        {
+            printf("\n Invalid \n ");
+        }
+    }
+ 
     /* start the report receiver thread */
     bstapp_http_server_run(&config);
 

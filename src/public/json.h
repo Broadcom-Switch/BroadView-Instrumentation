@@ -26,7 +26,7 @@ extern "C"
 
 #include "sbplugin_redirect_system.h"
 
-#define JSON_MAX_NODE_LENGTH    32
+#define JSON_MAX_NODE_LENGTH   64 
 
 #define _jsonlog(format,args...)              printf(format, ##args)  
 

@@ -33,6 +33,7 @@ extern "C"
 #endif
 
 #include "broadview.h"
+#include "asic.h"
 #include "sbplugin.h"
 
 /* Buffer Count for the device */
@@ -205,7 +206,9 @@ typedef struct _bst_config_
 
     /* Statistics collection mode */
     BVIEW_BST_COLLECTION_MODE mode;
-
+    /*Periodic collection*/
+    bool enablePeriodicCollection;
+    int  collectionPeriod;
 } BVIEW_BST_CONFIG_t;
 
 /* Trigger Type */
@@ -216,6 +219,17 @@ typedef enum _bst_trigger_type_
     BVIEW_BST_TRIGGER_EGRESS = (0x1 << 2)
 
 } BVIEW_BST_TRIGGER_TYPE;
+
+#define BVIEW_MAX_STRING_NAME_LEN 256
+/* Trigger info */
+typedef struct  _bst_trigger_info_
+{
+  char realm[BVIEW_MAX_STRING_NAME_LEN];
+  char counter[BVIEW_MAX_STRING_NAME_LEN];
+  int port;
+  int queue;
+} BVIEW_BST_TRIGGER_INFO_t;
+
 
 /* Profile configuration  for Egress Port + Service Pools */
 typedef struct _bst_ep_sp_threshold_
@@ -291,10 +305,30 @@ typedef struct _bst_rqe_q_threshold_
     uint64_t rqeQueueThreshold;
 } BVIEW_BST_EGRESS_RQE_QUEUE_THRESHOLD_t;
 
+/* Maximum length of ASIC ID notation*/
+#define BVIEW_ASIC_NOTATION_LEN             32
+
+typedef struct _switch_asic_info_
+{
+   char              asic_notation[BVIEW_ASIC_NOTATION_LEN];
+   BVIEW_ASIC_TYPE   asicType;
+   int               numPorts;
+   BVIEW_BST_ASIC_SNAPSHOT_DATA_t defBufferVal;
+}  BVIEW_SWITCH_ASIC_INFO_t;
+
+/* Structure to pass API parameters to the BST APP */
+typedef struct _switch_properties_
+{
+    uint8_t networkOs[BVIEW_NETWORK_OS_LEN_MAX];
+    int     numAsics;
+    int     featureMask;
+     BVIEW_SWITCH_ASIC_INFO_t   asicInfo[BVIEW_MAX_ASICS_ON_A_PLATFORM];
+} BVIEW_SWITCH_PROPERTIES_t;
+
 /* The callback for invoking when a configured trigger goes off */
 typedef BVIEW_STATUS(*BVIEW_BST_TRIGGER_CALLBACK_t) (int asic,
         void *cookie,
-        BVIEW_BST_TRIGGER_TYPE type );
+        BVIEW_BST_TRIGGER_INFO_t *triggerInfo);
 
 
 /* macros for threshold validation */

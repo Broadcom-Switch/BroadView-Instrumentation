@@ -29,7 +29,7 @@
 static BVIEW_BST_TRIGGER_CALLBACK_t        bst_hw_trigger_cb;
  
 /*********************************************************************
-* @brief  BCM SDK BST feature init
+* @brief  BCM BST feature init
 *
 * @param[in,out]  bcmBst     - BST feature data structure
 *
@@ -79,6 +79,7 @@ BVIEW_STATUS sbplugin_common_bst_init (BVIEW_SB_BST_FEATURE_t *bcmBst)
   bcmBst->bst_clear_stats_cb          = sbplugin_common_bst_clear_stats;
   bcmBst->bst_clear_thresholds_cb     = sbplugin_common_bst_clear_thresholds;
   bcmBst->bst_register_trigger_cb     = sbplugin_common_bst_register_trigger;
+  bcmBst->bst_default_snapshot_get_cb = sbplugin_common_bst_default_snapshot_get;
 
   return BVIEW_STATUS_SUCCESS;
 }
@@ -339,7 +340,7 @@ BVIEW_STATUS sbplugin_common_bst_device_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time); 
 
- /*call sync function to copy HW stats to SDK*/
+ /*call sync function to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_DEVICE);
 
  /* Update current local time*/
@@ -349,7 +350,7 @@ BVIEW_STATUS sbplugin_common_bst_device_data_get (int asic,
  b_rv = SB_BRCM_API_COSQ_BST_STAT_GET(asic, 0, 0, SB_BRCM_BST_STAT_ID_DEVICE, 0, &data->bufferCount);
  if (b_rv != SB_BRCM_E_NONE)
  {
-   SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Device level Use-count");
+   SB_LOG (BVIEW_LOG_ERROR,"Failed to get Device level Use-count");
    return BVIEW_STATUS_FAILURE;
  }
  return rv; 
@@ -383,10 +384,10 @@ BVIEW_STATUS sbplugin_common_bst_ippg_data_get (int asic,
   /* Check validity of input data*/
   BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
-  /*call sync to copy HW stats to SDK*/
+  /*call sync to copy HW stats*/
   BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED);
 
-  /*call sync to copy HW stats to SDK*/
+  /*call sync to copy HW stats*/
   BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM); 
 
   /* Update current local time*/
@@ -411,7 +412,7 @@ BVIEW_STATUS sbplugin_common_bst_ippg_data_get (int asic,
                          0, &(data->data[port - 1][pg].umShareBufferCount));
       if (b_rv != SB_BRCM_E_NONE)
       {
-         SB_SDK_LOG (BVIEW_LOG_ERROR,
+         SB_LOG (BVIEW_LOG_ERROR,
                            "Failed to get Ingress (Port,PG) Shared buffer \
                             Use-Count for port(%d) PG(%d)",
                             port,pg);
@@ -425,7 +426,7 @@ BVIEW_STATUS sbplugin_common_bst_ippg_data_get (int asic,
                          0, &(data->data[port - 1][pg].umHeadroomBufferCount));
       if (b_rv != SB_BRCM_E_NONE)
       {
-         SB_SDK_LOG (BVIEW_LOG_ERROR,
+         SB_LOG (BVIEW_LOG_ERROR,
                            "Failed to get Ingress (Port,PG) Headroom \
                             buffer Use-Count for port(%d) PG(%d)", 
                             port,pg);
@@ -464,7 +465,7 @@ BVIEW_STATUS sbplugin_common_bst_ipsp_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_PORT_POOL);
  
  /* Update current local time*/
@@ -489,7 +490,7 @@ BVIEW_STATUS sbplugin_common_bst_ipsp_data_get (int asic,
                                  &data->data[port - 1][sp].umShareBufferCount);
      if (SB_BRCM_RV_ERROR(rv))
      {
-       SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Ingress (Port,SP) \
+       SB_LOG (BVIEW_LOG_ERROR,"Failed to get Ingress (Port,SP) \
                            buffer Use-Count for port(%d) SP(%d)", port,sp);
        return BVIEW_STATUS_FAILURE;
      }
@@ -522,7 +523,7 @@ BVIEW_STATUS sbplugin_common_bst_isp_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_ING_POOL);
 
  /* Update current local time*/
@@ -535,7 +536,7 @@ BVIEW_STATUS sbplugin_common_bst_isp_data_get (int asic,
                 0,&data->data[sp].umShareBufferCount);
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Ingress (SP) buffer Use-Count \
+     SB_LOG (BVIEW_LOG_ERROR,"Failed to get Ingress (SP) buffer Use-Count \
                            for SP(%d)", sp);
      return BVIEW_STATUS_FAILURE;
    } 
@@ -570,10 +571,10 @@ BVIEW_STATUS sbplugin_common_bst_epsp_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED);
 
  /* Update current local time*/
@@ -596,7 +597,7 @@ BVIEW_STATUS sbplugin_common_bst_epsp_data_get (int asic,
                                  &data->data[port - 1][sp].ucShareBufferCount);
      if (SB_BRCM_RV_ERROR(rv))
      {
-       SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast (Port,SP) buffer \
+       SB_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast (Port,SP) buffer \
                            Use-Count for Port (%d) SP(%d)", port,sp);
 
        return BVIEW_STATUS_FAILURE;
@@ -608,7 +609,7 @@ BVIEW_STATUS sbplugin_common_bst_epsp_data_get (int asic,
                                  &data->data[port - 1][sp].umShareBufferCount);
      if (SB_BRCM_RV_ERROR(rv))
      {
-       SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast + Mcast (Port,SP) \
+       SB_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast + Mcast (Port,SP) \
                            buffer Use-Count for Port (%d) SP(%d)", port,sp);
        return BVIEW_STATUS_FAILURE;
      }
@@ -642,10 +643,10 @@ BVIEW_STATUS sbplugin_common_bst_esp_data_get  (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_EGR_POOL);
 
-  /*call sync to copy HW stats to SDK*/
+  /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL);
 
  /* Update current local time*/
@@ -662,7 +663,7 @@ BVIEW_STATUS sbplugin_common_bst_esp_data_get  (int asic,
           0,&data->data[sp].umShareBufferCount);
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast+Mcast (SP) buffer \
+     SB_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast+Mcast (SP) buffer \
                            Use-Count for SP(%d)", sp);
 
      return BVIEW_STATUS_FAILURE;
@@ -672,7 +673,7 @@ BVIEW_STATUS sbplugin_common_bst_esp_data_get  (int asic,
          0,&data->data[sp].mcShareBufferCount);
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast (SP) buffer \
+     SB_LOG (BVIEW_LOG_ERROR,"Failed to get Egress Ucast (SP) buffer \
                            Use-Count for SP(%d)", sp);
 
      return BVIEW_STATUS_FAILURE;
@@ -708,7 +709,7 @@ BVIEW_STATUS sbplugin_common_bst_eucq_data_get (int asic,
   /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_UCAST);
 
  /* Update current local time*/
@@ -731,7 +732,7 @@ BVIEW_STATUS sbplugin_common_bst_eucq_data_get (int asic,
      data->data[((port -1) * BVIEW_BST_NUM_COS_PORT) + cosq].port = port;
      if (SB_BRCM_RV_ERROR(rv))
      {
-       SB_SDK_LOG (BVIEW_LOG_ERROR,
+       SB_LOG (BVIEW_LOG_ERROR,
                  "BST:Unit(%d) Ucast queue(%d) Port(%d):\
                   Failed to get Buffer Use-Count.", asic, cosq, port);
        return BVIEW_STATUS_FAILURE;
@@ -766,7 +767,7 @@ BVIEW_STATUS sbplugin_common_bst_eucqg_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_UCAST_GROUP);
 
  /* Update current local time*/
@@ -782,7 +783,7 @@ BVIEW_STATUS sbplugin_common_bst_eucqg_data_get (int asic,
              0, &data->data[cosq].ucBufferCount);
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,
+     SB_LOG (BVIEW_LOG_ERROR,
                  "BST:Unit(%d) Ucast queue Group(%d):\
                   Failed to get Buffer Use-Count.", asic, cosq);
      return BVIEW_STATUS_FAILURE;
@@ -818,7 +819,7 @@ BVIEW_STATUS sbplugin_common_bst_emcq_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_MCAST);
 
  /* Update current local time*/
@@ -842,7 +843,7 @@ BVIEW_STATUS sbplugin_common_bst_emcq_data_get (int asic,
      data->data[((port-1) * BVIEW_BST_NUM_COS_PORT) + cosq].port = port;
      if (SB_BRCM_RV_ERROR(rv))
      {
-       SB_SDK_LOG (BVIEW_LOG_ERROR,
+       SB_LOG (BVIEW_LOG_ERROR,
                  "BST:Unit(%d) Mcast queue(%d) Port(%d):\
                   Failed to get Buffer Use-Count.", asic, cosq, port);
 
@@ -880,7 +881,7 @@ BVIEW_STATUS sbplugin_common_bst_cpuq_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_MCAST);
 
  /*Get the CPU port*/
@@ -904,7 +905,7 @@ BVIEW_STATUS sbplugin_common_bst_cpuq_data_get (int asic,
 
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,
+     SB_LOG (BVIEW_LOG_ERROR,
                  "BST:ASIC(%d) CPU queue (%d):Failed to get Buffer Use-Count.", asic, cosq);
      return BVIEW_STATUS_FAILURE;
    }
@@ -937,7 +938,7 @@ BVIEW_STATUS sbplugin_common_bst_rqeq_data_get (int asic,
  /* Check validity of input data*/
  BVIEW_BST_INPUT_VALIDATE (asic, data, time);
 
- /*call sync to copy HW stats to SDK*/
+ /*call sync to copy HW stats*/
  BVIEW_BST_STAT_SYNC (asic, SB_BRCM_BST_STAT_ID_RQE_QUEUE);
 
  /* Update current local time*/
@@ -951,7 +952,7 @@ BVIEW_STATUS sbplugin_common_bst_rqeq_data_get (int asic,
              0,&data->data[cosq].rqeBufferCount);
    if (SB_BRCM_RV_ERROR(rv))
    {
-     SB_SDK_LOG (BVIEW_LOG_ERROR,
+     SB_LOG (BVIEW_LOG_ERROR,
                  "BST:ASIC(%d) RQE queue (%d):Failed to get Buffer Use-Count.", asic, cosq);
      return BVIEW_STATUS_FAILURE;
    }
@@ -993,7 +994,7 @@ BVIEW_STATUS sbplugin_common_bst_device_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET(asic, 0, 0, SB_BRCM_BST_STAT_ID_DEVICE, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Device Stat:Failed to set Threshold",asic);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1036,7 +1037,7 @@ BVIEW_STATUS sbplugin_common_bst_ippg_threshold_set (int asic, int port, int pg,
   } 
 
   /* Get the GPORT */
-  /* Temp fix: Application port numbering starts with 1 but SDK expects it from 0 */
+  /* Temp fix: Application port numbering starts with 1 but the system expects it from 0 */
   rv = SB_BRCM_API_PORT_GPORT_GET (asic, port, &gport);
   if (SB_BRCM_RV_ERROR(rv))
   {
@@ -1048,7 +1049,7 @@ BVIEW_STATUS sbplugin_common_bst_ippg_threshold_set (int asic, int port, int pg,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, pg, SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Ingress Shared (Port, PG) PG(%d) Port(%d):Failed to set Threshold", asic,pg,port);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1057,7 +1058,7 @@ BVIEW_STATUS sbplugin_common_bst_ippg_threshold_set (int asic, int port, int pg,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, pg, SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Ingress Headroom (Port, PG) PG(%d) Port(%d):Failed to set Threshold", asic,pg,port);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1101,7 +1102,7 @@ BVIEW_STATUS sbplugin_common_bst_ipsp_threshold_set (int asic, int port, int sp,
   }
  
   /* Get the GPORT*/
-  /* Temp fix: Application port numbering starts with 1 but SDK expects it from 0 */
+  /* Temp fix: Application port numbering starts with 1 but the system expects it from 0 */
   rv = SB_BRCM_API_PORT_GPORT_GET (asic, port, &gport);
   if (SB_BRCM_RV_ERROR(rv))
   {
@@ -1113,7 +1114,7 @@ BVIEW_STATUS sbplugin_common_bst_ipsp_threshold_set (int asic, int port, int sp,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, sp, SB_BRCM_BST_STAT_ID_PORT_POOL, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC (%d) Ingress(Port, SP) SP(%d) Port(%d):Failed to set Threshold", asic,sp,port);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1158,7 +1159,7 @@ BVIEW_STATUS sbplugin_common_bst_isp_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, 0, sp, SB_BRCM_BST_STAT_ID_ING_POOL, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Ingress SP(%d):Failed to set Threshold", asic,sp);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1203,7 +1204,7 @@ BVIEW_STATUS sbplugin_common_bst_epsp_threshold_set (int asic,
   } 
 
   /* Get the GPORT*/  
-  /* Temp fix: Application port numbering starts with 1 but SDK expects it from 0 */
+  /* Temp fix: Application port numbering starts with 1 but the system expects it from 0 */
   rv = SB_BRCM_API_PORT_GPORT_GET (asic, port, &gport);
   if (SB_BRCM_RV_ERROR(rv))
   {
@@ -1218,7 +1219,7 @@ BVIEW_STATUS sbplugin_common_bst_epsp_threshold_set (int asic,
                           SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Egress UC(Port,SP) SP(%d) Port(%d):Failed to set Threshold", asic,sp, port);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1231,7 +1232,7 @@ BVIEW_STATUS sbplugin_common_bst_epsp_threshold_set (int asic,
                                SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Egress UC+MC (Port,SP) SP(%d) Port(%d):Failed to set Threshold", asic,sp, port);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1277,7 +1278,7 @@ BVIEW_STATUS sbplugin_common_bst_esp_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, 0, sp, SB_BRCM_BST_STAT_ID_EGR_POOL, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Egress SP (%d):Failed to set Threshold", asic,sp);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1287,7 +1288,7 @@ BVIEW_STATUS sbplugin_common_bst_esp_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, 0, sp, SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Egress SP (%d):Failed to set Threshold", asic,sp);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1342,7 +1343,7 @@ BVIEW_STATUS sbplugin_common_bst_eucq_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, cosq, SB_BRCM_BST_STAT_ID_UCAST, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Ucast Queue (%d):Failed to set Threshold", asic,ucQueue);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1388,7 +1389,7 @@ BVIEW_STATUS sbplugin_common_bst_eucqg_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, 0, ucQueueGrp, SB_BRCM_BST_STAT_ID_UCAST_GROUP, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Ucast Queue Group (%d):Failed to set Threshold", asic,ucQueueGrp);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1439,7 +1440,7 @@ BVIEW_STATUS sbplugin_common_bst_emcq_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, cosq, SB_BRCM_BST_STAT_ID_MCAST, &profile);
   if (SB_BRCM_RV_ERROR(rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) Mcast Queue (%d):Failed to set Threshold", asic,mcQueue);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1497,7 +1498,7 @@ BVIEW_STATUS sbplugin_common_bst_cpuq_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, gport, cpuQueue, SB_BRCM_BST_STAT_ID_MCAST, &profile);
   if (SB_BRCM_RV_ERROR (rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) CPU Queue (%d):Failed to set Threshold", asic,cpuQueue);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1544,7 +1545,7 @@ BVIEW_STATUS sbplugin_common_bst_rqeq_threshold_set (int asic,
   rv = SB_BRCM_COSQ_BST_PROFILE_SET (asic, 0, rqeQueue, SB_BRCM_BST_STAT_ID_RQE_QUEUE, &profile);
   if (SB_BRCM_RV_ERROR (rv))
   {
-    SB_SDK_LOG (BVIEW_LOG_ERROR,
+    SB_LOG (BVIEW_LOG_ERROR,
                 "BST:ASIC(%d) RQE Queue (%d):Failed to set Threshold", asic,rqeQueue);
     return BVIEW_STATUS_FAILURE;
   }
@@ -1602,15 +1603,15 @@ BVIEW_STATUS  sbplugin_common_bst_clear_stats(int asic)
     }
     else 
     {
-          num = 1;
+       num = 1;
     }
    
-    if (SB_BRCM_BST_STAT_ID_ING_POOL ||
-        SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL ||
-        SB_BRCM_BST_STAT_ID_EGR_POOL ||
-        SB_BRCM_BST_STAT_ID_RQE_QUEUE ||
-        SB_BRCM_BST_STAT_ID_UCAST_GROUP||
-        SB_BRCM_BST_STAT_ID_DEVICE)
+    if (bid == SB_BRCM_BST_STAT_ID_ING_POOL ||
+        bid == SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL ||
+        bid == SB_BRCM_BST_STAT_ID_EGR_POOL ||
+        bid == SB_BRCM_BST_STAT_ID_RQE_QUEUE ||
+        bid == SB_BRCM_BST_STAT_ID_UCAST_GROUP||
+        bid == SB_BRCM_BST_STAT_ID_DEVICE)
     {
        gport = 0;
        BVIEW_BST_ITER (cosq, num)
@@ -1622,23 +1623,32 @@ BVIEW_STATUS  sbplugin_common_bst_clear_stats(int asic)
          }
        } /* Iter ... Cosq*/
     }
-    else 
-    {     
-    BVIEW_BST_PORT_ITER (asic, port)
+    else if (bid == SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED ||
+             bid == SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM ||
+             bid == SB_BRCM_BST_STAT_ID_UCAST ||
+             bid == SB_BRCM_BST_STAT_ID_MCAST ||
+             bid == SB_BRCM_BST_STAT_ID_PORT_POOL ||
+             bid == SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED ||
+             bid == SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED)
     {
-       /* Get GPORT*/
-       SB_BRCM_API_PORT_GPORT_GET (asic, port, &gport);
+      BVIEW_BST_PORT_ITER (asic, port)
+      {
+        /* Get GPORT*/
+        rv = SB_BRCM_API_PORT_GPORT_GET (asic, port, &gport);
+        if (SB_BRCM_RV_ERROR (rv))
+        {
+           return BVIEW_STATUS_FAILURE;
+        }
 
-
-       BVIEW_BST_ITER (cosq, num)
-       {
-         rv = SB_BRCM_COSQ_BST_STAT_CLEAR (asic, gport, cosq, bid);
-         if (SB_BRCM_RV_ERROR (rv))
-         {
-            return BVIEW_STATUS_FAILURE;
-         }
-       } /* Iter ... Cosq*/
-    } /* Inter ...Port*/
+        BVIEW_BST_ITER (cosq, num)
+        {
+          rv = SB_BRCM_COSQ_BST_STAT_CLEAR (asic, gport, cosq, bid);
+          if (SB_BRCM_RV_ERROR (rv))
+          {
+             return BVIEW_STATUS_FAILURE;
+          }
+        } /* Iter ... Cosq*/
+      } /* Inter ...Port*/
     }
   } /* Iter ...SB_BRCM_BST_STAT_ID_MAX_COUNT*/
   return BVIEW_STATUS_SUCCESS; 
@@ -2102,6 +2112,44 @@ BVIEW_STATUS sbplugin_common_bst_threshold_get (int asic,
   return BVIEW_STATUS_SUCCESS;
 }
 
+static BVIEW_STATUS sbplugin_common_bst_bid_to_realm_get( int bid, char *realm, char *counter)
+{
+  unsigned int i;
+
+  static SB_BRCM_BID_REALM_t bid_realm_counter_map [] = {
+    {SB_BRCM_BST_STAT_ID_DEVICE, "device" ,"data"},
+    {SB_BRCM_BST_STAT_ID_ING_POOL, "ingress-service-pool", "um-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_PORT_POOL, "ingress-port-service-pool", "um-share-buffer-count" },
+    {SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED, "ingress-port-priority-group", "um-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM, "ingress-port-priority-group", "um-headroom-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_EGR_POOL, "egress-service-pool", "um-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL, "egress-service-pool", "mc-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_UCAST, "egress-uc-queue", "uc-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_MCAST, "egress-mc-queue", "mc-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED, "egress-port-service-pool", "uc-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED, "egress-port-service-pool", "um-share-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_RQE_QUEUE, "egress-rqe-queue", "rqe-buffer-count"},
+    {SB_BRCM_BST_STAT_ID_UCAST_GROUP, "egress-uc-queue-group", "uc-buffer-count"}
+  }; 
+
+    if ((NULL == realm) ||
+       (NULL == counter))
+    {
+      return BVIEW_STATUS_INVALID_PARAMETER;
+    }
+
+    for (i = 0; i < SB_BRCM_BST_STAT_ID_MAX; i++)
+    {
+      if (bid == bid_realm_counter_map[i].bid)
+      {
+        strncpy(realm, bid_realm_counter_map[i].realm, strlen(bid_realm_counter_map[i].realm));
+        strncpy(counter, bid_realm_counter_map[i].counter, strlen(bid_realm_counter_map[i].counter));
+        return BVIEW_STATUS_SUCCESS;
+      }
+    }
+      return BVIEW_STATUS_INVALID_PARAMETER;
+
+}
 /*********************************************************************
 * @brief  callback function to process Hw trigers
 *
@@ -2124,37 +2172,518 @@ BVIEW_STATUS sbplugin_common_bst_threshold_get (int asic,
 BVIEW_STATUS sbplugin_common_bst_callback (int asic, SB_BRCM_SWITCH_EVENT_t event, 
                        int bid, int port, int cosq, void *cookie)
 {
-  BVIEW_BST_TRIGGER_TYPE triggerType = BVIEW_BST_TRIGGER_DEVICE;
+  BVIEW_BST_TRIGGER_INFO_t triggerInfo;
+
+  memset(&triggerInfo, 0, sizeof(BVIEW_BST_TRIGGER_INFO_t));
 
   /* Call application Callback registered with plugin*/ 
   if (event == SB_BRCM_SWITCH_EVENT_MMU_BST_TRIGGER) 
   {
-    /* Map BID to Ingress, Egress or Device*/
-    if (bid == SB_BRCM_BST_STAT_ID_DEVICE)
+  /* get the realm and the counter from the BID */
+
+  if (BVIEW_STATUS_SUCCESS != sbplugin_common_bst_bid_to_realm_get(bid, &triggerInfo.realm[0], &triggerInfo.counter[0]))
+  {
+    return BVIEW_STATUS_INVALID_PARAMETER;
+  }
+
+  triggerInfo.port = port;
+  triggerInfo.queue = cosq;
+
+  /* Call application callback routine*/
+  bst_hw_trigger_cb ((asic), cookie, &triggerInfo); 
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+
+/*********************************************************************
+* @brief  Obtain default buffer settings. 
+*
+* @param[in]      asic               - unit
+* @param[out]     snapshot           - snapshot data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if snapshot get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if snapshot get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_snapshot_get (int asic, 
+                                 BVIEW_BST_ASIC_SNAPSHOT_DATA_t *snapshot) 
+{
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+
+  /* Check validity of input data*/
+  if (NULL == snapshot)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Obtain Device Statistics */ 
+  rv = sbplugin_common_bst_default_device_data_get (asic, &snapshot->device);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Ingress Port + Priority Groups Statistics */
+  rv = sbplugin_common_bst_default_ippg_data_get (asic, &snapshot->iPortPg);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Obtain Ingress Port + Service Pools Statistics */
+  rv = sbplugin_common_bst_default_ipsp_data_get (asic, &snapshot->iPortSp);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Ingress Service Pools Statistics */
+  rv = sbplugin_common_bst_default_isp_data_get (asic, &snapshot->iSp);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Port + Service Pools Statistics */
+  rv = sbplugin_common_bst_default_epsp_data_get (asic, &snapshot->ePortSp);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Service Pools Statistics */
+  rv = sbplugin_common_bst_default_esp_data_get (asic, &snapshot->eSp);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+ 
+  /* Obtain Egress Egress Unicast Queues Statistics */
+  rv = sbplugin_common_bst_default_eucq_data_get (asic, &snapshot->eUcQ);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Egress Unicast Queue Groups Statistics */
+  rv = sbplugin_common_bst_default_eucqg_data_get (asic, &snapshot->eUcQg);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Egress Multicast Queues Statistics */
+  rv = sbplugin_common_bst_default_emcq_data_get (asic, &snapshot->eMcQ);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Egress CPU Queues Statistics */
+  rv = sbplugin_common_bst_default_cpuq_data_get (asic, &snapshot->cpqQ);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  /* Obtain Egress Egress RQE Queues Statistics */
+  rv = sbplugin_common_bst_default_rqeq_data_get (asic, &snapshot->rqeQ);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+ 
+/*********************************************************************
+* @brief  Obtain default Device Stat settings
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - Device data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_SUCCESS           if device stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_device_data_get (int asic, 
+                                    BVIEW_BST_DEVICE_DATA_t *data) 
+{
+
+ /* Check validity of input data*/
+ if (NULL == data)
+   return BVIEW_STATUS_INVALID_PARAMETER;
+
+ /*Get the device stat default values*/
+ data->bufferCount = SB_BRCM_BST_STAT_ID_DEVICE_DEFAULT; 
+ return BVIEW_STATUS_SUCCESS; 
+}
+
+/*********************************************************************
+* @brief  Obtain Ingress Port + Priority Groups Statistics default vals
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - i_p_pg data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if ippg stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if ippg stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_ippg_data_get (int asic, 
+                              BVIEW_BST_INGRESS_PORT_PG_DATA_t *data) 
+{
+  BVIEW_STATUS  rv    = BVIEW_STATUS_SUCCESS;
+  unsigned int  port  =0; 
+  unsigned int  pg    =0; 
+
+  /* Check validity of input data*/
+ if (NULL == data)
+   return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the ports*/
+  BVIEW_BST_PORT_ITER (asic, port)
+  {
+    /* Loop through all priority groups*/
+    BVIEW_BST_PG_ITER (pg)
     {
-      triggerType = BVIEW_BST_TRIGGER_DEVICE;
-    }
-    else if (bid == SB_BRCM_BST_STAT_ID_EGR_POOL||
-           bid == SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL ||
-           bid == SB_BRCM_BST_STAT_ID_UCAST ||
-           bid == SB_BRCM_BST_STAT_ID_MCAST ||
-           bid == SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED ||
-           bid == SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED ||
-           bid == SB_BRCM_BST_STAT_ID_RQE_QUEUE ||
-           bid == SB_BRCM_BST_STAT_ID_RQE_POOL ||
-           bid == SB_BRCM_BST_STAT_ID_UCAST_GROUP)
+      /*BST_Stat for each of the (Ingress Port, PG) UC plus MC 
+       * Shared use-counts in units of buffers.
+       */
+      data->data[port - 1][pg].umShareBufferCount = SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED_DEFAULT; 
+      
+      /* BST_Stat for each of the (Ingress Port, PG) UC plus MC 
+       * Headroom use-counts in units of buffers.
+       */
+      data->data[port - 1][pg].umHeadroomBufferCount = SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM_DEFAULT;
+    } /* for (pg = 0; pg < BVI ....*/
+  } /* for (port = 0; port < BVIEW......*/
+  return rv;
+} 
+    
+   
+
+/*********************************************************************
+* @brief  Obtain Ingress Port + Service Pools Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - i_p_sp data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if ipsp stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if ipsp stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_ipsp_data_get (int asic, 
+                                  BVIEW_BST_INGRESS_PORT_SP_DATA_t *data)
+{
+  unsigned int port =0; 
+  unsigned int sp =0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the ports*/
+  BVIEW_BST_PORT_ITER (asic, port)
+  {
+    /* BST_Stat for each of the 4 SPs Shared use-counts 
+     * associated with this Port in units of buffers.
+     */
+    BVIEW_BST_SP_ITER (sp)
     {
-      triggerType = BVIEW_BST_TRIGGER_EGRESS;
+      data->data[port - 1][sp].umShareBufferCount = SB_BRCM_BST_STAT_ID_PORT_POOL_DEFAULT; 
     }
-    else if (bid == SB_BRCM_BST_STAT_ID_ING_POOL ||
-           bid == SB_BRCM_BST_STAT_ID_PORT_POOL ||
-           bid == SB_BRCM_BST_STAT_ID_PRI_GROUP_SHARED ||
-           bid == SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM)
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+
+/*********************************************************************
+* @brief  Obtain Ingress Service Pools Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - i_sp structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if isp stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if isp stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_isp_data_get (int asic, 
+                                 BVIEW_BST_INGRESS_SP_DATA_t *data)
+{
+  int sp = 0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* BST_Stat for each of the 5 Ingress SPs Shared use-counts in units of buffers*/
+  BVIEW_BST_SP_ITER (sp)
+  {
+    data->data[sp].umShareBufferCount = SB_BRCM_BST_STAT_ID_ING_POOL_DEFAULT;
+  }
+  return BVIEW_STATUS_SUCCESS;
+} 
+
+/*********************************************************************
+* @brief  Obtain Egress Port + Service Pools Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - e_p_sp data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if epsp stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if epsp stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_epsp_data_get (int asic, 
+                                BVIEW_BST_EGRESS_PORT_SP_DATA_t *data)
+{
+  unsigned int port  =0;
+  unsigned int sp =0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the ports*/
+  BVIEW_BST_PORT_ITER (asic, port)
+  {
+    BVIEW_BST_SP_ITER (sp)
     {
-      triggerType = BVIEW_BST_TRIGGER_INGRESS;
+      /* Obtain Egress Port + Service Pools Statistics - U cast stats*/
+      data->data[port - 1][sp].ucShareBufferCount = SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED_DEFAULT;
+
+      /* Obtain Egress Port + Service Pools Statistics - Ucast+Mcast cast stats*/
+      data->data[port - 1][sp].umShareBufferCount = SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED_DEFAULT;
     }
-    /* Call application callback routine*/
-    bst_hw_trigger_cb ((asic), cookie, triggerType);
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+/*********************************************************************
+* @brief  Obtain Egress Service Pools Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - e_sp data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if esp stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if esp stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_esp_data_get  (int asic, 
+                               BVIEW_BST_EGRESS_SP_DATA_t *data)
+{
+  unsigned int  sp =0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the ports*/
+  BVIEW_BST_SP_ITER (sp)
+  {
+    /* BST_Stat for each of the 4 Egress SPs Shared use-counts in units of buffers.
+     * This use-count includes both UC and MC buffers.
+     */
+    data->data[sp].umShareBufferCount = SB_BRCM_BST_STAT_ID_EGR_POOL_DEFAULT;
+
+    /*BST_Threshold for each of the 4 Egress SP MC Shared use-counts in units of buffers.*/
+    data->data[sp].mcShareBufferCount = SB_BRCM_BST_STAT_ID_EGR_MCAST_POOL_DEFAULT;
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+
+/*********************************************************************
+* @brief  Obtain Egress Egress Unicast Queues Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - e_uc_q data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if eucq stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if eucq stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_eucq_data_get (int asic, 
+                              BVIEW_BST_EGRESS_UC_QUEUE_DATA_t *data)
+{
+  unsigned int cosq = 0;
+  unsigned int port  =0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  BVIEW_BST_PORT_ITER (asic, port)
+  {
+    /* Iterate COSQ*/
+    BVIEW_BST_ITER (cosq,BVIEW_BST_NUM_COS_PORT) 
+    {
+      /*BST_Stat for the UC queue total use-counts in units of buffers.*/
+      data->data[((port - 1) * BVIEW_BST_NUM_COS_PORT) + cosq].ucBufferCount = SB_BRCM_BST_STAT_ID_UCAST_DEFAULT;
+    }
+  }
+  return BVIEW_STATUS_SUCCESS;
+}  
+/*********************************************************************
+* @brief  Obtain Egress Egress Unicast Queue Groups Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - e_uc_qg data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if eucqg stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if eucqg stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_eucqg_data_get (int asic, 
+                        BVIEW_BST_EGRESS_UC_QUEUEGROUPS_DATA_t *data)
+{
+  unsigned int cosq = 0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the UC_QUEUE_GROUPS*/
+  BVIEW_BST_ITER (cosq, BVIEW_ASIC_MAX_UC_QUEUE_GROUPS)
+  {
+    /* BST_Stat for each of the 128 Egress Unicast Queue-Group 
+     * Total use-counts in units of buffers.
+     */
+    data->data[cosq].ucBufferCount = SB_BRCM_BST_STAT_ID_UCAST_GROUP_DEFAULT;
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+/*********************************************************************
+* @brief  Obtain Egress Egress Multicast Queues Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - e_mc_q data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if emcq stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if emcq stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_emcq_data_get (int asic, 
+                              BVIEW_BST_EGRESS_MC_QUEUE_DATA_t *data)
+{
+  unsigned int  cosq =0;
+  unsigned int port  =0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the ports*/
+  BVIEW_BST_PORT_ITER (asic, port)
+  {
+    /* Loop through cos queue max per port*/
+    BVIEW_BST_ITER (cosq, BVIEW_BST_NUM_COS_PORT)
+    {
+      /*BST_Stat for the MC queue total use-counts in units of buffers.*/
+      data->data[((port -1) * BVIEW_BST_NUM_COS_PORT) + cosq].mcBufferCount = SB_BRCM_BST_STAT_ID_MCAST_DEFAULT;
+    }
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+
+/*********************************************************************
+* @brief  Obtain Egress Egress CPU Queues Statistics
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - CPU queue data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if CPU stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if CPU stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_cpuq_data_get (int asic, 
+                             BVIEW_BST_EGRESS_CPU_QUEUE_DATA_t *data)
+{
+  unsigned int cosq = 0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* iterate through Maximum CPU cosqs*/
+  BVIEW_BST_ITER (cosq, BVIEW_ASIC_MAX_CPU_QUEUES)
+  {
+    /*The BST_Threshold for the Egress CPU queues in units of buffers.*/
+    data->data[cosq].cpuBufferCount = SB_BRCM_BST_STAT_ID_CPU_DEFAULT;
+  }
+  return BVIEW_STATUS_SUCCESS;
+}
+
+
+/*********************************************************************
+* @brief  Obtain Egress Egress RQE Queues Statistics 
+*
+* @param[in]   asic             - unit
+* @param[out]  data             - RQE data data structure
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if RQE stat get is failed.
+* @retval BVIEW_STATUS_SUCCESS           if RQE stat get is success.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_default_rqeq_data_get (int asic, 
+                                   BVIEW_BST_EGRESS_RQE_QUEUE_DATA_t *data)
+{
+  unsigned int cosq = 0;
+
+  /* Check validity of input data*/
+  if (NULL == data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Loop through all the RQE queues*/
+  BVIEW_BST_ITER (cosq, BVIEW_ASIC_MAX_RQE_QUEUES)
+  {
+    /* BST_Stat for each of the 11 RQE queues total use-counts in units of buffers.*/
+    data->data[cosq].rqeBufferCount = SB_BRCM_BST_STAT_ID_RQE_QUEUE_DEFAULT;
   }
   return BVIEW_STATUS_SUCCESS;
 }

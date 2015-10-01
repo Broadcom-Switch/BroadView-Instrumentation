@@ -235,7 +235,7 @@ BVIEW_STATUS bstjson_get_bst_report (void *cookie, char *jsonBuffer, int bufLeng
 
 
     /* Send the 'command' along with 'asicId' and 'cookie' to the Application thread. */
-    status = bstjson_get_bst_report_impl (cookie, asicId, id, &command);
+    status = bstjson_get_bst_report_impl (cookie, asicId, id,&command);
 
     /* Free up any allocated resources and return status code */
     if (root != NULL)

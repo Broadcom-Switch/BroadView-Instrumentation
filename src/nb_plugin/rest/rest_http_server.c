@@ -78,7 +78,9 @@ static BVIEW_STATUS rest_validate_http_method(char *method)
 static BVIEW_STATUS rest_validate_url(char *url)
 {
     /* currently hard-coded for BST */
-    if (strstr(url, "broadview/bst/") != NULL)
+    if ((strstr(url, "broadview/bst/") != NULL) ||
+        (strstr(url, "broadview/packettrace/") != NULL) || 
+        (strstr(url, "broadview/")))
     {
         return BVIEW_STATUS_SUCCESS;
     }
@@ -299,7 +301,11 @@ static BVIEW_STATUS rest_process_http_request (REST_CONTEXT_t *rest,
 
     /* talk to module manager and get the handler for this request */
     status = modulemgr_rest_api_handler_get(session->json, session->length, &handler);
-
+   
+    if (BVIEW_STATUS_SUCCESS == status)
+    {
+      _REST_LOG(_REST_DEBUG_TRACE, "successfully found the api handler for the inputted json\n");
+    }
  
     if ((BVIEW_STATUS_SUCCESS == ret) && (BVIEW_STATUS_SUCCESS != status))
     {

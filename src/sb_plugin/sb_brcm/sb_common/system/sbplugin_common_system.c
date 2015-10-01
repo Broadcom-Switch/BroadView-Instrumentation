@@ -213,6 +213,7 @@ BVIEW_STATUS sbplugin_common_system_init (BVIEW_SB_SYSTEM_FEATURE_t    *bcmSyste
   bcmSystem->system_port_translate_from_notation_cb      = sbplugin_common_system_port_translate_from_notation;
   bcmSystem->system_asic_translate_to_notation_cb        = sbplugin_common_system_asic_translate_to_notation;
   bcmSystem->system_port_translate_to_notation_cb        = sbplugin_common_system_port_translate_to_notation;
+  bcmSystem->system_network_os_get_cb                    = sbplugin_common_system_network_os_get;
 
   return BVIEW_STATUS_SUCCESS;
 } 
@@ -474,4 +475,28 @@ BVIEW_STATUS sbplugin_common_system_port_translate_to_notation (int asic,
 
   return BVIEW_STATUS_SUCCESS;
 }
+
+/*********************************************************************
+* @brief       Get Network OS
+*
+* @param[out]  buffer                 Pointer to network OS String
+* @param[in]   length                 length of the buffer
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure
+*                                     Failed to get network os
+*
+* @retval   BVIEW_STATUS_SUCCESS      Network OS is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbplugin_common_system_network_os_get (uint8_t *buffer, int length)
+{
+  BVIEW_NULLPTR_CHECK (buffer);
+  
+  memcpy (buffer, SBPLUGIN_NETWORK_OS, length);
+  return BVIEW_STATUS_SUCCESS;
+}
+
 

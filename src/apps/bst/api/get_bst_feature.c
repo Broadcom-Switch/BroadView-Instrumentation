@@ -110,7 +110,6 @@ BVIEW_STATUS bstjson_get_bst_feature (void *cookie, char *jsonBuffer, int bufLen
     /* Copy the 'asic-id' in external notation to our internal representation */
     JSON_ASIC_ID_MAP_FROM_NOTATION(asicId, json_asicId->valuestring);
 
-
     /* Parsing and Validating 'id' from JSON buffer */
     json_id = cJSON_GetObjectItem(root, "id");
     JSON_VALIDATE_JSON_POINTER(json_id, "id", BVIEW_STATUS_INVALID_JSON);

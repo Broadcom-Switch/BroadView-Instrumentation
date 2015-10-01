@@ -46,8 +46,8 @@ extern "C"
 #define BVIEW_TD2_CPU_COSQ            8
 #define BVIEW_TD2_CELL_TO_BYTE        208
 
-/* SDK port number is same as application port number.
- * if the application port numbering is different from the SDK port numbering then
+/* Driver port number is same as application port number.
+ * if the application port numbering is different from the driver port numbering then
  * this need to define to get proper BCM port number.
  */
 #define    BVIEW_BCM_PORT_GET(_port)   \
@@ -65,7 +65,7 @@ extern "C"
 extern BVIEW_ASIC_t                 asicDb[];
 
 /*********************************************************************
-* @brief  SDK South Bound - SYSTEM feature init
+* @brief  South Bound - SYSTEM feature init
 *
 * @param[in,out]   bcmSystem   -  system data structure
 *
@@ -214,6 +214,23 @@ BVIEW_STATUS sbplugin_common_system_asic_translate_to_notation (int asic,
 BVIEW_STATUS sbplugin_common_system_port_translate_to_notation (int asic,
                                                             int port,
                                                             char *dst);
+
+/*********************************************************************
+* @brief       Get Network OS
+*
+* @param[out]  buffer                 Pointer to network OS String
+* @param[in]   length                 length of the buffer
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure
+*                                     Failed to get network os
+*
+* @retval   BVIEW_STATUS_SUCCESS      Network OS is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbplugin_common_system_network_os_get (uint8_t *buffer, int length);
 
 #ifdef __cplusplus
 }

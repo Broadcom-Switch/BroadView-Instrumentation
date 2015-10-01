@@ -46,7 +46,20 @@ typedef struct _bst_reporting_options_
     bool statUnitsInCells;
     bool reportTrigger;
     bool reportThreshold;
+    bool sendSnapShotOnTrigger;
+    BVIEW_BST_TRIGGER_INFO_t triggerInfo;
+    bool sendIncrementalReport;
+    bool statsInPercentage;
+    BVIEW_BST_ASIC_SNAPSHOT_DATA_t *bst_defaults_ptr;
 } BSTJSON_REPORT_OPTIONS_t;
+
+/* structure to map the realms and indices */
+
+typedef struct _bst_realm_index_ {
+  char *realm;
+  char *index1;
+  char *index2;
+}BSTJSON_REALM_INDEX_t;
 
 #define _JSONENCODE_DEBUG
 #define _JSONENCODE_DEBUG_LEVEL         _JSONENCODE_DEBUG_ERROR
@@ -101,6 +114,12 @@ BVIEW_STATUS bstjson_encode_get_bst_feature(int asicId,
                                             uint8_t **pJsonBuffer
                                             );
 
+BVIEW_STATUS bstjson_encode_get_switch_properties ( int asicId,
+                                            int method,
+                                            BVIEW_SWITCH_PROPERTIES_t *pData,
+                                            uint8_t **pJsonBuffer
+                                            );
+
 BVIEW_STATUS bstjson_encode_get_bst_tracking(int asicId,
                                              int method,
                                              const BSTJSON_CONFIGURE_BST_TRACKING_t *pData,
@@ -136,6 +155,14 @@ BVIEW_STATUS _jsonencode_report_egress(char *buffer,
                                        int bufLen,
                                        int *length
                                        );
+
+/******************************************************************* 
+   Utility function to convert the data based on config 
+********************************************************************/
+BVIEW_STATUS bst_json_convert_data(const BSTJSON_REPORT_OPTIONS_t *options,
+                                          const BVIEW_ASIC_CAPABILITIES_t *asic,
+                                          uint64_t *value, uint64_t defVal);
+
 #ifdef __cplusplus
 }
 #endif

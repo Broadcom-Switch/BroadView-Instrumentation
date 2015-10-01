@@ -28,6 +28,7 @@
 #include "configure_bst_thresholds.h"
 #include "configure_bst_feature.h"
 #include "configure_bst_tracking.h"
+#include "get_switch_properties.h"
 #include "get_bst_tracking.h"
 #include "get_bst_feature.h"
 #include "get_bst_thresholds.h"
@@ -54,7 +55,8 @@ static BVIEW_REST_API_t bst_cmd_api_list[] = {
   {"get-bst-tracking", bstjson_get_bst_tracking},
   {"get-bst-thresholds", bstjson_get_bst_thresholds},
   {"clear-bst-thresholds", bstjson_clear_bst_thresholds},
-  {"clear-bst-statistics", bstjson_clear_bst_statistics}
+  {"clear-bst-statistics", bstjson_clear_bst_statistics},
+  {"get-switch-properties", bstjson_get_switch_properties}
 };
 /*********************************************************************
 * @brief : application function to configure the bst features
@@ -95,6 +97,7 @@ BVIEW_STATUS bst_config_feature_set (BVIEW_BST_REQUEST_MSG_t * msg_data)
     return BVIEW_STATUS_INVALID_PARAMETER;
   }
  
+  BST_RWLOCK_WR_LOCK(msg_data->unit);
   /* collection interval is maintained in seconds in application.
       while adding the timer, the same should be converted into
        milli seconds and added as the timer api expects 
@@ -106,6 +109,26 @@ BVIEW_STATUS bst_config_feature_set (BVIEW_BST_REQUEST_MSG_t * msg_data)
     ptr->collectionInterval = msg_data->request.config.collectionInterval;
     timerUpdateReqd = true;
   }
+
+  if (ptr->sendSnapshotOnTrigger != msg_data->request.config.sendSnapshotOnTrigger)
+  {
+    ptr->sendSnapshotOnTrigger = msg_data->request.config.sendSnapshotOnTrigger;
+  }
+  
+  if (ptr->bstMaxTriggers != msg_data->request.config.bstMaxTriggers)
+  {
+    ptr->bstMaxTriggers = msg_data->request.config.bstMaxTriggers;
+  }
+
+  if (ptr->triggerTransmitInterval != msg_data->request.config.triggerTransmitInterval)
+  {
+    ptr->triggerTransmitInterval = msg_data->request.config.triggerTransmitInterval;
+  }
+
+  /* request is always the negation of the variable. Hence checking 
+     for equality. If same then change the variable */
+    ptr->sendIncrementalReport = (msg_data->request.config.sendIncrementalReport == 0)?1:0;
+
 
   if (true == msg_data->request.config.sendAsyncReports)
   {
@@ -139,6 +162,15 @@ BVIEW_STATUS bst_config_feature_set (BVIEW_BST_REQUEST_MSG_t * msg_data)
     ptr->statUnitsInCells = msg_data->request.config.statUnitsInCells;
   }
 
+
+  if (ptr->statsInPercentage != msg_data->request.config.statsInPercentage)
+  {
+    /* Store the data is desired in percentage */
+    ptr->statsInPercentage = msg_data->request.config.statsInPercentage;
+  }
+
+
+  BST_RWLOCK_UNLOCK(msg_data->unit);
   /* till now we have not checked if the same is enabled in h/w.
       Now check if the bst is enabled in asic.. 
      want to check from s/w .. but set can happen directly and get 
@@ -164,11 +196,15 @@ BVIEW_STATUS bst_config_feature_set (BVIEW_BST_REQUEST_MSG_t * msg_data)
 
  /* Set the asic with the desired config to control bst */  
   bstMode.enableStatsMonitoring = msg_data->request.config.bstEnable;
+  bstMode.enablePeriodicCollection = ptr->sendAsyncReports;
+  bstMode.collectionPeriod = ptr->collectionInterval;
   rv = sbapi_bst_config_set (msg_data->unit, &bstMode);
   if (BVIEW_STATUS_SUCCESS == rv)
   {
     /* asic is successfully programmed.. now update the config.. */
+    BST_RWLOCK_WR_LOCK(msg_data->unit);
     ptr->bstEnable = msg_data->request.config.bstEnable;
+    BST_RWLOCK_UNLOCK(msg_data->unit);
     LOG_POST (BVIEW_LOG_INFO,
               "bst application: setting bst feature is successful for unit %d.\r\n", msg_data->unit);
   }
@@ -202,7 +238,6 @@ BVIEW_STATUS bst_config_feature_get (BVIEW_BST_REQUEST_MSG_t * msg_data)
   {
     return BVIEW_STATUS_INVALID_PARAMETER;
   }
-    
   return  BVIEW_STATUS_SUCCESS;
 }
 
@@ -381,6 +416,27 @@ BVIEW_STATUS bst_config_track_get (BVIEW_BST_REQUEST_MSG_t * msg_data)
 }
 
 /*********************************************************************
+* @brief : application function to get switch properties
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : Inpput paramerts are invalid.
+* @retval  : BVIEW_STATUS_SUCCESS  : successfully retrieved the switch 
+*                                    properties.
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS system_switch_properties_get (BVIEW_BST_REQUEST_MSG_t * msg_data)
+{
+  if (NULL == msg_data)
+  {
+    return BVIEW_STATUS_INVALID_PARAMETER;
+  }
+
+  return BVIEW_STATUS_SUCCESS;
+}
+
+/*********************************************************************
 * @brief : application function to get the bst report and thresholds 
 *
 * @param[in] msg_data : pointer to the bst message request.
@@ -415,17 +471,6 @@ BVIEW_STATUS bst_get_report (BVIEW_BST_REQUEST_MSG_t * msg_data)
   /* request is to get the report.
    */
 
-   /* if bst is turned off, 
-      no need to send the reports or triggers
-      Ignore the same */
-
-  if ((false == config_ptr->bstEnable) &&
-      (BVIEW_BST_CMD_API_TRIGGER_REPORT == msg_data->msg_type))
-  {
-    return BVIEW_STATUS_FAILURE;
-  }
-
-
   if (((BVIEW_BST_STATS_PERIODIC == msg_data->report_type) ||
         (BVIEW_BST_STATS_TRIGGER == msg_data->report_type)) &&
       (NULL != track_ptr))
@@ -441,17 +486,6 @@ BVIEW_STATUS bst_get_report (BVIEW_BST_REQUEST_MSG_t * msg_data)
   if ((BVIEW_BST_CMD_API_GET_REPORT == msg_data->msg_type) ||
       (BVIEW_BST_CMD_API_TRIGGER_REPORT == msg_data->msg_type))
   {
-    if (BVIEW_BST_CMD_API_TRIGGER_REPORT == msg_data->msg_type)
-    {
-      /* clear thresholds*/
-      sbapi_bst_clear_thresholds(msg_data->unit);
-      BST_LOCK_TAKE (msg_data->unit);
-      /* threshold clear is successful.. clear the record as well */
-      memset (ptr->threshold_record_ptr, 0, 
-          sizeof (BVIEW_BST_REPORT_SNAPSHOT_t));
-      BST_LOCK_GIVE (msg_data->unit);
-
-    } 
     /* collect data.. since the data is huge.. give the current record 
        memory pointer directly so that we can avoid, copy */
     BST_LOCK_TAKE (msg_data->unit);
@@ -460,18 +494,7 @@ BVIEW_STATUS bst_get_report (BVIEW_BST_REQUEST_MSG_t * msg_data)
      */
     memset (ss, 0,
         sizeof (BVIEW_BST_REPORT_SNAPSHOT_t));
-
-    if (true == config_ptr->bstEnable)
-    {
-      rv = sbapi_bst_snapshot_get (msg_data->unit, &ss->snapshot_data, &ss->tv);
-
-      if (BVIEW_BST_CMD_API_TRIGGER_REPORT == msg_data->msg_type)
-      {
-        /* Asic would disable the bst on generating the trigger.
-           Update the same in the application as well */
-        config_ptr->bstEnable = false;
-      }
-    }
+    rv = sbapi_bst_snapshot_get (msg_data->unit, &ss->snapshot_data, &ss->tv);
     BST_LOCK_GIVE (msg_data->unit);
 
     if (BVIEW_STATUS_SUCCESS != rv)
@@ -482,6 +505,10 @@ BVIEW_STATUS bst_get_report (BVIEW_BST_REQUEST_MSG_t * msg_data)
          report the error to the calling function */
     }
 
+    if (BVIEW_BST_CMD_API_TRIGGER_REPORT == msg_data->msg_type)
+    {
+    rv = bst_enable_on_trigger(msg_data, true);
+    }
   }
 
   /* request is to get the thresholds..
@@ -542,7 +569,7 @@ BVIEW_STATUS bst_periodic_collection_timer_add (unsigned int  unit)
 
   /* check if the timer node is already in use.
   */
-  if (true == bst_data_ptr->bst_timer.in_use)
+  if (true == bst_data_ptr->bst_collection_timer.in_use)
   {
     /* the timer is in use. The requester has asked
        to add the timer again.. Remove the old entru
@@ -563,13 +590,13 @@ BVIEW_STATUS bst_periodic_collection_timer_add (unsigned int  unit)
      so convert the time into milli seconds. , before adding
      the timer node */
     rv =  system_timer_add (bst_periodic_collection_cb,
-                  &bst_data_ptr->bst_timer.bstCollectionTimer,
+                  &bst_data_ptr->bst_collection_timer.bstTimer,
                   ptr->collectionInterval*BVIEW_BST_TIME_CONVERSION_FACTOR,
-                  PERIODIC_MODE, &bst_data_ptr->bst_timer.unit);
+                  PERIODIC_MODE, &bst_data_ptr->bst_collection_timer.unit);
 
     if (BVIEW_STATUS_SUCCESS == rv)
     {
-      bst_data_ptr->bst_timer.in_use = true;
+      bst_data_ptr->bst_collection_timer.in_use = true;
        LOG_POST (BVIEW_LOG_INFO,
               "bst application: timer is successfully started for unit %d.\r\n", unit);
     }
@@ -605,14 +632,14 @@ BVIEW_STATUS bst_periodic_collection_timer_delete (int unit)
   if (NULL == bst_data_ptr)
     return BVIEW_STATUS_INVALID_PARAMETER;
 
-  if (true == bst_data_ptr->bst_timer.in_use)
+  if (true == bst_data_ptr->bst_collection_timer.in_use)
   {
-    rv = system_timer_delete (bst_data_ptr->bst_timer.bstCollectionTimer);
+    rv = system_timer_delete (bst_data_ptr->bst_collection_timer.bstTimer);
     if (BVIEW_STATUS_SUCCESS == rv)
     {
-      bst_data_ptr->bst_timer.in_use = false;
+      bst_data_ptr->bst_collection_timer.in_use = false;
         LOG_POST (BVIEW_LOG_INFO,
-              "bst application: successfully deleted timer for unit %d , timer id %d.\r\n", unit, bst_data_ptr->bst_timer.bstCollectionTimer);
+              "bst application: successfully deleted timer for unit %d , timer id %d.\r\n", unit, bst_data_ptr->bst_collection_timer.bstTimer);
     }
     else
     {
@@ -924,7 +951,7 @@ BVIEW_STATUS bst_module_register ()
 
   bstInfo.featureId = BVIEW_FEATURE_BST;
   memcpy (bstInfo.restApiList, bst_cmd_api_list,
-          (BVIEW_BST_CMD_API_MAX-2) * sizeof (BVIEW_REST_API_t));
+          sizeof(bst_cmd_api_list));
 
   /* Register with module manager. */
   rv = modulemgr_register (&bstInfo);

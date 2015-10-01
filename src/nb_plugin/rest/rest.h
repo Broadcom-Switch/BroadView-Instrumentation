@@ -28,6 +28,7 @@ extern "C"
 #include <errno.h>
 #include <stdbool.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #include "broadview.h"
 #include "rest_debug.h"
@@ -50,6 +51,28 @@ extern "C"
 
 #define REST_CONFIG_PROPERTY_LOCAL_PORT "agent_port"
 #define REST_CONFIG_PROPERTY_LOCAL_PORT_DEFAULT 8080
+
+
+/* Macro to acquire lock */
+#define REST_LOCK_TAKE(_ptr)                                                        \
+        {                                                                           \
+           if (0 != pthread_mutex_lock (&_ptr->config_mutex))                          \
+           {                                                                        \
+              LOG_POST (BVIEW_LOG_ERROR,                                            \
+                  "Failed to take the lock for rest config \r\n");                \
+              return BVIEW_STATUS_FAILURE;                                          \
+           }                                                                        \
+         }
+/*  to release lock*/
+#define REST_LOCK_GIVE(_ptr)                                                        \
+         {                                                                          \
+           if (0 != pthread_mutex_unlock(&_ptr->config_mutex))                         \
+           {                                                                        \
+              LOG_POST (BVIEW_LOG_ERROR,                                            \
+              "Failed to Release the lock for rest config \r\n");                 \
+               return BVIEW_STATUS_FAILURE;                                         \
+            }                                                                       \
+          }
 
 
 typedef struct _rest_config_
@@ -101,6 +124,8 @@ typedef struct _rest_context_
     REST_CONFIG_t config;
 
     REST_SESSION_t sessions[REST_MAX_SESSIONS];
+
+    pthread_mutex_t config_mutex;
 
 } REST_CONTEXT_t;
 
@@ -201,6 +226,10 @@ BVIEW_STATUS rest_json_error_fn_invoke(int fd, BVIEW_STATUS rv, int id);
 BVIEW_STATUS rest_get_json_error_data(BVIEW_STATUS rv, int *json_val, 
                                       char *ptr, BVIEW_REST_ERROR_HANDLER_t *handler);
 BVIEW_STATUS rest_get_id_from_request(char * jsonBuffer, int bufLength, int *id);
+
+
+int rest_agent_config_params_modify(char *ipaddr, unsigned int clientPort);
+
 #ifdef	__cplusplus
 }
 #endif

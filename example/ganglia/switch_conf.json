@@ -1,0 +1,9 @@
+{
+   "name" : "trident2-sw1",
+   "configparams" : [
+      { "param": "agent_ip", "value": "10.130.86.31"},
+      { "param": "agent_port", "value": "8080"},
+      { "param": "bstapp_local_port", "value": "9808"},
+      { "param": "polling_interval", "value": "2"}
+   ]
+}

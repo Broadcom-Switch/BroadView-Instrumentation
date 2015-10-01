@@ -1,0 +1,9 @@
+{
+   "metricinfo" : [
+      { "metric": "bst_device_data_NONE_NONE", "shortname": "DeviceStat", "color": "33cccc"},
+      { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_37_7", "shortname": "ippg_umhb_37_7", "color": "335555"},
+      { "metric": "bst_ingress-service-pool_um-share-buffer-count_0_NONE", "shortname": "ipsp_umsb_0", "color": "cc5555"},
+      { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_37_0", "shortname": "ippg_umhb_37_0", "color": "775555"},
+      { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_38_0", "shortname": "ippg_umhb_38_0", "color": "aa5555"}
+   ]
+}

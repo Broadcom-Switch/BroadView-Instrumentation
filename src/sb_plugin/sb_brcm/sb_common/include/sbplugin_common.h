@@ -31,15 +31,15 @@ extern "C"
 /* Flag to enable/disable debug */
 extern int sbSdkDebugFlag;
 
-/* Macro to print the SDK plug-in debug information */
-#define SB_SDK_DEBUG_PRINT(severity,format, args...)                 \
+/* Macro to print the plug-in debug information */
+#define SB_DEBUG_PRINT(severity,format, args...)                 \
                                 if (sbSdkDebugFlag)                  \
                                 {                                    \
                                   log_post(severity,format, ##args); \
                                 }
 
 
-#define SB_SDK_LOG(severity,format, args...)               \
+#define SB_LOG(severity,format, args...)               \
                         {                                   \
                           log_post(severity,format, ##args);\
                         }
@@ -59,7 +59,7 @@ extern int sbSdkDebugFlag;
                 }
    
 /*********************************************************************
-* @brief    SDK South bound plugin init
+* @brief    South bound plugin init
 *
 * @retval   BVIEW_STATUS_SUCCESS if BST feature is
 *                                initialized successfully.

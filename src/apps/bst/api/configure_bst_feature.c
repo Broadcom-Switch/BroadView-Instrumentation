@@ -48,6 +48,8 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     cJSON *json_jsonrpc, *json_method, *json_asicId;
     cJSON *json_id, *json_bstEnable, *json_sendAsyncReports;
     cJSON *json_collectionInterval, *json_statUnitsInCells,  *root, *params;
+    cJSON *json_maxTriggerReports, *json_sendSnapshotTrigger,  *json_triggerTransmitInterval, *json_sendIncrementalReport;
+    cJSON *json_statsInPercentage;
 
     /* Local non-command-parameter JSON variable declarations */
     char jsonrpc[JSON_MAX_NODE_LENGTH] = {0};
@@ -150,6 +152,16 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     /* Ensure  that the number 'collection-interval' is within range of [0,600] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.collectionInterval, 0, 600);
 
+    /* Parsing and Validating 'stats-in-percentage' from JSON buffer */
+    json_statsInPercentage = cJSON_GetObjectItem(params, "stats-in-percentage");
+    JSON_VALIDATE_JSON_POINTER(json_statsInPercentage, "stats-in-percentage", BVIEW_STATUS_INVALID_JSON);
+    JSON_VALIDATE_JSON_AS_NUMBER(json_statsInPercentage, "stats-in-percentage");
+    /* Copy the value */
+    command.statsInPercentage = json_statsInPercentage->valueint;
+    /* Ensure  that the number 'stats-in-percentage' is within range of [0,1] */
+    JSON_CHECK_VALUE_AND_CLEANUP (command.statsInPercentage, 0, 1);
+
+
 
     /* Parsing and Validating 'stat-units-in-cells' from JSON buffer */
     json_statUnitsInCells = cJSON_GetObjectItem(params, "stat-units-in-cells");
@@ -159,6 +171,50 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     command.statUnitsInCells = json_statUnitsInCells->valueint;
     /* Ensure  that the number 'stat-units-in-cells' is within range of [0,1] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.statUnitsInCells, 0, 1);
+
+    /* Parsing and Validating 'max-trigger-reports' from JSON buffer */
+    json_maxTriggerReports = cJSON_GetObjectItem(params, "trigger-rate-limit");
+    if (NULL != json_maxTriggerReports)
+    {
+      JSON_VALIDATE_JSON_POINTER(json_maxTriggerReports, "trigger-rate-limit", BVIEW_STATUS_INVALID_JSON);
+      JSON_VALIDATE_JSON_AS_NUMBER(json_maxTriggerReports, "trigger-rate-limit");
+      /* Copy the value */
+      command.bstMaxTriggers = json_maxTriggerReports->valueint;
+      JSON_CHECK_VALUE_AND_CLEANUP (command.bstMaxTriggers, 1, 30);
+    }
+
+    /* Parsing and Validating 'send-snapshot-on-trigger' from JSON buffer */
+    json_sendSnapshotTrigger = cJSON_GetObjectItem(params, "send-snapshot-on-trigger");
+    if (NULL != json_sendSnapshotTrigger)
+    {
+      JSON_VALIDATE_JSON_POINTER(json_sendSnapshotTrigger, "send-snapshot-on-trigger", BVIEW_STATUS_INVALID_JSON);
+      JSON_VALIDATE_JSON_AS_NUMBER(json_sendSnapshotTrigger, "send-snapshot-on-trigger");
+      /* Copy the value */
+      command.sendSnapshotOnTrigger = json_sendSnapshotTrigger->valueint;
+      JSON_CHECK_VALUE_AND_CLEANUP (command.sendSnapshotOnTrigger, 0, 1);
+    }
+
+    /* Parsing and Validating 'trigger-rate-limit-interval' from JSON buffer */
+    json_triggerTransmitInterval = cJSON_GetObjectItem(params, "trigger-rate-limit-interval");
+    if (NULL != json_triggerTransmitInterval)
+    {
+      JSON_VALIDATE_JSON_POINTER(json_triggerTransmitInterval, "trigger-rate-limit-interval", BVIEW_STATUS_INVALID_JSON);
+      JSON_VALIDATE_JSON_AS_NUMBER(json_triggerTransmitInterval, "trigger-rate-limit-interval");
+      /* Copy the value */
+      command.triggerTransmitInterval = json_triggerTransmitInterval->valueint;
+      JSON_CHECK_VALUE_AND_CLEANUP (command.triggerTransmitInterval, 1, 60);
+    }
+
+    /* Parsing and Validating 'aync-full-reports' from JSON buffer */
+    json_sendIncrementalReport = cJSON_GetObjectItem(params, "async-full-reports");
+    if (NULL != json_sendIncrementalReport)
+    {
+      JSON_VALIDATE_JSON_POINTER(json_sendIncrementalReport, "async-full-reports", BVIEW_STATUS_INVALID_JSON);
+      JSON_VALIDATE_JSON_AS_NUMBER(json_sendIncrementalReport, "async-full-reports");
+      /* Copy the value */
+      command.sendIncrementalReport = json_sendIncrementalReport->valueint;
+      JSON_CHECK_VALUE_AND_CLEANUP (command.sendIncrementalReport, 0, 1);
+    }
 
 
     /* Send the 'command' along with 'asicId' and 'cookie' to the Application thread. */

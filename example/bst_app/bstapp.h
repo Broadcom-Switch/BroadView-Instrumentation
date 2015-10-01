@@ -31,6 +31,7 @@ extern "C"
 
 #define BSTAPP_MAX_STRING_LENGTH      128
 #define BSTAPP_MAX_HTTP_BUFFER_LENGTH 2048
+#define BSTAPP_MAX_ASIC_LENGTH 16
 
 #define BSTAPP_MAX_REPORT_LENGTH    (8192*10)
 
@@ -51,6 +52,14 @@ extern "C"
 #define BSTAPP_CONFIG_PROPERTY_MAX_REPORTS "bstapp_max_reports"
 #define BSTAPP_CONFIG_PROPERTY_MAX_REPORTS_DEFAULT 10
 
+#define BSTAPP_MAX_INPUT 10
+#define BSTAPP_DEFAULT_ASIC_ID "1"
+#define BSTAPP_DEFAULT_COLLECTION_INTERVAL "60"
+#define BSTAPP_DEFAULT_THRESHOLD "1000"
+#define BSTAPP_DISABLE 0
+#define BSTAPP_ENABLE 1
+#define BSTAPP_DEFAULT_ENABLE "1"
+#define BSTAPP_DEFAULT_DISABLE "0"
 
 #define BSTAPP_COMMUNICATION_LOG_FILE   "/tmp/bstapp_communication.log"   
 
@@ -74,6 +83,19 @@ typedef struct _bstapp_rest_msg_ {
     char *descr;
 }BSTAPP_REST_MSG_t;
 
+typedef struct _bstapp_rest_menu_msg_ {
+    char *httpMethod;
+    char *method;
+    char *json;
+    char *descr;
+}BSTAPP_REST_MENU_MSG_t;
+
+typedef enum _bstapp_usrinput_status_ {
+  USER_INPUT_OK = 0,
+  USER_INPUT_NONE,
+  USER_INPUT_ERROR
+} BSTAPP_USRINPUT_STATUS_t;
+
 /* initialize configurations */
 int bstapp_config_init(BSTAPP_CONFIG_t *config);
 
@@ -83,6 +105,8 @@ int bstapp_logging_init(void);
 int bstapp_message_log(char *message, int length, bool isFromAgent);
 
 int bstapp_communicate_with_agent(void *config);
+
+int bstapp_debug_menu(void *config);
 
 int bstapp_http_server_run(BSTAPP_CONFIG_t *config);
 

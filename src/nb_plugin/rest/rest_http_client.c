@@ -64,7 +64,10 @@ BVIEW_STATUS rest_send_200_with_data(int fd, char *buffer, int length)
         * kernel so increase kernel buffer size for this FD.
         */
        sendbuff = length;
-       setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff));
+       if (0 > setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sendbuff, sizeof(sendbuff)))
+       {
+         return BVIEW_STATUS_FAILURE;
+       }
 
        buffer = buffer + bytes_sent;
        length = length - bytes_sent;
@@ -173,12 +176,12 @@ BVIEW_STATUS rest_send_500(int fd)
  *********************************************************************/
 BVIEW_STATUS rest_send_async_report(REST_CONTEXT_t *rest, char *buffer, int length)
 {
-    char *header = "POST /agent_response HTTP/1.1\\r\\n"
-            "Host: BVIEW Client\\r\\n"
-            "User-Agent: BroadViewAgent\\r\\n"
-            "Accept: text/html,application/xhtml+xml,application/xml\\r\\n"
-            "Content-Length: %d\\r\\n"
-            "\\r\\n";
+    char *header = "POST /agent_response HTTP/1.1\r\n"
+            "Host: BVIEW Client\r\n"
+            "User-Agent: BroadViewAgent\r\n"
+            "Accept: text/html,application/xhtml+xml,application/xml\r\n"
+            "Content-Length: %d\r\n"
+            "\r\n";
 
     char buf[REST_MAX_HTTP_BUFFER_LENGTH] = { 0 };
     int clientFd;
@@ -192,12 +195,29 @@ BVIEW_STATUS rest_send_async_report(REST_CONTEXT_t *rest, char *buffer, int leng
     clientFd = socket(AF_INET, SOCK_STREAM, 0);
     _REST_ASSERT_NET_ERROR((clientFd != -1), "Error Creating server socket");
 
+    /* take lock while copying the info */
+    if (0 != pthread_mutex_lock (&rest->config_mutex))
+    {
+      LOG_POST (BVIEW_LOG_ERROR,
+          "Failed to take the lock for rest config \r\n");
+      close(clientFd);
+      return BVIEW_STATUS_FAILURE;
+    }
+
     /* setup the socket */
     memset(&clientAddr, 0, sizeof (struct sockaddr_in));
     clientAddr.sin_family = AF_INET;
     clientAddr.sin_port = htons(rest->config.clientPort);
 
     temp = inet_pton(AF_INET, &rest->config.clientIp[0], &clientAddr.sin_addr);
+    /* release the lock */
+    if (0 != pthread_mutex_unlock (&rest->config_mutex))
+    {
+      LOG_POST (BVIEW_LOG_ERROR,
+          "Failed to release the lock for rest config \r\n");
+      close(clientFd);
+      return BVIEW_STATUS_FAILURE;
+    }
     _REST_ASSERT_NET_SOCKET_ERROR((temp > 0), "Error Creating server socket",clientFd);
 
     /* connect to the peer */

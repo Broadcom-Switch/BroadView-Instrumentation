@@ -64,7 +64,8 @@ typedef struct _capabilities_
         /** can this ASIC provide accurate time ? */
         bool support1588;
         /** MMU Cell to BYTE conversion*/
-        int cellToByteConv; 
+        int cellToByteConv;
+        
 } BVIEW_ASIC_CAPABILITIES_t;
 
 

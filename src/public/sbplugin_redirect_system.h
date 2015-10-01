@@ -407,6 +407,39 @@ BVIEW_STATUS  sbapi_system_asic_num_pg_get(int asic, int *numPriorityGroups);
 *********************************************************************/
 BVIEW_STATUS  sbapi_system_asic_support_1588_get(int asic, bool *support1588);
 
+/*********************************************************************
+* @brief       Get Supported Feature Mask
+*
+* @param[out]  featureMask            Supported Feature Mask
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or
+*                                     Failed to get asic type from unit or
+*                                     Failed to get asic capabilites for this unit
+*
+* @retval   BVIEW_STATUS_SUCCESS      Supported Feature Mask is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbapi_system_feature_mask_get (int *featureMask);
+
+/*********************************************************************
+* @brief       Get Network OS
+*
+* @param[out]  buffer                 Pointer to network OS String
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure 
+*                                     Failed to get network os
+*
+* @retval   BVIEW_STATUS_SUCCESS      Network OS is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbapi_system_network_os_get (uint8_t *buffer, int length);
+
 #ifdef	__cplusplus
 }
 #endif

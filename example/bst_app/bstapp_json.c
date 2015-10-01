@@ -30,7 +30,12 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 0, \
                 \"collection-interval\": 10, \
-                \"stat-units-in-cells\": 1 \
+                \"stats-in-percentage\": 0, \
+                \"stat-units-in-cells\": 1, \
+                \"send-snapshot-on-trigger\": 1, \
+                \"trigger-rate-limit\": 1, \
+                \"trigger-rate-limit-interval\": 5, \
+                \"async-full-reports\": 0 \
                 }, \
                 \"id\": 1 \
                 }"
@@ -153,6 +158,7 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                        \"id\": 7 \
                        }"
     },
+    
     {
      .httpMethod = "GET",
      .descr = "Obtaining current feature status ",
@@ -192,7 +198,12 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 0, \
                 \"collection-interval\": 3, \
-                \"stat-units-in-cells\": 1 \
+                \"stats-in-percentage\": 0, \
+                \"stat-units-in-cells\": 1, \
+                \"send-snapshot-on-trigger\": 1, \
+                \"trigger-rate-limit\": 2, \
+                \"trigger-rate-limit-interval\": 10, \
+                \"async-full-reports\": 0 \
                 }, \
                 \"id\": 10 \
                 }"
@@ -228,7 +239,7 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
     {
      .httpMethod = "POST",
      .descr = "Enabling ASYNC Reports",
-     .method = "configure-bst-feature to turn off ASYNC reports",
+     .method = "configure-bst-feature to turn on ASYNC reports",
      .json = "{     \
                 \"jsonrpc\": \"2.0\", \
                 \"method\": \"configure-bst-feature\", \
@@ -237,7 +248,12 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 1, \
                 \"collection-interval\": 1, \
-                \"stat-units-in-cells\": 1 \
+                \"stats-in-percentage\": 0, \
+                \"stat-units-in-cells\": 1, \
+                \"send-snapshot-on-trigger\": 1, \
+                \"trigger-rate-limit\": 2, \
+                \"trigger-rate-limit-interval\": 3, \
+                \"async-full-reports\": 0 \
                 }, \
                 \"id\": 13 \
                 }"

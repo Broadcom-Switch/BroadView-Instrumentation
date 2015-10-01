@@ -22,6 +22,7 @@
 #include <time.h>
 #include <signal.h>
 #include <pthread.h>
+#include <mqueue.h>
 #include <errno.h>
 #include "bst_json_memory.h"
 #include "clear_bst_statistics.h"
@@ -47,8 +48,7 @@
 extern BVIEW_BST_CXT_t bst_info;
 /* BST Mutex*/
 pthread_mutex_t *bst_mutex;
-
-
+//pthread_rwlock_t *bst_configRWLock;
 
 /*********************************************************************
  * @brief : function to return the api handler for the bst command type 
@@ -70,11 +70,15 @@ BVIEW_STATUS bst_type_api_get (int type, BVIEW_BST_API_HANDLER_t *handler)
     {BVIEW_BST_CMD_API_GET_REPORT, bst_get_report},
     {BVIEW_BST_CMD_API_GET_THRESHOLD, bst_get_report},
     {BVIEW_BST_CMD_API_TRIGGER_REPORT, bst_get_report},
+    {BVIEW_BST_CMD_API_TRIGGER_COLLECT, bst_process_trigger},
     {BVIEW_BST_CMD_API_SET_FEATURE, bst_config_feature_set},
     {BVIEW_BST_CMD_API_SET_TRACK, bst_config_track_set},
     {BVIEW_BST_CMD_API_SET_THRESHOLD, bst_config_threshold_set},
     {BVIEW_BST_CMD_API_CLEAR_THRESHOLD, bst_clear_threshold_set},
-    {BVIEW_BST_CMD_API_CLEAR_STATS, bst_clear_stats_set}
+    {BVIEW_BST_CMD_API_CLEAR_STATS, bst_clear_stats_set},
+    {BVIEW_BST_CMD_API_CLEAR_TRIGGER_COUNT, bst_clear_trigger_count},
+    {BVIEW_BST_CMD_API_ENABLE_BST_ON_TRIGGER, bst_enable_on_trigger_timer_expiry},
+    {BVIEW_BST_CMD_API_GET_SWITCH_PROPERTIES, system_switch_properties_get}
   };
 
   for (i = 0; i < BVIEW_BST_CMD_API_MAX-1; i++)
@@ -88,6 +92,111 @@ BVIEW_STATUS bst_type_api_get (int type, BVIEW_BST_API_HANDLER_t *handler)
   return BVIEW_STATUS_INVALID_PARAMETER;
 }
 
+
+/*********************************************************************
+* @brief : clear the trigger counters 
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : successfully cleared the trigger report count 
+* @retval  : BVIEW_STATUS_FAILURE : The clearing of count has failed.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
+*
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS bst_clear_trigger_count (BVIEW_BST_REQUEST_MSG_t * msg_data)
+{
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_BST_UNIT_CXT_t *ptr;
+  bool clearTimer = true;
+  unsigned int i;
+  BVIEW_BST_REQUEST_MSG_t bst_msg = {0};
+
+  if (NULL == msg_data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  ptr = BST_UNIT_PTR_GET (msg_data->unit);
+
+  if (NULL == ptr)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* before clearing, check if there is still a need to 
+     run this timer . If no triggers are there, 
+     the timer can be cleared and restarted as and when 
+     required */
+
+  BST_RWLOCK_WR_LOCK (msg_data->unit);
+  for (i = 0; i < BST_ID_MAX; i++)
+  {
+    if (0 != ptr->bst_trigger_count[i])
+    {
+      clearTimer = false;
+      break;
+    }
+  }
+
+  memset (ptr->bst_trigger_count, 0, sizeof(ptr->bst_trigger_count)); 
+  BST_RWLOCK_UNLOCK (msg_data->unit);
+
+  if (true == clearTimer)
+  {
+    rv = bst_trigger_timer_delete (msg_data->unit);
+  }
+
+  /* post message to bst queue */
+  bst_msg.unit = msg_data->unit;
+  bst_msg.msg_type = BVIEW_BST_CMD_API_ENABLE_BST_ON_TRIGGER;
+
+  /* Send the message to the bst application */
+  rv = bst_send_request (&bst_msg);
+  if (BVIEW_STATUS_SUCCESS != rv)
+  {
+    LOG_POST (BVIEW_LOG_ERROR,
+        "Failed to send trigger collection message to bst application. err = %d\r\n", rv);
+    return BVIEW_STATUS_FAILURE;
+  }
+
+  return rv;
+}
+
+/*********************************************************************
+* @brief :  re-enable bst on trigger timer expiry 
+*
+* @param[in] msg_data : pointer to the bst message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : successfully cleared the trigger report count 
+* @retval  : BVIEW_STATUS_FAILURE : The re-enable has failed.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
+*
+* @note
+*
+*********************************************************************/
+BVIEW_STATUS bst_enable_on_trigger_timer_expiry (BVIEW_BST_REQUEST_MSG_t * msg_data)
+{
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_BST_CONFIG_PARAMS_t *ptr;
+
+  if (NULL == msg_data)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  ptr = BST_CONFIG_FEATURE_PTR_GET (msg_data->unit);
+
+  if (NULL == ptr)
+    return BVIEW_STATUS_INVALID_PARAMETER;
+
+  /* Take lock */
+  BST_RWLOCK_RD_LOCK (msg_data->unit);
+
+  if (true == ptr->bstEnable)
+  {
+    rv = bst_enable_on_trigger(msg_data, true);
+  }
+
+  /* release lock */
+  BST_RWLOCK_UNLOCK (msg_data->unit);
+  return rv;
+}
 
 /*********************************************************************
 * @brief : bst main application function which does processing of messages
@@ -114,66 +223,117 @@ BVIEW_STATUS bst_app_main (void)
   unsigned int rcvd_err = 0;
   unsigned int id = 0, num_units = 0;
   BVIEW_BST_API_HANDLER_t handler;
+  BVIEW_SWITCH_PROPERTIES_t  *pswitchProp = bst_info.switchProperties;
 
   if (BVIEW_STATUS_SUCCESS != bst_module_register ())
   {
     /* registration with module mgr has failed.
        return failure. so that the caller can clean the resources */
-             LOG_POST (BVIEW_LOG_EMERGENCY,
-                 "Registration with module mgr failed \r\n");
+    LOG_POST (BVIEW_LOG_EMERGENCY,
+              "Registration with module mgr failed \r\n");
 
     return BVIEW_STATUS_FAILURE;
   }
 
   if (BVIEW_STATUS_SUCCESS != sbapi_system_num_units_get ((int *) &num_units))
-   {
+  {
     LOG_POST (BVIEW_LOG_ERROR, "Failed to get num of units\r\n");
     return BVIEW_STATUS_FAILURE;
-   }
+  }
+  /* NULLPTR check*/
+  if (pswitchProp == NULL)
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+  pswitchProp->numAsics = num_units;
+  /* Get Supported feature mask*/
+  if (BVIEW_STATUS_SUCCESS !=
+      sbapi_system_feature_mask_get (&pswitchProp->featureMask))
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* get the network OS or Plugin*/
+  if (BVIEW_STATUS_SUCCESS !=
+      sbapi_system_network_os_get (&pswitchProp->networkOs[0], 
+                                   BVIEW_NETWORK_OS_LEN_MAX))
+  {
+    return BVIEW_STATUS_FAILURE;
+  }
 
   for (id = 0; id < num_units; id++)
   {
     /* register the trigger callback for every unit */
     /* register for triggers from asic */
-    rv = sbapi_bst_register_trigger (id, bst_trigger_cb, &bst_info.unit[id].cb_cookie);
+    rv = sbapi_bst_register_trigger (id, (bst_trigger_cb), &bst_info.unit[id].cb_cookie);
     if (BVIEW_STATUS_SUCCESS != rv)
     {
       LOG_POST (BVIEW_LOG_ERROR,
           "Failed to register with asic for callbacks for  unit %d\r\n", id);
       return BVIEW_STATUS_FAILURE;
     }
-  /* get the asic capabilities of the system 
-     save the same so that the same can be reused */
-      if (BVIEW_STATUS_SUCCESS != sbapi_system_asic_capabilities_get(id, 
+
+     /* Get asic notation*/
+    if (BVIEW_STATUS_SUCCESS != 
+        sbapi_system_asic_translate_to_notation (id,
+                              pswitchProp->asicInfo[id].asic_notation))
+    {
+       return BVIEW_STATUS_FAILURE;
+    }
+      
+    /* Get ASIC type*/
+    if (BVIEW_STATUS_SUCCESS != 
+        sbapi_system_unit_to_asic_type_get (id,
+                             &pswitchProp->asicInfo[id].asicType))
+    {
+       return BVIEW_STATUS_FAILURE;
+    }
+
+     /* get the bst buffer default values */
+    if (BVIEW_STATUS_SUCCESS != sbapi_bst_default_snapshot_get(id, 
+                                          &bst_info.unit[id].bst_defaults))
+    {
+        /* unable to get the default values 
+           log error and return */
+       LOG_POST (BVIEW_LOG_ERROR, 
+               "Failed to Get Asic capabilities for unit %d. \r\n", id);
+       return BVIEW_STATUS_FAILURE;
+    }
+    
+     /* get the asic capabilities of the system 
+      * save the same so that the same can be reused 
+      */
+    if (BVIEW_STATUS_SUCCESS != sbapi_system_asic_capabilities_get(id, 
                                           &bst_info.unit[id].asic_capabilities))
-      {
+    {
         /* unable to get the asic capabilities
            log error and return */
-          LOG_POST (BVIEW_LOG_ERROR, 
+       LOG_POST (BVIEW_LOG_ERROR, 
                "Failed to Get Asic capabilities for unit %d. \r\n", id);
-          return BVIEW_STATUS_FAILURE;
-      }
-      else
-      {
+       return BVIEW_STATUS_FAILURE;
+    }
+    else
+    {
              
-        _BST_LOG(_BST_DEBUG_INFO, "supported capabilities are\n"
-            "num ports = %d, numUnicastQueues = %d\n" 
-            "numUnicastQueueGroups = %d, numMulticastQueues = %d\n" 
-            "numServicePools = %d, numCommonPools = %d\n" 
-            "numCpuQueues = %d, numRqeQueues = %d\n" 
-            "numRqeQueuePools = %d, numPriorityGroups = %d\n",
-             bst_info.unit[id].asic_capabilities.numPorts, 
-             bst_info.unit[id].asic_capabilities.numUnicastQueues, 
-             bst_info.unit[id].asic_capabilities.numUnicastQueueGroups, 
-             bst_info.unit[id].asic_capabilities.numMulticastQueues, 
-             bst_info.unit[id].asic_capabilities.numServicePools, 
-             bst_info.unit[id].asic_capabilities.numCommonPools, 
-             bst_info.unit[id].asic_capabilities.numCpuQueues, 
-             bst_info.unit[id].asic_capabilities.numRqeQueues, 
-             bst_info.unit[id].asic_capabilities.numRqeQueuePools, 
-             bst_info.unit[id].asic_capabilities.numPriorityGroups 
-            ); 
-      }
+      _BST_LOG(_BST_DEBUG_INFO, "supported capabilities are\n"
+          "num ports = %d, numUnicastQueues = %d\n" 
+          "numUnicastQueueGroups = %d, numMulticastQueues = %d\n" 
+          "numServicePools = %d, numCommonPools = %d\n" 
+          "numCpuQueues = %d, numRqeQueues = %d\n" 
+          "numRqeQueuePools = %d, numPriorityGroups = %d\n",
+           bst_info.unit[id].asic_capabilities.numPorts, 
+           bst_info.unit[id].asic_capabilities.numUnicastQueues, 
+           bst_info.unit[id].asic_capabilities.numUnicastQueueGroups, 
+           bst_info.unit[id].asic_capabilities.numMulticastQueues, 
+           bst_info.unit[id].asic_capabilities.numServicePools, 
+           bst_info.unit[id].asic_capabilities.numCommonPools, 
+           bst_info.unit[id].asic_capabilities.numCpuQueues, 
+           bst_info.unit[id].asic_capabilities.numRqeQueues, 
+           bst_info.unit[id].asic_capabilities.numRqeQueuePools, 
+           bst_info.unit[id].asic_capabilities.numPriorityGroups 
+          ); 
+    }
+    pswitchProp->asicInfo[id].numPorts = 
+           bst_info.unit[id].asic_capabilities.numPorts;
   }
 
 
@@ -181,11 +341,11 @@ BVIEW_STATUS bst_app_main (void)
   {
     if (-1 != (msgrcv (bst_info.recvMsgQid, &msg_data, sizeof (msg_data), 0, 0))) 
     {
-        _BST_LOG(_BST_DEBUG_INFO, "msg_data info\n"
-            "msg_data.msg_type = %ld\n"
-            "msg_data.unit = %d\n"
-            "msg_data.cookie = %d\n",
-            msg_data.msg_type, msg_data.unit, (NULL == msg_data.cookie)? true: false); 
+      _BST_LOG(_BST_DEBUG_INFO, "msg_data info\n"
+          "msg_data.msg_type = %ld\n"
+          "msg_data.unit = %d\n"
+          "msg_data.cookie = %d\n",
+          msg_data.msg_type, msg_data.unit, (NULL == msg_data.cookie)? true: false); 
 
       if (msg_data.unit >= num_units)
       {
@@ -207,18 +367,18 @@ BVIEW_STATUS bst_app_main (void)
         if (BVIEW_STATUS_SUCCESS != rv)
         {
           LOG_POST (BVIEW_LOG_ERROR,
-              "failed to send response for command %d , err = %d. \r\n", msg_data.msg_type, rv);
+              "failed to send response for command %ld , err = %d. \r\n", msg_data.msg_type, rv);
         }
         continue;
       }
       /* Counter to check for read errors.. 
-        successfully read the message. clear this to 0*/
+         successfully read the message. clear this to 0*/
       rcvd_err = 0;
       /* Memset the response message */
       memset (&reply_data, 0, sizeof (BVIEW_BST_RESPONSE_MSG_t));
 
       /* get the api function for the method type */
-      if (BVIEW_STATUS_SUCCESS != bst_type_api_get(msg_data.msg_type, &handler))
+      if (BVIEW_STATUS_SUCCESS != bst_type_api_get (msg_data.msg_type, &handler))
       {
         continue;
       }
@@ -230,12 +390,11 @@ BVIEW_STATUS bst_app_main (void)
       rv = bst_copy_reply_params (&msg_data, &reply_data);
       if (BVIEW_STATUS_SUCCESS != rv)
       {
-        _BST_LOG(_BST_DEBUG_ERROR, "bst_main.c failed to send response for command %ld , err = %d. \r\n", msg_data.msg_type, rv);
-         LOG_POST (BVIEW_LOG_ERROR,
-            "failed to send response for command %d , err = %d. \r\n", msg_data.msg_type, rv);
+        _BST_LOG(_BST_DEBUG_ERROR, 
+                "bst_main.c failed to send response for command %ld , err = %d. \r\n", msg_data.msg_type, rv);
+        LOG_POST (BVIEW_LOG_ERROR,
+            "failed to send response for command %ld , err = %d. \r\n", msg_data.msg_type, rv);
       }
-      continue;
-
     }
     else
     {
@@ -244,18 +403,18 @@ BVIEW_STATUS bst_app_main (void)
       /* increment the error counter. 
          If this counter increments continously exit and return failure
          so that corrective action can be taken */
-         rcvd_err++;
+       rcvd_err++;
 
-         /* wait till 10 consective messages */
-         if(BVIEW_BST_MAX_QUEUE_SEND_FAILS < rcvd_err)
-         {
-           break;
-         }
-        continue;
+        /* wait till 10 consective messages */
+       if(BVIEW_BST_MAX_QUEUE_SEND_FAILS < rcvd_err)
+       {
+         break;
+       }
+       continue;
     }
   }                             /* while (1) */
-             LOG_POST (BVIEW_LOG_EMERGENCY,
-                 "exiting from bst pthread ... \r\n");
+  LOG_POST (BVIEW_LOG_EMERGENCY,
+            "exiting from bst pthread ... \r\n");
   pthread_exit(&bst_info.bst_thread);
   return BVIEW_STATUS_FAILURE;
 }
@@ -320,6 +479,11 @@ BVIEW_STATUS bst_app_config_init (unsigned int num_units)
     ptr->config.collectionInterval = BVIEW_BST_DEFAULT_INTERVAL;
     /* stats in cells or bytes.  */
     ptr->config.statUnitsInCells = BVIEW_BST_DEFAULT_STATS_UNITS;
+    ptr->config.statsInPercentage = BVIEW_BST_DEFAULT_STATS_PERCENTAGE;
+    ptr->config.bstMaxTriggers = BVIEW_BST_DEFAULT_MAX_TRIGGERS;
+    ptr->config.sendSnapshotOnTrigger = BVIEW_BST_DEFAULT_SNAPSHOT_TRIGGER;
+    ptr->config.triggerTransmitInterval = BVIEW_BST_DEFAULT_TRIGGER_INTERVAL;
+    ptr->config.sendIncrementalReport = BVIEW_BST_DEFAULT_SEND_INCR_REPORT;
 
 
     /* enable device tracking   */
@@ -349,8 +513,10 @@ BVIEW_STATUS bst_app_config_init (unsigned int num_units)
     ptr->track.trackPeakStats = false;
 
     /* Initialize the bst timer array */
-    bst_data_ptr->bst_timer.unit = unit_id;
-    bst_data_ptr->bst_timer.in_use = false;
+    bst_data_ptr->bst_collection_timer.unit = unit_id;
+    bst_data_ptr->bst_collection_timer.in_use = false;
+    bst_data_ptr->bst_trigger_timer.in_use = false;
+    bst_data_ptr->bst_trigger_timer.unit = unit_id;
 
     /* push default values to asic */
 
@@ -362,7 +528,7 @@ BVIEW_STATUS bst_app_config_init (unsigned int num_units)
           unit_id);
     }
     memset (&bstMode, 0, sizeof (BVIEW_BST_CONFIG_t));
-    bstMode.enableStatsMonitoring = BVIEW_BST_DEFAULT_TRACK_DEVICE;
+    bstMode.enableStatsMonitoring = BVIEW_BST_DEFAULT_ENABLE;
     bstMode.enableDeviceStatsMonitoring = BVIEW_BST_DEFAULT_TRACK_DEVICE;
     bstMode.enableIngressStatsMonitoring = BVIEW_BST_DEFAULT_TRACK_INGRESS;
     bstMode.enableEgressStatsMonitoring = BVIEW_BST_DEFAULT_TRACK_EGRESS;
@@ -375,7 +541,7 @@ BVIEW_STATUS bst_app_config_init (unsigned int num_units)
       return BVIEW_STATUS_FAILURE;
     }
 
-    if (false != ptr->config.sendAsyncReports)
+    if ((false != ptr->config.sendAsyncReports) && (ptr->config.bstEnable != false))
     {
       /* register for timer callback only if reports need
          to be sent asyncronously */
@@ -454,7 +620,7 @@ BVIEW_STATUS bst_send_response (BVIEW_BST_RESPONSE_MSG_t * reply_data)
     case BVIEW_BST_CMD_API_GET_TRACK:
 
       /* call json encoder api for tracking  */
-      rv = bstjson_encode_get_bst_tracking (reply_data->unit, reply_data->msg_type,
+      rv = bstjson_encode_get_bst_tracking (reply_data->unit, reply_data->id,
           reply_data->response.track,
           &pJsonBuffer);
       break;
@@ -462,14 +628,20 @@ BVIEW_STATUS bst_send_response (BVIEW_BST_RESPONSE_MSG_t * reply_data)
     case BVIEW_BST_CMD_API_GET_FEATURE:
       /* call json encoder api for feature  */
 
-      rv = bstjson_encode_get_bst_feature (reply_data->unit, reply_data->msg_type,
+      rv = bstjson_encode_get_bst_feature (reply_data->unit, reply_data->id,
           reply_data->response.config,
           &pJsonBuffer);
       break;
-
-    case BVIEW_BST_CMD_API_GET_REPORT:
-    case BVIEW_BST_CMD_API_TRIGGER_REPORT:
-    case BVIEW_BST_CMD_API_GET_THRESHOLD:
+    case  BVIEW_BST_CMD_API_GET_SWITCH_PROPERTIES:
+      /* call json encoder api for featute*/
+       rv = bstjson_encode_get_switch_properties (reply_data->unit, reply_data->id,
+                                                  reply_data->switchProperties,
+                                                  &pJsonBuffer);
+       break;
+   
+     case BVIEW_BST_CMD_API_GET_REPORT:
+     case BVIEW_BST_CMD_API_TRIGGER_REPORT:
+     case BVIEW_BST_CMD_API_GET_THRESHOLD:
       /*  call json encoder api for report  */
 
       /* if this is a periodic report, the back up pointer is
@@ -505,8 +677,8 @@ BVIEW_STATUS bst_send_response (BVIEW_BST_RESPONSE_MSG_t * reply_data)
 
   if (NULL != pJsonBuffer && BVIEW_STATUS_SUCCESS == rv)
   {
-    if (BVIEW_STATUS_SUCCESS != 
-         rest_response_send(reply_data->cookie, (char *)pJsonBuffer, strlen((char *)pJsonBuffer)))
+    rv = rest_response_send(reply_data->cookie, (char *)pJsonBuffer, strlen((char *)pJsonBuffer));
+    if (BVIEW_STATUS_SUCCESS != rv)
     {
       _BST_LOG(_BST_DEBUG_ERROR, "sending response failed due to error = %d\r\n",rv);
       LOG_POST (BVIEW_LOG_ERROR,
@@ -589,13 +761,17 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
   reply_data->cookie = msg_data->cookie;
         /* copy the asic capabilities into the response */
 
-        reply_data->asic_capabilities = &ptr->asic_capabilities;
+  reply_data->asic_capabilities = &ptr->asic_capabilities;
 
   reply_data->options.statUnitsInCells = 
-    ptr->bst_data->bst_config.config.statUnitsInCells;
+  ptr->bst_data->bst_config.config.statUnitsInCells;
 
+  reply_data->options.statsInPercentage = false;
+
+  /* copy the address pointer of the default values */
+  reply_data->options.bst_defaults_ptr = &ptr->bst_defaults;
         /* copy the collect params into options fields of the request */
-        BST_COPY_COLLECT_TO_RESP (pCollect, pResp);
+  BST_COPY_COLLECT_TO_RESP (pCollect, pResp);
 
 
   switch (msg_data->msg_type)
@@ -610,6 +786,14 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
           reply_data->options.reportTrigger = true;
           reply_data->options.reportThreshold = false;
           reply_data->cookie = NULL;
+          reply_data->options.triggerInfo = msg_data->triggerInfo;
+          reply_data->options.sendSnapShotOnTrigger = ptr->bst_data->bst_config.config.sendSnapshotOnTrigger;
+          if(false == reply_data->options.sendSnapShotOnTrigger)
+          {
+            BST_COPY_TO_RESP(pResp, false);
+            /* Set the only the desired realm to true */
+            bst_set_realm_to_collect(msg_data->triggerInfo.realm, pResp);
+          }
         }
 
         /* update the data, i.e make the active record as new backup
@@ -623,14 +807,34 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
 
         if (BVIEW_BST_STATS_PERIODIC == msg_data->report_type)
         {
-          reply_data->response.report.backup = ptr->stats_backup_record_ptr;
+            reply_data->options.sendIncrementalReport = 
+                 ptr->bst_data->bst_config.config.sendIncrementalReport;
+
+          /* check if complete report is configured */
+          if (false == ptr->bst_data->bst_config.config.sendIncrementalReport)
+          {
+            reply_data->response.report.backup = NULL;
+          }
+          else
+          {
+            reply_data->response.report.backup = ptr->stats_backup_record_ptr;
+          }
           reply_data->cookie = NULL;
         }
         else
         {
           /* copy null as the encoder function expects the null for non-periodic cases */
           reply_data->response.report.backup = NULL;
+
+          /* no need to send huge data when get-bst-report is requested.
+             Send only the counters which contain non zero values */
+            reply_data->options.sendIncrementalReport = 
+                 true;
         }
+
+
+        reply_data->options.statsInPercentage = 
+          ptr->bst_data->bst_config.config.statsInPercentage;
       }
       break;
 
@@ -640,6 +844,8 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
         reply_data->response.report.active = ptr->threshold_record_ptr;
         /* copy null as the encoder function expects the null  */
         reply_data->response.report.backup = NULL;
+         reply_data->options.sendIncrementalReport = 
+                 false;
       }
       break;
 
@@ -650,7 +856,9 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
     case BVIEW_BST_CMD_API_GET_TRACK:
       reply_data->response.track = &ptr->bst_data->bst_config.track;
       break;
-
+    case BVIEW_BST_CMD_API_GET_SWITCH_PROPERTIES:
+      reply_data->switchProperties = bst_info.switchProperties;
+     break; 
     default:
       break;
   }
@@ -675,14 +883,21 @@ BVIEW_STATUS bst_copy_reply_params (BVIEW_BST_REQUEST_MSG_t * msg_data,
 BVIEW_STATUS bst_send_request (BVIEW_BST_REQUEST_MSG_t * msg_data)
 {
   int rv = BVIEW_STATUS_SUCCESS;
+  struct mq_attr obuf; /* output attr struct for getattr */
 
   if (NULL == msg_data)
     return BVIEW_STATUS_INVALID_PARAMETER;
 
   if (-1 == msgsnd (bst_info.recvMsgQid, msg_data, sizeof (BVIEW_BST_REQUEST_MSG_t), IPC_NOWAIT))
   {
+    if ( ! mq_getattr(bst_info.recvMsgQid,&obuf) )
+    {
+      _BST_LOG(_BST_DEBUG_TRACE, "flags: %ld  maxmsg: %ld  msgsize: %ld  curmsgs: %ld\n",
+          obuf.mq_flags, obuf.mq_maxmsg, obuf.mq_msgsize, obuf.mq_curmsgs);
+    }
+
     LOG_POST (BVIEW_LOG_ERROR,
-              "Failed to send message to bst application,  err = %d, %d\r\n",
+              "Failed to send message to bst application,  msg_type  %ld, err = %d\r\n",
               msg_data->msg_type, errno);
     rv = BVIEW_STATUS_FAILURE;
   }
@@ -742,12 +957,18 @@ void bst_app_uninit ()
 {
   int id = 0, num_units;
   pthread_mutex_t *bst_mutex;
+  pthread_rwlock_t *bst_configRWLock;
 
   bst_info.key1 = MSG_QUEUE_ID_TO_BST;
+  bst_info.trigger_key = MSG_QUEUE_ID_TO_BST_TRIGGER;
 
   if (BVIEW_STATUS_SUCCESS != sbapi_system_num_units_get (&num_units))
   {
     LOG_POST (BVIEW_LOG_ERROR, "Failed to get num of units\r\n");
+  }
+  if (NULL != bst_info.switchProperties)
+  {
+     free (bst_info.switchProperties);
   }
   for (id = 0; id < num_units; id++)
   {
@@ -759,6 +980,9 @@ void bst_app_uninit ()
     /* Destroy mutex */
     bst_mutex = &bst_info.unit[id].bst_mutex;
     pthread_mutex_destroy (bst_mutex);
+
+    bst_configRWLock = &bst_info.unit[id].bst_configRWLock;
+    pthread_rwlock_destroy (bst_configRWLock);
 
     /* free all memeory */
     if (NULL != bst_info.unit[id].bst_data)
@@ -828,10 +1052,11 @@ BVIEW_STATUS bst_main ()
   unsigned int id = 0, num_units = 0;
   int rv = BVIEW_STATUS_SUCCESS;
   int recvMsgQid;
+  pthread_rwlock_t *bst_configRWLock;
 
 
   bst_info.key1 = MSG_QUEUE_ID_TO_BST;
-
+  bst_info.trigger_key = MSG_QUEUE_ID_TO_BST_TRIGGER;
 
 
   /* create mutex for all units */
@@ -839,6 +1064,10 @@ BVIEW_STATUS bst_main ()
   {
     bst_mutex = &bst_info.unit[id].bst_mutex;
     pthread_mutex_init (bst_mutex, NULL);
+
+    bst_configRWLock = &bst_info.unit[id].bst_configRWLock;
+    /* Initialize Read Write lock with default attributes */
+    pthread_rwlock_init (bst_configRWLock, NULL);
   }
 
   /* get the number of units */
@@ -851,6 +1080,19 @@ BVIEW_STATUS bst_main ()
               "Failed to number of units, Unable to start bst application\r\n");
     return BVIEW_STATUS_RESOURCE_NOT_AVAILABLE;
   }
+  /* allocate memory for switch properties*/
+  bst_info.switchProperties = 
+          (BVIEW_SWITCH_PROPERTIES_t *) malloc (sizeof (BVIEW_SWITCH_PROPERTIES_t));
+  if (bst_info.switchProperties == NULL)
+  {
+    LOG_POST (BVIEW_LOG_EMERGENCY,
+                "Failed to allocate memory for bst application\r\n");
+    return BVIEW_STATUS_RESOURCE_NOT_AVAILABLE;
+  }
+
+  memset (bst_info.switchProperties, 0x00, 
+                    sizeof (BVIEW_SWITCH_PROPERTIES_t));
+
   /* allocate memory for all units */
   for (id = 0; id < num_units; id++)
   {
@@ -904,7 +1146,7 @@ BVIEW_STATUS bst_main ()
             sizeof (BVIEW_BST_REPORT_SNAPSHOT_t));
   }
 
-    LOG_POST (BVIEW_LOG_INFO,
+  LOG_POST (BVIEW_LOG_INFO,
               "bst application: bst memory allocated successfully\r\n");
 
   if (BVIEW_STATUS_SUCCESS != bst_app_config_init (num_units))
@@ -934,8 +1176,7 @@ BVIEW_STATUS bst_main ()
         return  BVIEW_STATUS_FAILURE;
       }
 
-      /* message queue exits..
-         Delete the message queue */
+      /* message queue exits.. Delete the message queue */
       if  (msgctl(recvMsgQid, IPC_RMID, (struct msqid_ds *)NULL) <0) 
       {
         LOG_POST (BVIEW_LOG_EMERGENCY,
@@ -943,17 +1184,16 @@ BVIEW_STATUS bst_main ()
       }
 
 
-  /* create the message queue for bst */
+      /* create the message queue for bst */
       if ((recvMsgQid = msgget (bst_info.key1, IPC_CREAT | 0777)) < 0)
-  {
-    /* Free the resources allocated so far */
-    bst_app_uninit ();
+      {
+        /* Free the resources allocated so far */
+        bst_app_uninit ();
 
-    LOG_POST (BVIEW_LOG_EMERGENCY,
+        LOG_POST (BVIEW_LOG_EMERGENCY,
               "Failed to create  msgQ for bst application. err = %d\n", errno);
-    return  BVIEW_STATUS_FAILURE;
-  }
-
+        return  BVIEW_STATUS_FAILURE;
+      }
     }
   }
   bst_info.recvMsgQid = recvMsgQid;
@@ -968,49 +1208,142 @@ BVIEW_STATUS bst_main ()
               "bst application: bst pthread created\r\n");
 
 
+   /* Check if message queue is already exitsing */
+  if (0 > (recvMsgQid = msgget(bst_info.trigger_key, IPC_EXCL | IPC_CREAT | 0777)))
+  {
+    if (EEXIST == errno)
+    {
+
+     /* get the already existing  message queue id for bst */
+      if ((recvMsgQid = msgget (bst_info.trigger_key, IPC_CREAT | 0777)) < 0)
+      {
+        /* Free the resources allocated so far */
+        //bst_app_uninit ();
+
+        LOG_POST (BVIEW_LOG_EMERGENCY,
+            "Failed to create  msgQ for bst trigger. err = %d\n", errno);
+        return  BVIEW_STATUS_FAILURE;
+      }
+
+      /* message queue exits..
+         Delete the message queue */
+      if  (msgctl(recvMsgQid, IPC_RMID, (struct msqid_ds *)NULL) <0) 
+      {
+        LOG_POST (BVIEW_LOG_EMERGENCY,
+            "Failed to destroy bst msgQ id, err = %d\n", errno);
+      }
+
+
+  /* create the message queue for bst */
+      if ((recvMsgQid = msgget (bst_info.trigger_key, IPC_CREAT | 0777)) < 0)
+  {
+    /* Free the resources allocated so far */
+    bst_app_uninit ();
+
+    LOG_POST (BVIEW_LOG_EMERGENCY,
+              "Failed to create  msgQ for bst application. err = %d\n", errno);
+    return  BVIEW_STATUS_FAILURE;
+  }
+
+    }
+  }
+  bst_info.recvTriggerMsgQid = recvMsgQid;
+
+   /* create pthread for bst application */
+  if (0 != pthread_create (&bst_info.bst_trigger_thread, NULL, (void *) &bst_trigger_main, NULL))
+  {
+    LOG_POST (BVIEW_LOG_EMERGENCY, "BST  trigger processing thread creation failed %d\r\n", errno);
+    return  BVIEW_STATUS_FAILURE;
+  }
+    LOG_POST (BVIEW_LOG_INFO,
+              "bst application: bst trigger process pthread created\r\n");
+
+
+
   return rv;
 }
 
 
-/*************************************************************
-*@brief:  Callback function to send the trigger to bst application
-*         to send periodic collection
+/*********************************************************************
+*  @brief:  function to set the given realm in the include trigger report.  
 *
-* @param[in] unit : unit for which the trigger is generated 
-* @param[in] cookie : cookie
-* @param[in] type : trigger type
+* @param[in]   *realm : pointer to realm 
+* @param[in]   *realm : pointer to json encode options 
 *
-* @retval  : BVIEW_STATUS_SUCCESS
-* @retval  : BVIEW_STATUS_FAILURE
+* @retval  : none : 
 *
-* @note  : callback function from ASIC to bst application 
-*          to send the triggers. This function is invoked 
-*          in the asic context, when the congigured thresholds 
-*          exceeds the values. In such case, 
-*          the trigger is generated by the asic and bst 
-*          application take a trigger report and sends the same to collector.
+* @note :
 *
-*************************************************************/
-BVIEW_STATUS bst_trigger_cb (int unit, void *cookie,
-                             BVIEW_BST_TRIGGER_TYPE type)
+*********************************************************************/
+
+void bst_set_realm_to_collect(char *realm, BVIEW_BST_REPORT_OPTIONS_t *options)
 {
-  BVIEW_BST_REQUEST_MSG_t msg_data = {0};
-  BVIEW_STATUS rv;
-
-  msg_data.unit = unit;
-  msg_data.msg_type = BVIEW_BST_CMD_API_TRIGGER_REPORT;
-  msg_data.report_type = BVIEW_BST_STATS_TRIGGER;
-
-  /* Send the message to the bst application */
-  rv = bst_send_request (&msg_data);
-  if (BVIEW_STATUS_SUCCESS != rv)
+  if (0 == strcmp("device", realm))
   {
-    LOG_POST (BVIEW_LOG_ERROR,
-      "Failed to send periodic collection message to bst application. err = %d\r\n", rv);
-       return BVIEW_STATUS_FAILURE;
+    options->includeDevice = true;
+    return;
   }
-    LOG_POST (BVIEW_LOG_INFO,
-      "trigger call back sent to bst application successfully for unit %d\r\n", unit);
-  return BVIEW_STATUS_SUCCESS;
+  
+  if (0 == strcmp("ingress-service-pool", realm))
+  {
+    options->includeIngressServicePool = true;
+    return;
+  }
+
+  if (0 == strcmp("ingress-port-service-pool", realm))
+  {
+    options->includeIngressPortServicePool = true;
+    return;
+  }
+  
+  if (0 == strcmp("ingress-port-priority-group", realm))
+  {
+    options->includeIngressPortPriorityGroup = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-port-service-pool", realm))
+  {
+    options->includeEgressPortServicePool = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-service-pool", realm))
+  {
+    options->includeEgressServicePool = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-uc-queue", realm))
+  {
+    options->includeEgressUcQueue = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-uc-queue-group", realm))
+  {
+    options->includeEgressUcQueueGroup = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-mc-queue", realm))
+  {
+    options->includeEgressMcQueue = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-cpu-queue", realm))
+  {
+    options->includeEgressCpuQueue = true;
+    return;
+  }
+
+  if (0 == strcmp("egress-rqe-queue", realm))
+  {
+    options->includeEgressRqeQueue = true;
+    return;
+  }
+
+  return;
 }
 

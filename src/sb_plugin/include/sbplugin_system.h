@@ -38,6 +38,9 @@ extern "C"
         int numSupportedAsics;
         BVIEW_ASIC_t *asicList[BVIEW_MAX_ASICS_ON_A_PLATFORM];
 
+        /** Supported Feature Mask*/
+        int featureMask;
+
         /** Obtain System Name. Must return the name as a null-terminated string, 
          * not exceeding length characters */
         BVIEW_STATUS(*system_name_get_cb)(char *buffer, int length);
@@ -62,6 +65,9 @@ extern "C"
 
         /** Get Port String from Port Number*/
         BVIEW_STATUS(*system_port_translate_to_notation_cb) (int asic, int port, char *dst);        
+ 
+        /** Get network OS*/
+        BVIEW_STATUS(*system_network_os_get_cb) (uint8_t *buffer, int length);        
 
     } BVIEW_SB_SYSTEM_FEATURE_t;
 

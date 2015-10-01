@@ -46,13 +46,14 @@ ifeq ($(TARGETOS_VARIANT),ubuntu_12)
    override platform = x86-smp_generic_64-2_6
    export platform
    export BUILD_SDK_CFLAGS = -DINCLUDE_IM_BOARDKEEPER -Wno-unused-result -Wno-error=format -Wno-error=format-security
+   export CFLAGS += -fno-common -fno-strict-aliasing -fomit-frame-pointer -funit-at-a-time -msoft-float -I$(KERNEL_SRC)/arch/x86/include/generated/
    export OPENNSL_IM_FIXUP = 1
 
 
    export CFLAGS += -fno-common -fno-strict-aliasing -fomit-frame-pointer -funit-at-a-time -msoft-float -fPIC
 
 ifeq ($(KERNEL_SRC),)
-   KERNEL_SRC = $(OPENAPPS_OUTPATH)/headers/usr/src/linux-headers-3.2.0-23-generic
+   KERNEL_SRC = $(OPENAPPS_OUTPATH)/headers/usr/src/linux-headers-3.5.0-54-generic
 endif
    export KERNEL_SRC
 
@@ -64,4 +65,51 @@ ifeq ($(SBPLUGIN),sdk)
 include $(abspath $(OPENAPPS_BASE)/platform/cpu/common/$(TARGETOS_VARIANT)/kernel.cfg)
 endif
 endif
+
+ifeq ($(TARGETOS_VARIANT),debian7.6)
+   override platform = x86-smp_generic_64-2_6
+   export platform
+   export BUILD_SDK_CFLAGS = -Wno-unused-result -Wno-error=format -Wno-error=format-security
+   export OPENNSL_IM_FIXUP = 1
+
+
+   export CFLAGS += -fno-common -fno-strict-aliasing -fomit-frame-pointer -funit-at-a-time -msoft-float -fPIC
+
+ifeq ($(KERNEL_SRC),)
+   KERNEL_SRC = $(OPENAPPS_OUTPATH)/headers/usr/src/linux-headers-3.2.46+
+endif
+   export KERNEL_SRC
+
+ifeq ($(KERNDIR),)
+   KERNDIR = $(KERNEL_SRC)
+endif
+   export KERNDIR
+ifeq ($(SBPLUGIN),sdk)
+include $(abspath $(OPENAPPS_BASE)/platform/cpu/common/$(TARGETOS_VARIANT)/kernel.cfg)
+endif
+endif
+
+ifeq ($(TARGETOS_VARIANT),debian8.0)
+   override platform = x86-smp_generic_64-2_6
+   export platform
+   export BUILD_SDK_CFLAGS = -Wno-unused-result -Wno-error=format -Wno-error=format-security
+   export OPENNSL_IM_FIXUP = 1
+   export LINUX_UAPI_SPLIT=1
+
+   export CFLAGS += -fno-common -fno-strict-aliasing -fomit-frame-pointer -funit-at-a-time -msoft-float -fPIC -Wno-sizeof-pointer-memaccess
+
+ifeq ($(KERNEL_SRC),)
+   KERNEL_SRC = $(OPENAPPS_OUTPATH)/headers/usr/src/linux-headers-3.16.7-ckt7
+endif
+   export KERNEL_SRC
+
+ifeq ($(KERNDIR),)
+   KERNDIR = $(KERNEL_SRC)
+endif
+   export KERNDIR
+ifeq ($(SBPLUGIN),sdk)
+include $(abspath $(OPENAPPS_BASE)/platform/cpu/common/$(TARGETOS_VARIANT)/kernel.cfg)
+endif
+endif
+
 endif

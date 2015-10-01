@@ -1,0 +1,20 @@
+BroadView
+=========
+
+For documentation please open http://Broadcom-Switch.github.io/BroadView-Instrumentation/doc/html/index.html. Note: opening the files in the html
+directory directly from github.com will display HTML, use the github.io link
+to view rendered HTML.
+
+This contains documentation for:
+
+  - Overview of BroadView with information necessary for installing and
+    configuring the environment.
+  - Information on the BroadView API including a reference of the BroadView
+    API functions and example on how they use the BroadView API.
+
+Broadcom Corporation
+5300 California Avenue
+Irvine, CA 92617
++1 (949) 926-5000
+http://www.broadcom.com
+

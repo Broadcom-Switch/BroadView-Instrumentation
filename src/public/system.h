@@ -23,6 +23,8 @@
 
 
 /**Timer mode Periodic or Non Periodic*/
+
+#define BVIEW_TIME_CONVERSION_FACTOR 1000
 typedef enum
 {
   PERIODIC_MODE = 0,
@@ -31,6 +33,22 @@ typedef enum
 
 /*********************************************************************
 * @brief        Function used to initialize various system components
+*               such as openapps driver and calls phase-2 init
+*
+* @param[in]    debug     debug mode of openapps driver
+*
+* @retval       NA
+*
+* @note         NA
+*
+* @end
+*********************************************************************/
+
+void bview_system_init_ph1(bool debug, bool menu);
+
+/*********************************************************************
+* @brief        Function used to initialize various system components
+*               such as module manager, redirector, agent and sbplugins
 *
 * @param[in]    NA
 *
@@ -41,7 +59,7 @@ typedef enum
 * @end
 *********************************************************************/
 
-void system_init();
+void bview_system_init_ph2(void *param);
 
 /*********************************************************************
 * @brief     Function used to deinitialize various system components
@@ -56,7 +74,7 @@ void system_init();
 * @end
 *********************************************************************/
 
-void system_deinit();
+void bview_system_deinit();
 
 /*********************************************************************
 * @brief         Function used to create and arm a timer

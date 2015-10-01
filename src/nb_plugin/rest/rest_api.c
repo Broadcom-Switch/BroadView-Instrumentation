@@ -40,6 +40,7 @@ const REST_JSON_ERROR_t rest_json_error_array[] = {
   {BVIEW_STATUS_RESOURCE_NOT_AVAILABLE, -32603, "Internal Error", rest_send_400_with_data},
   {BVIEW_STATUS_INVALID_MEMORY, -32603, "Internal Error", rest_send_400_with_data},
   {BVIEW_STATUS_INVALID_PARAMETER, -32602, "Invalid Params", rest_send_400_with_data},
+  {BVIEW_STATUS_INVALID_ID, -32602, "Invalid Params", rest_send_400_with_data},
   {BVIEW_STATUS_UNSUPPORTED, -32601, "Method Not Found", rest_send_404_with_data},
   {BVIEW_STATUS_INVALID_JSON, -32700, "Parse Error", rest_send_500_with_data}
 };
@@ -47,7 +48,8 @@ const REST_JSON_ERROR_t rest_json_error_array[] = {
                              \"jsonrpc\": \"2.0\", \
                              \"error\": { \
                              \"code\": %d, \
-                             \"message\": \"%s\" } \
+                             \"message\": \"%s\" , \
+                             \"version\": \"%d\" }, \
                              \"id\":  %d\
                               }";
 
@@ -55,7 +57,8 @@ const char json_error_async[] = "{     \
                                 \"jsonrpc\": \"2.0\", \
                                 \"error\": { \
                                 \"code\": %d, \
-                                \"message\": \"%s\" } \
+                                \"message\": \"%s\" , \
+                                \"version\": \"%d\" }, \
                                 }";
 
 #define REST_HTTP_JSON_MAX_ELEMENTS 7
@@ -253,7 +256,7 @@ BVIEW_STATUS rest_json_error_fn_invoke(int fd, BVIEW_STATUS rv, int id)
     return ret_json;
 
   memset (json, 0, REST_JSON_BUFF_LEN);
-  snprintf(json, REST_JSON_BUFF_LEN, json_error, json_val, str, id);
+  snprintf(json, REST_JSON_BUFF_LEN, json_error, json_val, str, BVIEW_JSON_VERSION, id);
 
   /* call the function to send the json error */
 
@@ -289,7 +292,7 @@ BVIEW_STATUS rest_send_json_error_async(BVIEW_STATUS rv)
     return ret_json;
 
   memset (json, 0, REST_JSON_BUFF_LEN);
-  snprintf(json, REST_JSON_BUFF_LEN, json_error_async, json_val, str);
+  snprintf(json, REST_JSON_BUFF_LEN, json_error_async, json_val, str, BVIEW_JSON_VERSION);
 
   /* call the function to send the json error */
   ret_json = rest_send_async_report(&rest, json, strlen(json));
@@ -351,5 +354,34 @@ BVIEW_STATUS rest_session_fd_get (void *cookie, int *fd)
 
 }
 
+
+/******************************************************************
+ * @brief  Initializes configuration, reads it from file or assumes defaults.
+ *
+ * @param[in]   *ipaddr     pointer to client ip addr string 
+ * @param[in]   clientPort  client port 
+ *                           
+ * @retval   0  when configuration is initialized successfully
+ *
+ * @note     
+ *********************************************************************/
+int rest_agent_config_params_modify(char *ipaddr, unsigned int clientPort)
+{
+  REST_CONTEXT_t *ptr;
+
+  ptr = &rest;
+
+     REST_LOCK_TAKE(ptr);
+
+     /* setup default client IP */
+     strncpy(&ptr->config.clientIp[0], ipaddr, REST_MAX_IP_ADDR_LENGTH);
+
+     /* setup default client port */
+     ptr->config.clientPort = clientPort;
+
+     REST_LOCK_GIVE(ptr);
+
+     return 0;
+}
 
 

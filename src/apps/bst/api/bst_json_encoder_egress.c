@@ -47,6 +47,8 @@ static BVIEW_STATUS _jsonencode_report_egress_cpuq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-cpu-queue\", \"%s\": [ ";
     char *cpuqTemplate = " [  %d , %" PRIu64 ", %" PRIu64 " ] ,";
@@ -59,11 +61,22 @@ static BVIEW_STATUS _jsonencode_report_egress_cpuq ( char *buffer, int asicId,
     /* For each queue, check if there is a difference, and create the report. */
     for (queue = 1; queue <= asic->numCpuQueues; queue++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((queue-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
         /* lets see if this queue needs to be included in the report at all */
         /* if this queue needs not be reported, then we move to next queue */
-        if ((current->cpqQ.data[queue - 1].cpuBufferCount == 0) &&
-            (current->cpqQ.data[queue - 1].cpuQueueEntries == 0) )
+      if (true == sendIncrReport)
+      {
+        if ((NULL == previous) &&
+            (current->cpqQ.data[queue - 1].cpuBufferCount == 0) &&
+            (current->cpqQ.data[queue - 1].cpuQueueEntries == 0))
             continue;
+      }
 
         if ((previous != NULL) &&
             (previous->cpqQ.data[queue - 1].cpuBufferCount == current->cpqQ.data[queue - 1].cpuBufferCount) &&
@@ -71,21 +84,8 @@ static BVIEW_STATUS _jsonencode_report_egress_cpuq ( char *buffer, int asicId,
             continue;
 
              val = current->cpqQ.data[queue - 1].cpuBufferCount;
-
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val = current->cpqQ.data[queue - 1].cpuBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val = current->cpqQ.data[queue - 1].cpuBufferCount * (asic->cellToByteConv);
-             }
-               
+             defaultVal = options->bst_defaults_ptr->cpqQ.data[queue - 1].cpuBufferCount;
+             bst_json_convert_data(options, asic, &val, defaultVal);
         /* Now that this queue needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       cpuqTemplate, queue-1,
@@ -126,6 +126,8 @@ static BVIEW_STATUS _jsonencode_report_egress_rqeq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-rqe-queue\", \"%s\": [ ";
     char *cpuqTemplate = " [  %d , %" PRIu64 ", %" PRIu64 " ] ,";
@@ -138,11 +140,22 @@ static BVIEW_STATUS _jsonencode_report_egress_rqeq ( char *buffer, int asicId,
     /* For each queue, check if there is a difference, and create the report. */
     for (queue = 1; queue <= asic->numRqeQueues; queue++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((queue-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
+      if (true == sendIncrReport)
+       {
         /* lets see if this queue needs to be included in the report at all */
         /* if this queue needs not be reported, then we move to next queue */
-        if ((current->rqeQ.data[queue - 1].rqeBufferCount == 0) &&
-            (current->rqeQ.data[queue - 1].rqeQueueEntries == 0) )
+        if ((NULL == previous) &&
+            (current->rqeQ.data[queue - 1].rqeBufferCount == 0) &&
+            (current->rqeQ.data[queue - 1].rqeQueueEntries == 0))
             continue;
+      }
 
         if ((previous != NULL) &&
             (previous->rqeQ.data[queue - 1].rqeBufferCount == current->rqeQ.data[queue - 1].rqeBufferCount) &&
@@ -150,20 +163,8 @@ static BVIEW_STATUS _jsonencode_report_egress_rqeq ( char *buffer, int asicId,
             continue;
 
              val = current->rqeQ.data[queue - 1].rqeBufferCount;
-
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val = current->rqeQ.data[queue - 1].rqeBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val = current->rqeQ.data[queue - 1].rqeBufferCount * (asic->cellToByteConv);
-             }
+             defaultVal = options->bst_defaults_ptr->rqeQ.data[queue - 1].rqeBufferCount;
+             bst_json_convert_data(options, asic, &val, defaultVal);
         /* Now that this queue needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       cpuqTemplate, queue-1,
@@ -204,6 +205,8 @@ static BVIEW_STATUS _jsonencode_report_egress_mcq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-mc-queue\", \"%s\": [ ";
     char *dataTemplate = " [  %d , \"%s\" ,  %" PRIu64 ", %" PRIu64 " ] ,";
@@ -218,12 +221,23 @@ static BVIEW_STATUS _jsonencode_report_egress_mcq ( char *buffer, int asicId,
     /* For each service pool, check if there is a difference, and create the report. */
     for (queue = 1; queue <= asic->numMulticastQueues; queue++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((queue-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
+
+      if (true == sendIncrReport)
+      {
         /* lets see if this queue needs to be included in the report at all */
         /* if this queue needs not be reported, then we move to next queue */
-        if ((current->eMcQ.data[queue - 1].mcBufferCount == 0) &&
+        if ((NULL == previous) &&
+            (current->eMcQ.data[queue - 1].mcBufferCount == 0) &&
             (current->eMcQ.data[queue - 1].mcQueueEntries == 0) )
             continue;
-
+      }
         if ((previous != NULL) &&
             (previous->eMcQ.data[queue - 1].mcBufferCount == current->eMcQ.data[queue - 1].mcBufferCount ) &&
             (previous->eMcQ.data[queue - 1].mcQueueEntries == current->eMcQ.data[queue - 1].mcQueueEntries))
@@ -234,19 +248,9 @@ static BVIEW_STATUS _jsonencode_report_egress_mcq ( char *buffer, int asicId,
         JSON_PORT_MAP_TO_NOTATION(current->eMcQ.data[queue - 1].port, asicId, &portStr[0]);
 
         val = current->eMcQ.data[queue - 1].mcBufferCount;
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val = current->eMcQ.data[queue - 1].mcBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val = current->eMcQ.data[queue - 1].mcBufferCount * (asic->cellToByteConv);
-             }
+        defaultVal = options->bst_defaults_ptr->eMcQ.data[queue - 1].mcBufferCount;
+        bst_json_convert_data(options, asic, &val, defaultVal);
+
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, queue-1,
@@ -288,6 +292,8 @@ static BVIEW_STATUS _jsonencode_report_egress_ucq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-uc-queue\", \"%s\": [ ";
     char *dataTemplate = " [  %d , \"%s\" , %" PRIu64 " ] ,";
@@ -302,11 +308,23 @@ static BVIEW_STATUS _jsonencode_report_egress_ucq ( char *buffer, int asicId,
     /* For each unicast queues, check if there is a difference, and create the report. */
     for (queue = 1; queue <= asic->numUnicastQueues; queue++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((queue-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
+
+
+      if (true == sendIncrReport)
+      {
         /* lets see if this queue needs to be included in the report at all */
         /* if this queue needs not be reported, then we move to next queue */
-        if (current->eUcQ.data[queue - 1].ucBufferCount == 0)
+        if ((NULL == previous) &&
+            (current->eUcQ.data[queue - 1].ucBufferCount == 0))
             continue;
-
+      }
         if ((previous != NULL) &&
             (previous->eUcQ.data[queue - 1].ucBufferCount == current->eUcQ.data[queue - 1].ucBufferCount))
             continue;
@@ -315,20 +333,9 @@ static BVIEW_STATUS _jsonencode_report_egress_ucq ( char *buffer, int asicId,
         memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
         JSON_PORT_MAP_TO_NOTATION(current->eUcQ.data[queue - 1].port, asicId, &portStr[0]);
 
-        val = current->eUcQ.data[queue - 1].ucBufferCount;
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val = current->eUcQ.data[queue - 1].ucBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val = current->eUcQ.data[queue - 1].ucBufferCount * (asic->cellToByteConv);
-             }
+         val = current->eUcQ.data[queue - 1].ucBufferCount;
+         defaultVal = options->bst_defaults_ptr->eUcQ.data[queue - 1].ucBufferCount;
+         bst_json_convert_data(options, asic, &val, defaultVal);
         /* Now that this ucq needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, queue-1,
@@ -368,6 +375,8 @@ static BVIEW_STATUS _jsonencode_report_egress_ucqg ( char *buffer, int asicId,
     int actualLength  = 0;
     int qg = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-uc-queue-group\", \"%s\": [ ";
     char *dataTemplate = " [  %d , %" PRIu64 " ] ,";
@@ -380,29 +389,30 @@ static BVIEW_STATUS _jsonencode_report_egress_ucqg ( char *buffer, int asicId,
     /* For each unicast queue groups, check if there is a difference, and create the report. */
     for (qg = 1; qg <= asic->numUnicastQueueGroups; qg++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((qg-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
+
+
+      if (true == sendIncrReport)
+      {
         /* lets see if this queue needs to be included in the report at all */
         /* if this queue needs not be reported, then we move to next queue */
-        if (current->eUcQg.data[qg - 1].ucBufferCount == 0)
+        if ((NULL == previous) &&
+            (current->eUcQg.data[qg - 1].ucBufferCount == 0))
             continue;
-
+     }
         if ((previous != NULL) &&
             (previous->eUcQg.data[qg - 1].ucBufferCount == current->eUcQg.data[qg - 1].ucBufferCount))
             continue;
 
               val = current->eUcQg.data[qg - 1].ucBufferCount;
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val = current->eUcQg.data[qg - 1].ucBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val = current->eUcQg.data[qg - 1].ucBufferCount * (asic->cellToByteConv);
-             }
+              defaultVal = options->bst_defaults_ptr->eUcQg.data[qg - 1].ucBufferCount;
+              bst_json_convert_data(options, asic, &val, defaultVal);
         /* Now that this ucqg needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, qg-1,
@@ -441,6 +451,8 @@ static BVIEW_STATUS _jsonencode_report_egress_sp ( char *buffer, int asicId,
     int actualLength  = 0;
     int pool = 0;
     uint64_t val1 = 0, val2 = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-service-pool\", \"%s\": [ ";
     char *dataTemplate = " [  %d , %" PRIu64 " , %" PRIu64 ", %" PRIu64 " ] ,";
@@ -453,12 +465,24 @@ static BVIEW_STATUS _jsonencode_report_egress_sp ( char *buffer, int asicId,
     /* For each service pool, check if there is a difference, and create the report. */
     for (pool = 1; pool <= asic->numServicePools; pool++)
     {
+      if ((pool-1 != options->triggerInfo.queue) && 
+	  (false == options->sendSnapShotOnTrigger) && 
+	  (true == options->reportTrigger))
+      {
+	continue;
+      }
+
+
+      if (true == sendIncrReport)
+      {
         /* lets see if this sp needs to be included in the report at all */
         /* if this sp needs not be reported, then we move to next sp */
-        if ((current->eSp.data[pool - 1].umShareBufferCount == 0) &&
+        if ((NULL == previous) &&
+            (current->eSp.data[pool - 1].umShareBufferCount == 0) &&
             (current->eSp.data[pool - 1].mcShareBufferCount == 0)  &&
             (current->eSp.data[pool - 1].mcShareQueueEntries == 0) )
             continue;
+      }
 
         if ((previous != NULL) &&
             (previous->eSp.data[pool - 1].umShareBufferCount == current->eSp.data[pool - 1].umShareBufferCount ) &&
@@ -467,23 +491,12 @@ static BVIEW_STATUS _jsonencode_report_egress_sp ( char *buffer, int asicId,
             continue;
 
              val1 = current->eSp.data[pool - 1].umShareBufferCount;
-             val2 = current->eSp.data[pool - 1].mcShareBufferCount;
+             defaultVal = options->bst_defaults_ptr->eSp.data[pool - 1].umShareBufferCount;
+             bst_json_convert_data(options, asic, &val1, defaultVal);
 
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val1 = current->eSp.data[pool - 1].umShareBufferCount / (asic->cellToByteConv);
-               val2 = current->eSp.data[pool - 1].mcShareBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val1 = current->eSp.data[pool - 1].umShareBufferCount * (asic->cellToByteConv);
-               val2 = current->eSp.data[pool - 1].mcShareBufferCount * (asic->cellToByteConv);
-             }
+             val2 = current->eSp.data[pool - 1].mcShareBufferCount;
+             defaultVal = options->bst_defaults_ptr->eSp.data[pool - 1].mcShareBufferCount;
+             bst_json_convert_data(options, asic, &val2, defaultVal);
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, pool-1, val1,val2,
@@ -522,6 +535,8 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
     int actualLength  = 0;
     bool includePort = false;
     uint64_t val1 = 0, val2 = 0, val3 = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     int includeServicePool[BVIEW_ASIC_MAX_SERVICE_POOLS] = { 0 };
     int port = 0, pool = 0;
@@ -543,17 +558,34 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
      */
     for (port = 1; port <= asic->numPorts; port++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((port-1 != options->triggerInfo.port) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+         {
+           continue;
+         }
         includePort = false;
         memset (&includeServicePool[0], 0, sizeof (includeServicePool));
 
         /* lets see if this port needs to be included in the report at all */
         for (pool = 1; pool <= asic->numServicePools; pool++)
         {
+      /* check if the trigger report request should contain snap shot */
+        if ((pool-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+         {
+           continue;
+         }
             /* By default, we plan to include the pool */
             includeServicePool[pool - 1] = 1;
 
+      if (true == sendIncrReport)
+      {
             /* If there is no traffic reported for this priority group, ignore it */
-            if ( (current->ePortSp.data[port - 1][pool - 1].umShareBufferCount == 0) &&
+               if ((NULL == previous) &&
+                (current->ePortSp.data[port - 1][pool - 1].umShareBufferCount == 0) &&
                 (current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount == 0) &&
                 (current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount == 0) &&
                 (current->ePortSp.data[port - 1][pool - 1].mcShareQueueEntries == 0))
@@ -561,7 +593,7 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
                 includeServicePool[pool - 1] = 0;
                 continue;
             }
-
+      }
             /* If this is snapshot report, include the port in the data  */
             if (previous == NULL)
             {
@@ -608,26 +640,16 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
                 continue;
 
             val1 = current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount;
-            val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
-            val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
+            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].ucShareBufferCount;
+            bst_json_convert_data(options, asic, &val1, defaultVal);
 
-           /* check if we need to convert the data to cells */
-             if ((true == options->statUnitsInCells) && 
-                 (true == options->reportThreshold))
-             {
-               val1 = current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount / (asic->cellToByteConv);
-               val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount / (asic->cellToByteConv);
-               val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount / (asic->cellToByteConv);
-             }
-             /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                 (false == options->reportThreshold))
-             {
-               val1 = current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount * (asic->cellToByteConv);
-               val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount * (asic->cellToByteConv);
-               val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount * (asic->cellToByteConv);
-             }
+            val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
+            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
+            bst_json_convert_data(options, asic, &val2, defaultVal);
+
+            val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
+            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
+            bst_json_convert_data(options, asic, &val3, defaultVal);
             /* add the data to the report */
             _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                           epspServicePoolTemplate, pool-1,

@@ -48,6 +48,9 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
     bool includePort = false;
     uint64_t val1 = 0;
     uint64_t val2 = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
+
 
     int includePriorityGroups[BVIEW_ASIC_MAX_PRIORITY_GROUPS] = { 0 };
     int port = 0, priGroup = 0;
@@ -55,8 +58,6 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
 
     char *ippgTemplate = " { \"realm\": \"ingress-port-priority-group\", \"%s\": [ ";
     char *ippgPortTemplate = " { \"port\": \"%s\", \"data\": [ ";
-    //char *ippgPortGroupTemplate = " { \"pg\" : %d , \"um-share\": %" PRIu64 " , \"um-headroom\": %" PRIu64 " } ,";
-    //char *ippgPortGroupTemplate = " { \"pg\" : %d , \"data\": [ %" PRIu64 " , %" PRIu64 " ] } ,";
     char *ippgPortGroupTemplate = " [  %d , %" PRIu64 " , %" PRIu64 " ] ,";
 
     _JSONENCODE_LOG(_JSONENCODE_DEBUG_TRACE, "BST-JSON-Encoder : (Report) Encoding INGRESS - IPPG data \n");
@@ -70,22 +71,40 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
      */
     for (port = 1; port <= asic->numPorts; port++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((port-1 != options->triggerInfo.port) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
         includePort = false;
         memset (&includePriorityGroups[0], 0, sizeof (includePriorityGroups));
 
         /* lets see if this port needs to be included in the report at all */
         for (priGroup = 1; priGroup <= asic->numPriorityGroups; priGroup++)
         {
+      /* check if the trigger report request should contain snap shot */
+           if ((priGroup-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+           {
+             continue;
+           }
             /* By default, we plan to include the pri-group */
             includePriorityGroups[priGroup - 1] = 1;
-
+   
+            if (true == sendIncrReport)
+            {
             /* If there is no traffic reported for this priority group, ignore it */
-            if ( (current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount == 0) &&
+            if ((previous == NULL) && 
+                (current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount == 0) &&
                 (current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount == 0) )
             {
                 includePriorityGroups[priGroup - 1] = 0;
                 continue;
             }
+           }
 
             /* If this is snapshot report, include the port in the data  */
             if (previous == NULL)
@@ -119,13 +138,12 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
             continue;
         }
 
-        /* convert the port to an external representation */
-        memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-        JSON_PORT_MAP_TO_NOTATION(port, asicId, &portStr[0]);
+          /* convert the port to an external representation */
+          memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+          JSON_PORT_MAP_TO_NOTATION(port, asicId, &portStr[0]);
 
-
-        /* Now that this port needs to be included in the report, copy the header */
-        _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ippgPortTemplate, &portStr[0]);
+          /* Now that this port needs to be included in the report, copy the header */
+          _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ippgPortTemplate, &portStr[0]);
 
         /* for each priority-group, prepare the data */
         for (priGroup = 1; priGroup <= asic->numPriorityGroups; priGroup++)
@@ -135,37 +153,22 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
                 continue;
 
             val1 = current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount;
-            val2 = current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
+            defaultVal = options->bst_defaults_ptr->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount;
+            bst_json_convert_data(options, asic, &val1, defaultVal);
 
-            /* check if we need to convert the data to cells
-               threshold always comes in bytes from asic */
-            if ((true == options->statUnitsInCells) &&
-                (true == options->reportThreshold))
-             {
-               val1 = 
-                 current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount / (asic->cellToByteConv);
-               val2 = 
-                 current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount / (asic->cellToByteConv);
-             }
-            /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                     (false == options->reportThreshold))
-             {
-               val1 = 
-                 current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount * (asic->cellToByteConv);
-               val2 = 
-                 current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount * (asic->cellToByteConv);
-             }
+            val2 = current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
+            defaultVal = options->bst_defaults_ptr->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
+            bst_json_convert_data(options, asic, &val2, defaultVal);
+
             /* add the data to the report */
             _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                           ippgPortGroupTemplate, priGroup-1, val1, val2);
         }
 
-        /* adjust the buffer to remove the last ',' */
-        buffer = buffer - 1;
-        remLength += 1;
-        *length -= 1;
+          /* adjust the buffer to remove the last ',' */
+          buffer = buffer - 1;
+          remLength += 1;
+          *length -= 1;
 
         /* add the "] } ," for the next port */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
@@ -204,6 +207,8 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
     int actualLength  = 0;
     bool includePort = false;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     int includeServicePool[BVIEW_ASIC_MAX_SERVICE_POOLS] = { 0 };
     int port = 0, pool = 0;
@@ -227,20 +232,38 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
      */
     for (port = 1; port <= asic->numPorts; port++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((port-1 != options->triggerInfo.port) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
         includePort = false;
         memset (&includeServicePool[0], 0, sizeof (includeServicePool));
 
         /* lets see if this port needs to be included in the report at all */
         for (pool = 1; pool <= asic->numServicePools; pool++)
         {
+      /* check if the trigger report request should contain snap shot */
+           if ((pool-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+           {
+             continue;
+           }
             /* By default, we plan to include the pool */
             includeServicePool[pool - 1] = 1;
 
-            /* If there is no traffic reported for this priority group, ignore it */
-            if (current->iPortSp.data[port - 1][pool - 1].umShareBufferCount == 0)
+            if (true == sendIncrReport)
             {
+              /* If there is no traffic reported for this priority group, ignore it */
+              if ((previous == NULL) &&
+                  (current->iPortSp.data[port - 1][pool - 1].umShareBufferCount == 0))
+              {
                 includeServicePool[pool - 1] = 0;
                 continue;
+              }
             }
 
             /* If this is snapshot report, include the port in the data  */
@@ -268,12 +291,12 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
             continue;
         }
 
-        /* convert the port to an external representation */
-        memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-        JSON_PORT_MAP_TO_NOTATION(port, asicId, &portStr[0]);
+          /* convert the port to an external representation */
+          memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+          JSON_PORT_MAP_TO_NOTATION(port, asicId, &portStr[0]);
 
-        /* Now that this port needs to be included in the report, copy the header */
-        _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ipspPortTemplate,  &portStr[0]);
+          /* Now that this port needs to be included in the report, copy the header */
+          _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ipspPortTemplate,  &portStr[0]);
 
         /* for each priority-group, prepare the data */
         for (pool = 1; pool <= asic->numServicePools; pool++)
@@ -283,21 +306,9 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
                 continue;
 
             val = current->iPortSp.data[port - 1][pool - 1].umShareBufferCount;
-            /* check if we need to convert the data to cells */
-            if ((true == options->statUnitsInCells) &&
-                (true == options->reportThreshold))
-             {
-               val = 
-                 current->iPortSp.data[port - 1][pool - 1].umShareBufferCount / (asic->cellToByteConv);
-             }
-            /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                     (false == options->reportThreshold))
-             {
-               val = 
-                 current->iPortSp.data[port - 1][pool - 1].umShareBufferCount * (asic->cellToByteConv);
-             }
+            defaultVal = options->bst_defaults_ptr->iPortSp.data[port - 1][pool - 1].umShareBufferCount;
+            bst_json_convert_data(options, asic, &val, defaultVal);
+
             /* add the data to the report */
             _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                           ipspServicePoolTemplate, pool-1,val);
@@ -345,6 +356,8 @@ static BVIEW_STATUS _jsonencode_report_ingress_sp ( char *buffer, int asicId,
     int actualLength  = 0;
     int pool = 0;
     uint64_t val = 0;
+    uint64_t defaultVal = 0;
+    int sendIncrReport = options->sendIncrementalReport;
 
     char *ispTemplate = " { \"realm\": \"ingress-service-pool\", \"%s\": [ ";
     char *ispServicePoolTemplate = " [  %d , %" PRIu64 " ] ,";
@@ -357,32 +370,31 @@ static BVIEW_STATUS _jsonencode_report_ingress_sp ( char *buffer, int asicId,
     /* For each service pool, check if there is a difference, and create the report. */
     for (pool = 1; pool <= asic->numServicePools; pool++)
     {
+      /* check if the trigger report request should contain snap shot */
+        if ((pool-1 != options->triggerInfo.queue) && 
+            (false == options->sendSnapShotOnTrigger) && 
+            (true == options->reportTrigger))
+        {
+          continue;
+        }
+
+        if (true == sendIncrReport)
+        {
         /* lets see if this pool needs to be included in the report at all */
         /* if this pool needs not be reported, then we move to next pool */
-        if (current->iSp.data[pool-1].umShareBufferCount == 0)
-            continue;
+         if ((previous == NULL) &&
+            (current->iSp.data[pool-1].umShareBufferCount == 0))
+            continue;  
+        }
 
         if ((previous != NULL) &&
             (previous->iSp.data[pool-1].umShareBufferCount == current->iSp.data[pool-1].umShareBufferCount))
             continue;
 
              val = current->iSp.data[pool-1].umShareBufferCount;
+             defaultVal = options->bst_defaults_ptr->iSp.data[pool-1].umShareBufferCount;
+             bst_json_convert_data(options, asic, &val, defaultVal);
 
-            /* check if we need to convert the data to cells */
-            if ((true == options->statUnitsInCells) &&
-                (true == options->reportThreshold))
-             {
-               val = 
-                 current->iSp.data[pool-1].umShareBufferCount / (asic->cellToByteConv);
-             }
-            /* check if we need to convert the data to cells
-                the report always comes in cells from asic */
-             else if ((false == options->statUnitsInCells) &&
-                     (false == options->reportThreshold))
-             {
-               val = 
-                 current->iSp.data[pool-1].umShareBufferCount * (asic->cellToByteConv);
-             }
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       ispServicePoolTemplate, pool-1, val);

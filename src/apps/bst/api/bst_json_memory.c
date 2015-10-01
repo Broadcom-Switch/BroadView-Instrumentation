@@ -102,9 +102,9 @@ static struct _memory_pool_ *pBufPool;
 
 /* Utility Macros */
 
-#define _BUFPOOL_SMALL_POOL_START   ((uint64_t) & (pBufPool->smallBufferPool[0][0]))
+#define _BUFPOOL_SMALL_POOL_START   ((ptr_to_uint_t) & (pBufPool->smallBufferPool[0][0]))
 #define _BUFPOOL_SMALL_POOL_END     (_BUFPOOL_SMALL_POOL_START + ( (_BUFPOOL_MAX_RESPONE_SLICES-1) * BSTJSON_MEMSIZE_RESPONSE))
-#define _BUFPOOL_LARGE_POOL_START   ((uint64_t) & (pBufPool->largeBufferPool[0][0]))
+#define _BUFPOOL_LARGE_POOL_START   ((ptr_to_uint_t) & (pBufPool->largeBufferPool[0][0]))
 #define _BUFPOOL_LARGE_POOL_END     (_BUFPOOL_LARGE_POOL_START + ( (_BUFPOOL_MAX_REPORT_SLICES-1) * BSTJSON_MEMSIZE_REPORT))
 
 
@@ -252,8 +252,8 @@ BVIEW_STATUS bstjson_memory_allocate(BSTJSON_MEMORY_SIZE memSize, uint8_t **buff
         *buffer = pSlice->buffer;
         time(&pSlice->timeTaken);
         _BUFPOOL_LOG(_BUFPOOL_DEBUG_TRACE,
-                     "BST BUffer Pool : Allocated memory[ %" PRIx64 "- index=%d] size %d at %d \n",
-                     (uint64_t) (*buffer), index, memSize, (int) pSlice->timeTaken);
+                     "BST BUffer Pool : Allocated memory[ %"PRI_PTR_TO_UINT_FMT" - index=%d] size %d at %d \n",
+                     (ptr_to_uint_t)(*buffer), index, memSize, (int) pSlice->timeTaken);
         return BVIEW_STATUS_SUCCESS;
     }
 
@@ -287,12 +287,12 @@ BVIEW_STATUS bstjson_memory_free(uint8_t *buffer)
     /* 2. And that only two predefined sizes are allocated */
     /* This reduces the search time significantly */
 
-    uint64_t pointer = (uint64_t) (buffer);
+    ptr_to_uint_t pointer = (ptr_to_uint_t) (buffer);
     uint64_t temp = 0;
     int index = 0;
     _BUFPOOL_MEMORY_SLICE_t *pSlice;
 
-    _BUFPOOL_LOG(_BUFPOOL_DEBUG_TRACE, "BST Buffer Pool : Returning %" PRIx64 "to pool \n", pointer);
+    _BUFPOOL_LOG(_BUFPOOL_DEBUG_TRACE, "BST Buffer Pool : Returning %" PRI_PTR_TO_UINT_FMT " to pool \n", pointer);
 
     /* Validate parameters */
     _BUFPOOL_ASSERT(buffer != NULL);
@@ -323,13 +323,13 @@ BVIEW_STATUS bstjson_memory_free(uint8_t *buffer)
             _BUFPOOL_MUTEX_RELEASE(pBufPool->lock);
 
             _BUFPOOL_LOG(_BUFPOOL_DEBUG_TRACE,
-                         "BST Buffer Pool : %" PRIx64 " [index %d] returned to RESPONSE pool \n",
+                         "BST Buffer Pool : %" PRI_PTR_TO_UINT_FMT " [index %d] returned to RESPONSE pool \n",
                          pointer, index);
             return BVIEW_STATUS_SUCCESS;
         }
 
         _BUFPOOL_LOG(_BUFPOOL_DEBUG_ERROR,
-                     "BST Buffer Pool : %" PRIx64 " doesn't seem to have been allocated from RESPONSE pool \n",
+                     "BST Buffer Pool : %" PRI_PTR_TO_UINT_FMT " doesn't seem to have been allocated from RESPONSE pool \n",
                      pointer);
         return BVIEW_STATUS_INVALID_MEMORY;
     }
@@ -355,19 +355,19 @@ BVIEW_STATUS bstjson_memory_free(uint8_t *buffer)
             _BUFPOOL_MUTEX_RELEASE(pBufPool->lock);
 
             _BUFPOOL_LOG(_BUFPOOL_DEBUG_TRACE,
-                         "BST Buffer Pool : %" PRIx64 " [index %d] returned to REPORT pool \n",
+                         "BST Buffer Pool : %" PRI_PTR_TO_UINT_FMT " [index %d] returned to REPORT pool \n",
                          pointer, index);
             return BVIEW_STATUS_SUCCESS;
         }
 
         _BUFPOOL_LOG(_BUFPOOL_DEBUG_ERROR,
-                     "BST Buffer Pool : %" PRIx64 " doesn't seem to have been allocated from REPORT pool \n",
+                     "BST Buffer Pool : %" PRI_PTR_TO_UINT_FMT " doesn't seem to have been allocated from REPORT pool \n",
                      pointer);
         return BVIEW_STATUS_INVALID_MEMORY;
     }
 
     _BUFPOOL_LOG(_BUFPOOL_DEBUG_ERROR,
-                 "BST Buffer Pool : %" PRIx64 " doesn't seem to have been allocated any of the pools \n",
+                 "BST Buffer Pool : %" PRI_PTR_TO_UINT_FMT " doesn't seem to have been allocated any of the pools \n",
                  pointer);
 
     return BVIEW_STATUS_INVALID_MEMORY;
@@ -390,8 +390,8 @@ void bstjson_memory_dump(void)
 
     for (index = 0; index < _BUFPOOL_MAX_RESPONE_SLICES; index++)
     {
-        printf (" [%2d] \t %"PRIx64" \t %d \t %10s %10d\n",
-                index, (uint64_t) (pBufPool->smallSlices[index].buffer),
+        printf (" [%2d] \t %"PRI_PTR_TO_UINT_FMT" \t %d \t %10s %10d\n",
+                index,(ptr_to_uint_t) (pBufPool->smallSlices[index].buffer),
                 pBufPool->smallSlices[index].size,
                 (pBufPool->smallSlices[index].inUse == true) ? "In Use" : "Available",
                 (pBufPool->smallSlices[index].inUse == true) ? (int) ( (pBufPool->smallSlices[index].timeTaken) - pBufPool->start) : 0
@@ -408,8 +408,8 @@ void bstjson_memory_dump(void)
 
     for (index = 0; index < _BUFPOOL_MAX_REPORT_SLICES; index++)
     {
-        printf (" [%2d] \t %"PRIx64" \t %d \t %10s %10d\n",
-                index, (uint64_t) (pBufPool->largeSlices[index].buffer),
+        printf (" [%2d] \t %"PRI_PTR_TO_UINT_FMT" \t %d \t %10s %10d\n",
+                index, (ptr_to_uint_t) (pBufPool->largeSlices[index].buffer),
                 pBufPool->largeSlices[index].size,
                 (pBufPool->largeSlices[index].inUse) ? "In Use" : "Available",
                 (pBufPool->largeSlices[index].inUse == true) ? (int) ( (pBufPool->largeSlices[index].timeTaken) - pBufPool->start) : 0

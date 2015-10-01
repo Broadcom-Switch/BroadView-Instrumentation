@@ -25,7 +25,8 @@ extern "C"
 #endif
 #include  "openapps_log_api.h"
 #define _REST_DEBUG
-#define _REST_DEBUG_LEVEL        _REST_DEBUG_ALL
+
+#define _REST_DEBUG_LEVEL         0x00 
 
 #define _REST_DEBUG_TRACE        (0x1)
 #define _REST_DEBUG_INFO         (0x01 << 1)
@@ -36,7 +37,7 @@ extern void log_post(BVIEW_SEVERITY severity, char * format, ...);
 #ifdef _REST_DEBUG
 #define _REST_LOG(level, format,args...)   do { \
             if ((level) & _REST_DEBUG_LEVEL) { \
-                log_post(level,format, ##args); \
+                printf(format, ##args); \
             } \
         }while(0)
 #else 
