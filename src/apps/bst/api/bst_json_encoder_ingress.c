@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -26,6 +27,7 @@
 #include "configure_bst_tracking.h"
 
 #include "bst.h"
+#include "common/platform_spec.h"
 
 #include "bst_json_memory.h"
 #include "bst_json_encoder.h"
@@ -48,7 +50,7 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
     bool includePort = false;
     uint64_t val1 = 0;
     uint64_t val2 = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
 
@@ -72,7 +74,7 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
     for (port = 1; port <= asic->numPorts; port++)
     {
       /* check if the trigger report request should contain snap shot */
-        if ((port-1 != options->triggerInfo.port) && 
+        if ((port != options->triggerInfo.port) && 
             (false == options->sendSnapShotOnTrigger) && 
             (true == options->reportTrigger))
         {
@@ -148,21 +150,23 @@ static BVIEW_STATUS _jsonencode_report_ingress_ippg ( char *buffer, int asicId,
         /* for each priority-group, prepare the data */
         for (priGroup = 1; priGroup <= asic->numPriorityGroups; priGroup++)
         {
-            /* we ignore if there is no data to be reported */
-            if (includePriorityGroups[priGroup - 1] == 0)
-                continue;
+          /* we ignore if there is no data to be reported */
+          if (includePriorityGroups[priGroup - 1] == 0)
+            continue;
 
-            val1 = current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount;
-            defaultVal = options->bst_defaults_ptr->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount;
-            bst_json_convert_data(options, asic, &val1, defaultVal);
+          val1 = current->iPortPg.data[port - 1][priGroup - 1].umShareBufferCount;
+          maxBufVal = options->bst_max_buffers_ptr->iPortPg.data[port - 1][priGroup - 1].umShareMaxBuf;
+          
+          bst_json_convert_data(options, asic, &val1, maxBufVal);
 
-            val2 = current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
-            defaultVal = options->bst_defaults_ptr->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
-            bst_json_convert_data(options, asic, &val2, defaultVal);
+          maxBufVal = options->bst_max_buffers_ptr->iPortPg.data[port - 1][priGroup - 1].umHeadroomMaxBuf;
+          val2 = current->iPortPg.data[port - 1][priGroup - 1].umHeadroomBufferCount;
+          bst_json_convert_data(options, asic, &val2, maxBufVal);
 
-            /* add the data to the report */
-            _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-                                                          ippgPortGroupTemplate, priGroup-1, val1, val2);
+
+          /* add the data to the report */
+          _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+              ippgPortGroupTemplate, priGroup-1, val1, val2);
         }
 
           /* adjust the buffer to remove the last ',' */
@@ -207,7 +211,7 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
     int actualLength  = 0;
     bool includePort = false;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     int includeServicePool[BVIEW_ASIC_MAX_SERVICE_POOLS] = { 0 };
@@ -233,7 +237,7 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
     for (port = 1; port <= asic->numPorts; port++)
     {
       /* check if the trigger report request should contain snap shot */
-        if ((port-1 != options->triggerInfo.port) && 
+        if ((port != options->triggerInfo.port) && 
             (false == options->sendSnapShotOnTrigger) && 
             (true == options->reportTrigger))
         {
@@ -306,8 +310,8 @@ static BVIEW_STATUS _jsonencode_report_ingress_ipsp ( char *buffer, int asicId,
                 continue;
 
             val = current->iPortSp.data[port - 1][pool - 1].umShareBufferCount;
-            defaultVal = options->bst_defaults_ptr->iPortSp.data[port - 1][pool - 1].umShareBufferCount;
-            bst_json_convert_data(options, asic, &val, defaultVal);
+            maxBufVal = options->bst_max_buffers_ptr->iPortSp.data[port - 1][pool - 1].umShareMaxBuf;
+            bst_json_convert_data(options, asic, &val, maxBufVal);
 
             /* add the data to the report */
             _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
@@ -356,7 +360,7 @@ static BVIEW_STATUS _jsonencode_report_ingress_sp ( char *buffer, int asicId,
     int actualLength  = 0;
     int pool = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *ispTemplate = " { \"realm\": \"ingress-service-pool\", \"%s\": [ ";
@@ -392,9 +396,8 @@ static BVIEW_STATUS _jsonencode_report_ingress_sp ( char *buffer, int asicId,
             continue;
 
              val = current->iSp.data[pool-1].umShareBufferCount;
-             defaultVal = options->bst_defaults_ptr->iSp.data[pool-1].umShareBufferCount;
-             bst_json_convert_data(options, asic, &val, defaultVal);
-
+             maxBufVal = options->bst_max_buffers_ptr->iSp.data[pool-1].umShareMaxBuf;
+             bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       ispServicePoolTemplate, pool-1, val);

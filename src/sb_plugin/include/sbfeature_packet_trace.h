@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -63,6 +64,13 @@ typedef struct _pt_sb_feature_
     BVIEW_STATUS(*pt_register_trigger_cb) (int asic, 
                                            BVIEW_PT_TRIGGER_CALLBACK_t callback, 
                                            void *cookie);
+
+   /** Create 5 tuple profile to capture live traffic     */
+   BVIEW_STATUS(*pt_5_tuple_profile_create_cb) (int asic, int request_id,
+                                BVIEW_PORT_MASK_t *port_list, PT_5_TUPLE_PARAMS_t *tuple_params);
+
+  /** Delete 5 tuple profile          */
+  BVIEW_STATUS (*pt_5_tuple_profile_delete_cb) (int asic, int request_id);
 
 } BVIEW_SB_PT_FEATURE_t;
 

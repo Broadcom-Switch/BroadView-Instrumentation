@@ -11,6 +11,11 @@ my $gmondDestConfFilePrefix = "gmond_dest_";
 my $inMetricFile =  "metric_input.json";
 my $poll_interval = 2;
 my $threshold_time = 5;
+my $metric_type_absolute = "absolute";
+my $metric_type_percentage = "percentage";
+my $stat_type_cfg_name = "stat_type";
+my $stat_type_cfg_val_absolute = "1";
+my $stat_type_cfg_val_percentage = "2";
 
 
 my $myjson;
@@ -57,6 +62,13 @@ sub genConfigFile
 
         print OUT $configStr; 
     }
+    my $configStr = "";
+    
+    $configStr = $stat_type_cfg_name;
+    $configStr .= "=";
+    $configStr .= ($json_metric_object->{metric_type} eq $metric_type_absolute)?$stat_type_cfg_val_absolute:$stat_type_cfg_val_percentage;
+    
+    print OUT $configStr; 
     close(OUT);
 }
 

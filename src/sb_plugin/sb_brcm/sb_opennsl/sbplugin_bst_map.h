@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -54,6 +55,7 @@ extern "C"
 #define SB_BRCM_BST_STAT_ID_PRI_GROUP_HEADROOM        opennslBstStatIdPriGroupHeadroom
 #define SB_BRCM_BST_STAT_ID_UCAST                     opennslBstStatIdUcast
 #define SB_BRCM_BST_STAT_ID_MCAST                     opennslBstStatIdMcast
+#define SB_BRCM_BST_STAT_ID_CPU                       opennslBstStatIdMcast
 #define SB_BRCM_BST_STAT_ID_EGR_UCAST_PORT_SHARED     opennslBstStatIdEgrUCastPortShared
 #define SB_BRCM_BST_STAT_ID_EGR_PORT_SHARED           opennslBstStatIdEgrPortShared
 #define SB_BRCM_BST_STAT_ID_RQE_QUEUE                 opennslBstStatIdRQEQueue 

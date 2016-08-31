@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -50,8 +51,9 @@ typedef struct _bst_reporting_options_
     BVIEW_BST_TRIGGER_INFO_t triggerInfo;
     bool sendIncrementalReport;
     bool statsInPercentage;
-    BVIEW_BST_ASIC_SNAPSHOT_DATA_t *bst_defaults_ptr;
+    BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *bst_max_buffers_ptr;
 } BSTJSON_REPORT_OPTIONS_t;
+
 
 /* structure to map the realms and indices */
 
@@ -114,11 +116,6 @@ BVIEW_STATUS bstjson_encode_get_bst_feature(int asicId,
                                             uint8_t **pJsonBuffer
                                             );
 
-BVIEW_STATUS bstjson_encode_get_switch_properties ( int asicId,
-                                            int method,
-                                            BVIEW_SWITCH_PROPERTIES_t *pData,
-                                            uint8_t **pJsonBuffer
-                                            );
 
 BVIEW_STATUS bstjson_encode_get_bst_tracking(int asicId,
                                              int method,
@@ -155,6 +152,31 @@ BVIEW_STATUS _jsonencode_report_egress(char *buffer,
                                        int bufLen,
                                        int *length
                                        );
+
+/******************************************************************
+ * @brief  Creates a JSON buffer using the supplied data for the 
+ *         "get-bst-congestion-drop-counters" REST API.
+ *
+ * @param[in]   asicId      ASIC for which this data is being encoded.
+ * @param[in]   pData       Data structure holding the required parameters.
+ * @param[in]   asic        pointer to asic capabilities.
+ * @param[out]  pJsonBuffer Filled-in JSON buffer
+ *                           
+ * @retval   BVIEW_STATUS_SUCCESS  Data is encoded into JSON successfully
+ * @retval   BVIEW_STATUS_RESOURCE_NOT_AVAILABLE  Internal Error
+ * @retval   BVIEW_STATUS_INVALID_PARAMETER  Invalid input parameter
+ * @retval   BVIEW_STATUS_OUTOFMEMORY  No available memory to create JSON buffer
+ *
+ * @note     The returned json-encoded-buffer should be freed using the  
+ *           bstjson_memory_free(). Failing to do so leads to memory leaks
+ *********************************************************************/
+
+BVIEW_STATUS bstjson_encode_get_cgsn_drop_ctrs ( int asicId,
+                                            const void *pData,
+                                            const BVIEW_ASIC_CAPABILITIES_t *asic,
+                                            uint8_t **pJsonBuffer
+                                            );
+
 
 /******************************************************************* 
    Utility function to convert the data based on config 

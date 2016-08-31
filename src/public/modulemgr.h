@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -31,7 +32,8 @@ extern "C"
 
     /* Each feature modules information */
     typedef struct _module_feature_info_ {
-        BVIEW_FEATURE_ID               featureId;   
+        BVIEW_FEATURE_ID               featureId;
+        char                           featureName[BVIEW_MAX_FEATURE_NAME_LEN];
         BVIEW_REST_API_t               restApiList[BVIEW_MAX_API_CMDS_PER_FEATURE];
     } BVIEW_MODULE_FETAURE_INFO_t;
 
@@ -98,6 +100,29 @@ BVIEW_STATUS modulemgr_register(BVIEW_MODULE_FETAURE_INFO_t * featureInfoPtr);
 BVIEW_STATUS modulemgr_rest_api_handler_get(char * jsonBuffer, 
                                             int bufLength, 
                                             BVIEW_REST_API_HANDLER_t *handler);
+
+/*********************************************************************
+* @brief     Utility api to get the feature name for the  
+*            rest  API  method
+*
+* @param[in]  apiString       api method string  
+* @param[out]  handler          Function handler     
+*
+* @retval   BVIEW_STATUS_FAILURE     Unable to find feature name 
+*                                     for the api string 
+* @retval   BVIEW_STATUS_SUCCESS     Feature name is found
+*                                     for the api string
+*
+*
+* @retval   BVIEW_STATUS_INVALID_PARAMETER  Invalid input parameter
+*
+*
+*
+* @note    none
+*
+*********************************************************************/
+BVIEW_STATUS modulemgr_rest_api_feature_name_get(char * apiString, 
+                                            char *featureName);
 
 
 

@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -26,7 +27,7 @@
 #include "configure_bst_tracking.h"
 
 #include "bst.h"
-
+#include "common/platform_spec.h"
 #include "bst_json_memory.h"
 #include "bst_json_encoder.h"
 
@@ -47,11 +48,11 @@ static BVIEW_STATUS _jsonencode_report_egress_cpuq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-cpu-queue\", \"%s\": [ ";
-    char *cpuqTemplate = " [  %d , %" PRIu64 ", %" PRIu64 " ] ,";
+    char *cpuqTemplate = " [  %d , %" PRIu64 " ] ,";
 
     _JSONENCODE_LOG(_JSONENCODE_DEBUG_TRACE, "BST-JSON-Encoder : (Report) Encoding EGRESS - CPU Queue data \n");
 
@@ -84,14 +85,12 @@ static BVIEW_STATUS _jsonencode_report_egress_cpuq ( char *buffer, int asicId,
             continue;
 
              val = current->cpqQ.data[queue - 1].cpuBufferCount;
-             defaultVal = options->bst_defaults_ptr->cpqQ.data[queue - 1].cpuBufferCount;
-             bst_json_convert_data(options, asic, &val, defaultVal);
+             maxBufVal = options->bst_max_buffers_ptr->cpqQ.data[queue - 1].cpuMaxBuf;
+             bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this queue needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       cpuqTemplate, queue-1,
-                                                      val,
-                                                      current->cpqQ.data[queue - 1].cpuQueueEntries
-                                                      );
+                                                      val);
 
     }
 
@@ -126,7 +125,7 @@ static BVIEW_STATUS _jsonencode_report_egress_rqeq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-rqe-queue\", \"%s\": [ ";
@@ -163,8 +162,8 @@ static BVIEW_STATUS _jsonencode_report_egress_rqeq ( char *buffer, int asicId,
             continue;
 
              val = current->rqeQ.data[queue - 1].rqeBufferCount;
-             defaultVal = options->bst_defaults_ptr->rqeQ.data[queue - 1].rqeBufferCount;
-             bst_json_convert_data(options, asic, &val, defaultVal);
+             maxBufVal = options->bst_max_buffers_ptr->rqeQ.data[queue - 1].rqeMaxBuf;
+             bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this queue needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       cpuqTemplate, queue-1,
@@ -205,7 +204,7 @@ static BVIEW_STATUS _jsonencode_report_egress_mcq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-mc-queue\", \"%s\": [ ";
@@ -248,9 +247,8 @@ static BVIEW_STATUS _jsonencode_report_egress_mcq ( char *buffer, int asicId,
         JSON_PORT_MAP_TO_NOTATION(current->eMcQ.data[queue - 1].port, asicId, &portStr[0]);
 
         val = current->eMcQ.data[queue - 1].mcBufferCount;
-        defaultVal = options->bst_defaults_ptr->eMcQ.data[queue - 1].mcBufferCount;
-        bst_json_convert_data(options, asic, &val, defaultVal);
-
+        maxBufVal = options->bst_max_buffers_ptr->eMcQ.data[queue - 1].mcMaxBuf;
+        bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, queue-1,
@@ -292,7 +290,7 @@ static BVIEW_STATUS _jsonencode_report_egress_ucq ( char *buffer, int asicId,
     int actualLength  = 0;
     int queue = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-uc-queue\", \"%s\": [ ";
@@ -334,8 +332,8 @@ static BVIEW_STATUS _jsonencode_report_egress_ucq ( char *buffer, int asicId,
         JSON_PORT_MAP_TO_NOTATION(current->eUcQ.data[queue - 1].port, asicId, &portStr[0]);
 
          val = current->eUcQ.data[queue - 1].ucBufferCount;
-         defaultVal = options->bst_defaults_ptr->eUcQ.data[queue - 1].ucBufferCount;
-         bst_json_convert_data(options, asic, &val, defaultVal);
+         maxBufVal = options->bst_max_buffers_ptr->eUcQ.data[queue - 1].ucMaxBuf;
+         bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this ucq needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, queue-1,
@@ -375,7 +373,7 @@ static BVIEW_STATUS _jsonencode_report_egress_ucqg ( char *buffer, int asicId,
     int actualLength  = 0;
     int qg = 0;
     uint64_t val = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-uc-queue-group\", \"%s\": [ ";
@@ -406,13 +404,14 @@ static BVIEW_STATUS _jsonencode_report_egress_ucqg ( char *buffer, int asicId,
             (current->eUcQg.data[qg - 1].ucBufferCount == 0))
             continue;
      }
-        if ((previous != NULL) &&
-            (previous->eUcQg.data[qg - 1].ucBufferCount == current->eUcQg.data[qg - 1].ucBufferCount))
-            continue;
+      if ((previous != NULL) &&
+          (previous->eUcQg.data[qg - 1].ucBufferCount == current->eUcQg.data[qg - 1].ucBufferCount))
+        continue;
 
-              val = current->eUcQg.data[qg - 1].ucBufferCount;
-              defaultVal = options->bst_defaults_ptr->eUcQg.data[qg - 1].ucBufferCount;
-              bst_json_convert_data(options, asic, &val, defaultVal);
+      val = current->eUcQg.data[qg - 1].ucBufferCount;
+      maxBufVal = options->bst_max_buffers_ptr->eUcQg.data[qg - 1].ucMaxBuf;
+
+      bst_json_convert_data(options, asic, &val, maxBufVal);
         /* Now that this ucqg needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, qg-1,
@@ -451,7 +450,7 @@ static BVIEW_STATUS _jsonencode_report_egress_sp ( char *buffer, int asicId,
     int actualLength  = 0;
     int pool = 0;
     uint64_t val1 = 0, val2 = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     char *realmTemplate = " { \"realm\": \"egress-service-pool\", \"%s\": [ ";
@@ -490,13 +489,14 @@ static BVIEW_STATUS _jsonencode_report_egress_sp ( char *buffer, int asicId,
             (previous->eSp.data[pool - 1].mcShareQueueEntries == current->eSp.data[pool - 1].mcShareQueueEntries ))
             continue;
 
-             val1 = current->eSp.data[pool - 1].umShareBufferCount;
-             defaultVal = options->bst_defaults_ptr->eSp.data[pool - 1].umShareBufferCount;
-             bst_json_convert_data(options, asic, &val1, defaultVal);
+        val1 = current->eSp.data[pool - 1].umShareBufferCount;
+        maxBufVal = options->bst_max_buffers_ptr->eSp.data[pool - 1].umShareMaxBuf;
+        bst_json_convert_data(options, asic, &val1, maxBufVal);
 
-             val2 = current->eSp.data[pool - 1].mcShareBufferCount;
-             defaultVal = options->bst_defaults_ptr->eSp.data[pool - 1].mcShareBufferCount;
-             bst_json_convert_data(options, asic, &val2, defaultVal);
+        val2 = current->eSp.data[pool - 1].mcShareBufferCount;
+        maxBufVal = options->bst_max_buffers_ptr->eSp.data[pool - 1].mcShareMaxBuf;
+        bst_json_convert_data(options, asic, &val2, maxBufVal);
+
         /* Now that this pool needs to be included in the report, add the data to report */
         _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                       dataTemplate, pool-1, val1,val2,
@@ -535,7 +535,7 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
     int actualLength  = 0;
     bool includePort = false;
     uint64_t val1 = 0, val2 = 0, val3 = 0;
-    uint64_t defaultVal = 0;
+    uint64_t maxBufVal = 0;
     int sendIncrReport = options->sendIncrementalReport;
 
     int includeServicePool[BVIEW_ASIC_MAX_SERVICE_POOLS] = { 0 };
@@ -543,7 +543,7 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
 
     char *epspTemplate = " { \"realm\": \"egress-port-service-pool\", \"%s\": [ ";
     char *epspPortTemplate = " { \"port\": \"%s\", \"data\": [ ";
-    char *epspServicePoolTemplate = " [  %d , %" PRIu64 " , %" PRIu64 " , %" PRIu64 " ] ,";
+    char *epspServicePoolTemplate = " [  %d , %" PRIu64 " , %" PRIu64 " , %" PRIu64 ",  %" PRIu64 " ] ,";
     char portStr[JSON_MAX_NODE_LENGTH] = { 0 };
 
 
@@ -559,7 +559,7 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
     for (port = 1; port <= asic->numPorts; port++)
     {
       /* check if the trigger report request should contain snap shot */
-        if ((port-1 != options->triggerInfo.port) && 
+        if ((port != options->triggerInfo.port) && 
             (false == options->sendSnapShotOnTrigger) && 
             (true == options->reportTrigger))
          {
@@ -635,21 +635,23 @@ static BVIEW_STATUS _jsonencode_report_egress_epsp ( char *buffer, int asicId,
         /* for each priority-group, prepare the data */
         for (pool = 1; pool <= asic->numServicePools; pool++)
         {
-            /* we ignore if there is no data to be reported */
-            if (includeServicePool[pool - 1] == 0)
-                continue;
+          /* we ignore if there is no data to be reported */
+          if (includeServicePool[pool - 1] == 0)
+            continue;
 
-            val1 = current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount;
-            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].ucShareBufferCount;
-            bst_json_convert_data(options, asic, &val1, defaultVal);
+          val1 = current->ePortSp.data[port - 1][pool - 1].ucShareBufferCount;
+          maxBufVal = options->bst_max_buffers_ptr->ePortSp.data[port - 1][pool - 1].ucShareMaxBuf;
 
-            val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
-            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
-            bst_json_convert_data(options, asic, &val2, defaultVal);
+          bst_json_convert_data(options, asic, &val1, maxBufVal);
 
-            val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
-            defaultVal = options->bst_defaults_ptr->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
-            bst_json_convert_data(options, asic, &val3, defaultVal);
+          val2 = current->ePortSp.data[port - 1][pool - 1].umShareBufferCount;
+          maxBufVal = options->bst_max_buffers_ptr->ePortSp.data[port - 1][pool - 1].umShareMaxBuf;
+          bst_json_convert_data(options, asic, &val2, maxBufVal);
+
+          val3 = current->ePortSp.data[port - 1][pool - 1].mcShareBufferCount;
+          maxBufVal = options->bst_max_buffers_ptr->ePortSp.data[port - 1][pool - 1].mcShareMaxBuf;
+          bst_json_convert_data(options, asic, &val3, maxBufVal);
+
             /* add the data to the report */
             _JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
                                                           epspServicePoolTemplate, pool-1,

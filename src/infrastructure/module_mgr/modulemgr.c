@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -343,6 +344,100 @@ BVIEW_STATUS modulemgr_rest_api_handler_get(char * jsonBuffer,
         {
             MODULE_MANAGER_DEBUG_PRINT(BVIEW_LOG_INFO, 
                                 "(%s:%d) Handler for api string %s is found\n",
+                                __FILE__, __LINE__, apiString);
+            break;
+        }
+    }
+
+    
+    if (entryFound == false)
+    {
+        MODULE_MANAGER_DEBUG_PRINT(BVIEW_LOG_ERROR,
+                          "(%s:%d) Failed to find handler for api string %s\n",
+                                                __FILE__, __LINE__, apiString);
+        rv = BVIEW_STATUS_FAILURE;
+    }
+
+    /* Release read lock */
+    MODULE_MANAGER_RWLOCK_UNLOCK(moduleMgrRWLock);
+    return rv;
+}
+
+/*********************************************************************
+* @brief     Utility api to get the feature name for the  
+*            rest  API  method
+*
+* @param[in]  apiString       api method string  
+* @param[out]  handler          Function handler     
+*
+* @retval   BVIEW_STATUS_FAILURE     Unable to find feature name 
+*                                     for the api string 
+* @retval   BVIEW_STATUS_SUCCESS     Feature name is found
+*                                     for the api string
+*
+*
+* @retval   BVIEW_STATUS_INVALID_PARAMETER  Invalid input parameter
+*
+*
+*
+* @note    none
+*
+*********************************************************************/
+BVIEW_STATUS modulemgr_rest_api_feature_name_get(char * apiString, 
+                                            char *featureName)
+{
+    BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+    int   moduleIndex = 0;
+    int   apiMapIndex = 0;
+    bool  entryFound = false;
+    BVIEW_REST_API_t  *moduleApiListPtr;
+
+
+    MODULE_MANAGER_DEBUG_PRINT(BVIEW_LOG_INFO,
+                   "(%s:%d) Api string in json buffer is %s\n",
+                                            __FILE__, __LINE__, apiString);
+    
+    /* Acquire read lock */   
+    MODULE_MANAGER_RWLOCK_RD_LOCK(moduleMgrRWLock);
+
+    /* Loop through the module list to find out correct module */ 
+    for (moduleIndex = 0; (moduleIndex < BVIEW_MAX_MODULES); moduleIndex++)
+    {
+        moduleApiListPtr = moduleData[moduleIndex].moduleData.restApiList;
+
+        /* Loop through the API list to find out the correct handler */  
+        for (apiMapIndex = 0; apiMapIndex < BVIEW_MAX_API_CMDS_PER_FEATURE; 
+                                                                 apiMapIndex++)
+        {
+            /* Validate apiString in module api list */
+            if (moduleApiListPtr[apiMapIndex].apiString == NULL)
+            {
+                continue;
+            }
+
+            /* Check with the API string */
+            if (strcmp(moduleApiListPtr[apiMapIndex].apiString, apiString) == 0) 
+            { /* api string is matched */
+                    entryFound = true;
+                if (strlen(moduleData[moduleIndex].moduleData.featureName) != 0)
+                {
+                    strncpy(featureName, &moduleData[moduleIndex].moduleData.featureName[0], strlen(moduleData[moduleIndex].moduleData.featureName));
+                }
+                else
+                {
+                    MODULE_MANAGER_DEBUG_PRINT(BVIEW_LOG_INFO,
+                      "(%s:%d) Feature name for api string %s is not present/NULL\n",
+                                                 __FILE__, __LINE__, apiString);
+                      featureName = NULL;
+                }
+                break;
+            }
+        }
+        /* If entry found then break out of main for loop */
+        if (entryFound == true)
+        {
+            MODULE_MANAGER_DEBUG_PRINT(BVIEW_LOG_INFO, 
+                                "(%s:%d) Feature name for api string %s is found\n",
                                 __FILE__, __LINE__, apiString);
             break;
         }

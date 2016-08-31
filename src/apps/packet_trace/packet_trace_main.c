@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -30,6 +31,7 @@
 #include "packet_trace_api.h"
 #include "system.h"
 #include "rest_api.h"
+#include "system_utils_pcap.h"
 #include "packet_trace_json_memory.h"
 #include "packet_trace_json_encoder.h"
 #include "openapps_log_api.h"
@@ -64,6 +66,7 @@ BVIEW_STATUS pt_type_api_get (int type, BVIEW_PT_API_HANDLER_t *handler)
     {BVIEW_PT_CMD_API_GET_FEATURE, pt_feature_get},
     {BVIEW_PT_CMD_API_GET_LAG_RESOLUTION, pt_trace_profile_get},
     {BVIEW_PT_CMD_API_GET_ECMP_RESOLUTION, pt_trace_profile_get},
+    {BVIEW_PT_CMD_API_MATCH_PKT_RCVD, pt_trace_pkt_rcv_process},
     {BVIEW_PT_CMD_API_GET_TRACE_PROFILE, pt_trace_profile_get}
   };
 
@@ -170,6 +173,15 @@ BVIEW_STATUS pt_app_main (void)
 
       rv = handler(&msg_data);
 
+      if ((true == msg_data.report_type_periodic) &&
+          ((BVIEW_PT_CMD_API_GET_LAG_RESOLUTION == msg_data.msg_type)||
+          (BVIEW_PT_CMD_API_GET_TRACE_PROFILE == msg_data.msg_type)||
+          (BVIEW_PT_CMD_API_GET_ECMP_RESOLUTION == msg_data.msg_type)) &&
+          (PT_5_TUPLE == msg_data.cmd.profile.req_method))
+      {
+        continue;
+      }
+
       reply_data.rv = rv;
 
       rv = pt_copy_reply_params (&msg_data, &reply_data);
@@ -264,6 +276,17 @@ BVIEW_STATUS pt_app_config_init (unsigned int num_units)
 
     memset(data_ptr->current, 0, sizeof(BVIEW_PT_PROFILE_RECORD_t));
     memset(data_ptr->active, 0, sizeof(BVIEW_PT_PROFILE_RECORD_t));
+
+    /* Init packet mux call back related information */
+    pt_info.pt_pkt_mux_hook.appID = BVIEW_FEATURE_LIVE_PT;
+    strcpy(pt_info.pt_pkt_mux_hook.appFuncName, "pt_pkt_mux_cb");
+    pt_info.pt_pkt_mux_hook.callbackFunc = pt_pkt_mux_cb;
+    if (pkt_mux_register(&(pt_info.pt_pkt_mux_hook)) != BVIEW_STATUS_SUCCESS)
+    {
+      LOG_POST (BVIEW_LOG_ERROR, "Error!! Packet trace Failed to register with packet mux !!\r\n");
+      return BVIEW_STATUS_FAILURE;
+
+    }
   }
 
   LOG_POST (BVIEW_LOG_INFO, 
@@ -315,7 +338,13 @@ BVIEW_STATUS pt_send_response (BVIEW_PT_RESPONSE_MSG_t * reply_data)
     if ((BVIEW_PT_CMD_API_SET_FEATURE == reply_data->msg_type) ||
         (BVIEW_PT_CMD_API_CANCEL_TRACE_PROFILE == reply_data->msg_type) ||
         (BVIEW_PT_CMD_API_CANCEL_LAG_RESOLUTION == reply_data->msg_type) ||
-        (BVIEW_PT_CMD_API_CANCEL_ECMP_RESOLUTION == reply_data->msg_type))
+        (BVIEW_PT_CMD_API_CANCEL_ECMP_RESOLUTION == reply_data->msg_type) ||
+        ((PT_5_TUPLE == reply_data->options.req_method) &&
+         (NULL != reply_data->cookie) &&
+         ((BVIEW_PT_CMD_API_GET_TRACE_PROFILE == reply_data->msg_type) ||
+          (BVIEW_PT_CMD_API_GET_LAG_RESOLUTION == reply_data->msg_type) ||
+          (BVIEW_PT_CMD_API_GET_ECMP_RESOLUTION == reply_data->msg_type)))
+        )
     {
       rest_response_send_ok (reply_data->cookie);
       return BVIEW_STATUS_SUCCESS;
@@ -350,8 +379,17 @@ BVIEW_STATUS pt_send_response (BVIEW_PT_RESPONSE_MSG_t * reply_data)
     default:
       break;
   }
-
-  if (NULL != pJsonBuffer && BVIEW_STATUS_SUCCESS == rv)
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    /* free the allocated memory */
+    if (NULL != pJsonBuffer)
+    {
+      ptjson_memory_free(pJsonBuffer);
+    }
+    PT_LOCK_GIVE(reply_data->unit);
+    return rv;
+  }
+  if (NULL != pJsonBuffer)
   {
      _PT_LOG(_PT_DEBUG_TRACE,"sent response to rest, pJsonBuffer = %s, len = %d\r\n", pJsonBuffer, (int)strlen((char *)pJsonBuffer)); 
 
@@ -367,23 +405,14 @@ BVIEW_STATUS pt_send_response (BVIEW_PT_RESPONSE_MSG_t * reply_data)
       _PT_LOG(_PT_DEBUG_TRACE,"sent response to rest, pJsonBuffer = %s, len = %d\r\n", pJsonBuffer, (int)strlen((char *)pJsonBuffer)); 
     }
     /* free the json buffer */
-    if (NULL != pJsonBuffer)
-    {
-      ptjson_memory_free(pJsonBuffer);
-    }
+     ptjson_memory_free(pJsonBuffer);
   }
   else
   {
+    /* Can happen that memory is not allocated
+     */
     LOG_POST (BVIEW_LOG_ERROR,
-        "encoding of pt response failed due to error = %d\r\n", rv);
-    /* Can happen that memory is allocated,
-      but the encoding failed.. in that case also 
-      free the json buffer.
-       */
-    if (NULL != pJsonBuffer)
-    {
-      ptjson_memory_free(pJsonBuffer);
-    }
+        "encoding of pt response failed. due to failure of memory allocation\r\n");
   }
   /* release the lock for success and failed cases */
   PT_LOCK_GIVE(reply_data->unit);
@@ -410,6 +439,10 @@ BVIEW_STATUS pt_copy_reply_params (BVIEW_PT_REQUEST_MSG_t * msg_data,
 {
   BVIEW_PT_INFO_t *ptr;
   BVIEW_PT_CFG_t *config_ptr;
+  char pcap_file_data[PT_JSON_MAX_PKT_LEN] = {0};
+  unsigned int pcap_file_len = 0;
+  char *pkt_data = NULL;
+  unsigned int pkt_len = 0; 
 
   if ((NULL == msg_data) || (NULL == reply_data))
     return BVIEW_STATUS_INVALID_PARAMETER;
@@ -442,6 +475,43 @@ BVIEW_STATUS pt_copy_reply_params (BVIEW_PT_REQUEST_MSG_t * msg_data,
         ptr->active = reply_data->response.profile;
         PT_LOCK_GIVE (msg_data->unit);
         /* copy the options */
+        reply_data->options.ig_tv_present = false;
+        reply_data->options.eg_tv_present = false;
+        reply_data->options.req_method = msg_data->cmd.profile.req_method;
+
+        if (0 != msg_data->cmd.profile.req_prfl.pkt.packet_len)
+        {
+          /* if the packet is raw packet,
+             convert the same to pcap format */
+          if (PT_5_TUPLE == msg_data->cmd.profile.req_method)
+          {
+            if (system_convert_raw_pkt_to_pcap_format(&msg_data->cmd.profile.
+                  req_prfl.pkt.packet[0],
+                  msg_data->cmd.profile.req_prfl.pkt.packet_len, 
+                  pcap_file_data, sizeof(pcap_file_data),
+                  &pcap_file_len) != BVIEW_STATUS_SUCCESS)
+            {
+              LOG_POST (BVIEW_LOG_ERROR,
+                  "PT:Failed to convert raw packet to pcap format\r\n");
+              return BVIEW_STATUS_FAILURE;
+            }
+
+            pkt_data = &pcap_file_data[0];
+            pkt_len = pcap_file_len;
+          }
+          else if (PT_PKT == msg_data->cmd.profile.req_method)
+          {
+            pkt_data = &msg_data->cmd.profile.req_prfl.pkt.packet[0];
+            pkt_len = msg_data->cmd.profile.req_prfl.pkt.packet_len;
+          }
+          /* copy the packet and its length */
+          memcpy (&reply_data->response.profile->rcvd_pkt.packet[0], 
+              pkt_data, pkt_len);
+
+          reply_data->response.profile->rcvd_pkt.packet_len = pkt_len;
+        }
+
+
         if (BVIEW_PT_CMD_API_GET_TRACE_PROFILE == reply_data->msg_type)
         {
           reply_data->options.report_lag_ecmp = false;
@@ -539,6 +609,7 @@ BVIEW_STATUS pt_periodic_collection_cb (union sigval sigval)
   msg_data.unit = timer_context.unit;
   msg_data.id = timer_context.index;
   msg_data.msg_type = timer_context.msg_type;
+  msg_data.cmd.profile.req_method = timer_context.req_method;
   /* Send the message to the pt application */
   rv = pt_send_request (&msg_data);
   if (BVIEW_STATUS_SUCCESS != rv)
@@ -569,6 +640,8 @@ void pt_app_uninit ()
   pthread_mutex_t *pt_mutex;
 
   pt_info.key1 = MSG_QUEUE_ID_TO_PT;
+
+  pkt_mux_deregister(&(pt_info.pt_pkt_mux_hook));
 
   if (BVIEW_STATUS_SUCCESS != sbapi_system_num_units_get (&num_units))
   {
@@ -770,6 +843,73 @@ BVIEW_STATUS pt_main ()
               "pt application: pt pthread created\r\n");
 
 
+  return rv;
+}
+
+
+
+/*********************************************************************
+ * @brief   Packet trace packet multiplexer callback function
+ *
+ * @param    pkt_info_ptr @b{(input)} Pointer to packet info
+ *
+ * @returns  BVIEW_STATUS_SUCCESS    if packet data is valid and posted
+ *                                   pkt info to packet trace app
+ * @returns  BVIEW_STATUS_FAILURE    if packet data is invalid and failed
+ *                                   to post to 
+ *                                  
+ *
+ * @notes    This function sends the packet and its info to packet trace 
+ *                 application through message queue
+ *
+ * @end
+ *********************************************************************/
+
+BVIEW_STATUS pt_pkt_mux_cb(BVIEW_PACKET_MSG_t *pkt_info_ptr)
+{
+  BVIEW_PT_REQUEST_MSG_t   msg_data;
+  BVIEW_STATUS              rv = BVIEW_STATUS_SUCCESS;
+  struct msqid_ds pt_msgq_attr;
+
+  /* Check the number of messages in msg queue */
+  if (msgctl(pt_info.recvMsgQid, IPC_STAT, &pt_msgq_attr) == 0)
+  {
+    if (pt_msgq_attr.msg_qnum > (SYSTEM_MSGQ_MAX_MSG/2))
+    {
+      return BVIEW_STATUS_FAILURE;
+    }
+  }
+  memset(&msg_data, 0, sizeof(BVIEW_PT_REQUEST_MSG_t));
+ 
+ _PT_LOG(_PT_DEBUG_TRACE,"packet received from mux.\r\n"
+    "received asic = %d, msg_type = %d, src port %d id %d\r\n"
+   "packet len %d \r\n", pkt_info_ptr->packet.asic, 
+    BVIEW_PT_CMD_API_MATCH_PKT_RCVD,
+    pkt_info_ptr->packet.source_port,
+    pkt_info_ptr->ltcRequestId,
+    pkt_info_ptr->packet.pkt_len);
+
+  /* Copy packet related information */  
+  msg_data.unit = pkt_info_ptr->packet.asic;
+  msg_data.msg_type = BVIEW_PT_CMD_API_MATCH_PKT_RCVD;
+  msg_data.id = pkt_info_ptr->ltcRequestId;
+  /* set the ingress port in the port mask */
+  BVIEW_SETMASKBIT(msg_data.cmd.profile.pbmp, pkt_info_ptr->packet.source_port);
+  /* Check packet length */
+  if (pkt_info_ptr->packet.pkt_len > BVIEW_MAX_PACKET_SIZE)
+  {
+    LOG_POST (BVIEW_LOG_ERROR, 
+        "Packet length fiven by packet multiplexer is greater than" 
+        "the MAX supported length\r\n"); 
+
+    return BVIEW_STATUS_FAILURE;
+  }
+  msg_data.cmd.profile.req_prfl.pkt.packet_len = pkt_info_ptr->packet.pkt_len;
+  memcpy(msg_data.cmd.profile.req_prfl.pkt.packet, pkt_info_ptr->packet.data, pkt_info_ptr->packet.pkt_len);
+
+
+ _PT_LOG(_PT_DEBUG_TRACE,"packet received is posted to packet trace application.\r\n");
+  rv = pt_send_request (&msg_data);
   return rv;
 }
 

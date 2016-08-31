@@ -8,7 +8,8 @@
  */
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -407,7 +408,7 @@ BVIEW_STATUS  sbapi_system_asic_num_pg_get(int asic, int *numPriorityGroups);
 *********************************************************************/
 BVIEW_STATUS  sbapi_system_asic_support_1588_get(int asic, bool *support1588);
 
-/*********************************************************************
+/*********************************************************************//**
 * @brief       Get Supported Feature Mask
 *
 * @param[out]  featureMask            Supported Feature Mask
@@ -424,7 +425,7 @@ BVIEW_STATUS  sbapi_system_asic_support_1588_get(int asic, bool *support1588);
 *********************************************************************/
 BVIEW_STATUS  sbapi_system_feature_mask_get (int *featureMask);
 
-/*********************************************************************
+/*********************************************************************//**
 * @brief       Get Network OS
 *
 * @param[out]  buffer                 Pointer to network OS String
@@ -439,6 +440,121 @@ BVIEW_STATUS  sbapi_system_feature_mask_get (int *featureMask);
 *
 *********************************************************************/
 BVIEW_STATUS  sbapi_system_network_os_get (uint8_t *buffer, int length);
+
+/*********************************************************************//**
+* @brief       Get system UID 
+*
+* @param[out]  buffer                 Pointer to UID String
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure 
+*                                     Failed to get network os
+*
+* @retval   BVIEW_STATUS_SUCCESS      UID is successfully
+*                                     queried
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS  sbapi_system_uid_get (uint8_t *buffer, int length);
+
+/*********************************************************************//**
+* @brief  Get Current local time.
+*
+* @param[out] tm                          - Pointer to tm structure
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     System feature is not present or
+*                                     System south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      System south bound function for time get is
+*                                     successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  System time get functionality is 
+*                                     not supported on this unit
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_system_time_get (time_t *ptime);
+
+
+/*********************************************************************//**
+* @brief       Get lag number in notational representation(string) 
+*                from system lag number and asic number
+*
+* @param[in]  asic        System asic number 
+* @param[in]  lag         System lag number 
+* @param[out] dst         lag number in notational(string) form
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     System feature is not present or
+*                                     System south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      System south bound function for name get is
+*                                     successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  System name get functionality is 
+*                                     not supported on this unit
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_system_lag_translate_to_notation(int asic, int lag, char *dst);
+
+/*********************************************************************//**
+* @brief  Get snapshot of max buffers allocated 
+*
+*
+* @param[in]   asic                          unit
+* @param[out]  maxBufSnapshot                Max buffers snapshot
+* @param[out]  time                          time
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     system feature is not present or
+*                                     System south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Snapshot get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Snapshot get functionality is 
+*                                     not supported on this unit
+*
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_system_max_buf_snapshot_get (int asic,
+                                      BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *maxBufSnapshot,
+                                      BVIEW_TIME_t * time);
+
+/*********************************************************************
+* @brief  Register with silicon for CPU bound packets
+*
+*
+* @param[in]   asic                          ASIC number
+* @param[in]   callback                      Function to called when
+*                                            packet is recived.
+* @param[int]  cookie                        cookie
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or
+*                                     Not able to get asic type of this unit or
+*                                     system feature is not present or
+*                                     System south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Registration is successful
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Packet RX registration is not supported 
+*                                    
+*
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_system_packet_rx_register (int asic,
+                                              BVIEW_PACKET_RX_CALLBACK_t callback,
+                                              char *name,
+                                              void *cookie);
 
 #ifdef	__cplusplus
 }

@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -26,6 +27,7 @@ extern "C"
 
 #include "broadview.h"
 
+
 /* Initialize REST component */
 BVIEW_STATUS rest_init(void);
 
@@ -48,6 +50,7 @@ BVIEW_STATUS rest_response_send_error(void *cookie, BVIEW_STATUS rv, int id);
  */
 
 BVIEW_STATUS rest_response_send_ok (void *cookie);
+
 
 #ifdef	__cplusplus
 }

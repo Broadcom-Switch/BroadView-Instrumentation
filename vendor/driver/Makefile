@@ -17,18 +17,24 @@ include $(realpath $(SDK)/make/Make.config)
 
 ifeq ($(SBPLUGIN), sdk)
 INCDIR_DRIVER_INIT =$(INCDIR_SDK)
-ifeq ($(PLATFORM), im_n2948_6xlm)
-  searchdirs = ./driver_sdk/n2948
-else
-  ifeq ($(PLATFORM), s6000)
-    searchdirs = ./driver_sdk/s6000
-  else
-    searchdirs = ./driver_sdk/bcm_svk
-  endif
-endif
-searchdirs += ./driver_sdk/common
+ ifeq ($(PLATFORM), qm_svk)
+   searchdirs = ./driver_sdk/dnx/qm_svk
+   searchdirs += ./driver_sdk/dnx/common
+   CFLAGS += -I./driver_sdk/dnx/common
+ else 
+   ifeq ($(PLATFORM), im_n2948_6xlm)
+     searchdirs = ./driver_sdk/n2948
+   else
+     ifeq ($(PLATFORM), s6000)
+       searchdirs = ./driver_sdk/s6000
+     else
+       searchdirs = ./driver_sdk/bcm_svk
+     endif
+   endif
+   searchdirs += ./driver_sdk/common
+   CFLAGS += -I./driver_sdk/common
+ endif
 searchdirs += ./common
-CFLAGS += -I./driver_sdk/common
 CFLAGS += -I./common
 CFLAGS += -I../cjson
 #searchdirs = $(realpath $(OPENAPPS_BASE)/vendor/driver/driver_sdk)
@@ -47,7 +53,8 @@ endif
 
 #CFLAGS += $(OPENAPPS_SDKFLAGS) -Wall -g -I$(INCDIR_SDK) -I../../public -I../include -I../sb_sdk/include -I../../../output/gto-2_6-sdk_6.4.0/sdk-all-6.4.0/include
 
-CFLAGS += $(OPENAPPS_SDKFLAGS) -Wall -g -I$(INCDIR_DRIVER_INIT)
+CFLAGS += $(OPENAPPS_SDKFLAGS) -Wall -g -I$(INCDIR_DRIVER_INIT) -I$(OPENAPPS_BASE)/src/public
+
 
 #searchdirs = $(realpath $(OPENAPPS_BASE)/vendor/driver)
 
@@ -62,9 +69,12 @@ export VPATH += $(dir $(shell find . -name "*.c"))
 	#@mkdir -p $(OUT_VENDORINIT) 
 	#$(CC) $(CFLAGS) -c  $< -o $@ 
 
+$(OUT_VENDORINIT)::
+	@echo Making VENDOR INIT
+	@mkdir -p $(OUT_VENDORINIT) 
+
 define ARC_INCLUDE_C_template
 $(OUT_VENDORINIT)/$(patsubst %.c,%.o,$(2)): $(1)$(2)
-	@mkdir -p $(OUT_VENDORINIT) 
 	$(CC) $(CFLAGS) -c $(1)$(2) -o $(OUT_VENDORINIT)/$(patsubst %.c,%.o,$(2))
 endef
 
@@ -75,11 +85,13 @@ $(OUT_VENDORINIT)/$(LIBS_VENDORINIT): $(patsubst %,$(OUT_VENDORINIT)/%,$(subst :
 	@cd $(OUT_VENDORINIT) && $(AR) rvs $(MODULE).a $(OBJECTS_VENDORINIT)  
 
 #default target
-$(MODULE) all: $(OUT_VENDORINIT)/$(LIBS_VENDORINIT) 
+$(MODULE) all: $(OUT_VENDORINIT) $(OUT_VENDORINIT)/$(LIBS_VENDORINIT) 
 	$(NOOP)
 
 clean-$(MODULE) clean: 
-	rm -rf $(OUT_VENDORINIT)
+	@echo Cleaning VENDOR INIT
+	@rm -f $(OUT_VENDORINIT)/*.o $(OUT_VENDORINIT)/*.a
+	@rmdir $(OUT_VENDORINIT) 2>/dev/null; true
 
 #target to print all exported variables
 debug-$(MODULE) dump-variables: 

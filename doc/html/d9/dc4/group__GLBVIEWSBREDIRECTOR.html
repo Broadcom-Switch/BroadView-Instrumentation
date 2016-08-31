@@ -62,9 +62,6 @@ Functions</h2></td></tr>
 <tr class="memitem:ga4c42a82e3a9a5ea5225080cbc85684d9"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dc4/group__GLBVIEWSBREDIRECTOR.html#ga4c42a82e3a9a5ea5225080cbc85684d9">sbapi_bst_cpuq_threshold_set</a> (int asic, int cpuQueue, <a class="el" href="../../da/d74/struct__bst__cpu__q__threshold__.html">BVIEW_BST_EGRESS_CPU_QUEUE_THRESHOLD_t</a> *threshold)</td></tr>
 <tr class="memdesc:ga4c42a82e3a9a5ea5225080cbc85684d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set profile configuration for Egress CPU Queues Statistics.  <a href="#ga4c42a82e3a9a5ea5225080cbc85684d9"></a><br/></td></tr>
 <tr class="separator:ga4c42a82e3a9a5ea5225080cbc85684d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac228ed9626598e7c22bf7ce30527aac1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gac228ed9626598e7c22bf7ce30527aac1"></a>
-BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_default_snapshot_get</b> (int asic, <a class="el" href="../../d3/dde/struct__bst__asic__data__snapshot__.html">BVIEW_BST_ASIC_SNAPSHOT_DATA_t</a> *snapshot)</td></tr>
-<tr class="separator:gac228ed9626598e7c22bf7ce30527aac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga48c106ed4d01a44a361468eb46c85b01"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dc4/group__GLBVIEWSBREDIRECTOR.html#ga48c106ed4d01a44a361468eb46c85b01">sbapi_bst_device_data_get</a> (int asic, <a class="el" href="../../db/ddd/struct__bst__device__.html">BVIEW_BST_DEVICE_DATA_t</a> *data, BVIEW_TIME_t *time)</td></tr>
 <tr class="memdesc:ga48c106ed4d01a44a361468eb46c85b01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain Device Statistics.  <a href="#ga48c106ed4d01a44a361468eb46c85b01"></a><br/></td></tr>
 <tr class="separator:ga48c106ed4d01a44a361468eb46c85b01"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,6 +116,15 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_def
 <tr class="memitem:gab581fe9ffcc159c0b2c389b1fe23d82b"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dc4/group__GLBVIEWSBREDIRECTOR.html#gab581fe9ffcc159c0b2c389b1fe23d82b">sbapi_bst_isp_threshold_set</a> (int asic, int sp, <a class="el" href="../../d1/d4a/struct__bst__i__sp__threshold__.html">BVIEW_BST_INGRESS_SP_THRESHOLD_t</a> *threshold)</td></tr>
 <tr class="memdesc:gab581fe9ffcc159c0b2c389b1fe23d82b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set profile configuration for Ingress Service Pools Statistics.  <a href="#gab581fe9ffcc159c0b2c389b1fe23d82b"></a><br/></td></tr>
 <tr class="separator:gab581fe9ffcc159c0b2c389b1fe23d82b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacda429398bd56d35ef2e418af96d0fe4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacda429398bd56d35ef2e418af96d0fe4"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_port_mcast_cgs_drop_get</b> (int asic, int port, int queue, uint64_t *dropCount)</td></tr>
+<tr class="separator:gacda429398bd56d35ef2e418af96d0fe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3e075550bf7c0a8e72e6956632f5c470"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3e075550bf7c0a8e72e6956632f5c470"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_port_total_cgs_drop_get</b> (int asic, int port, uint64_t *dropCount)</td></tr>
+<tr class="separator:ga3e075550bf7c0a8e72e6956632f5c470"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga444650ad0b1e97e468d76adf0fcfe9df"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga444650ad0b1e97e468d76adf0fcfe9df"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_port_ucast_cgs_drop_get</b> (int asic, int port, int queue, uint64_t *dropCount)</td></tr>
+<tr class="separator:ga444650ad0b1e97e468d76adf0fcfe9df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga918e9a3e84ba05eea04903a7d357326c"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d9/dc4/group__GLBVIEWSBREDIRECTOR.html#ga918e9a3e84ba05eea04903a7d357326c">sbapi_bst_register_trigger</a> (int asic, BVIEW_BST_TRIGGER_CALLBACK_t callback, void *cookie)</td></tr>
 <tr class="memdesc:ga918e9a3e84ba05eea04903a7d357326c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Register hw trigger callback.  <a href="#ga918e9a3e84ba05eea04903a7d357326c"></a><br/></td></tr>
 <tr class="separator:ga918e9a3e84ba05eea04903a7d357326c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1551,7 +1557,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_bst_def
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

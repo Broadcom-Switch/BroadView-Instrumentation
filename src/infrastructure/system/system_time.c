@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -21,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/time.h>
 #include "system.h"
 #include "openapps_log_api.h"
 
@@ -166,4 +168,32 @@ BVIEW_STATUS system_timer_set(timer_t timerId,int timeInMilliSec,TIMER_MODE mode
     ret = BVIEW_STATUS_FAILURE;
   }
   return ret;
+}
+
+/*********************************************************************
+* @brief      Function to get current time in %Y-%m-%dT%H:%M:%S:%ms
+*
+* @param[out]  buf        Pointer to buf which has current time 
+*                            
+*
+* @retval     BVIEW_STATUS_SUCCESS
+*
+* @note       NA
+*
+* @end
+*********************************************************************/
+BVIEW_STATUS   system_dispaly_local_time_get (char *buf)
+{
+  struct timeval tv;
+  time_t l_now;
+  char   local_buf[BVIEW_TIME_BUFFER_SIZE];
+  struct tm date, *loc_time;
+
+  memset (&tv, 0, sizeof (tv));
+  gettimeofday(&tv,NULL);
+  l_now = tv.tv_sec;
+  loc_time = localtime_r (&l_now, &date);
+  strftime (local_buf, BVIEW_TIME_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", loc_time);
+  sprintf (buf,"%s.%03u",local_buf,(unsigned int)tv.tv_usec/1000);
+  return BVIEW_STATUS_SUCCESS;
 }

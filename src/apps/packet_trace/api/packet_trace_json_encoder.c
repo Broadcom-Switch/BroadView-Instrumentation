@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -22,6 +23,7 @@
 #include "broadview.h"
 #include "cJSON.h"
 
+#include "system_utils_base64.h"
 #include "packet_trace.h"
 #include "packet_trace_include.h"
 #include "packet_trace_util.h"
@@ -117,79 +119,87 @@ BVIEW_STATUS _jsonencode_encode_profile_lag_ ( char *buffer,
   char *fabricTemplate = "  \"fabric-trunk-id\": \"%s\", \"fabric-trunk-members\" : [ ";
   char *dataTemplate = " \"%s\" ,";
   char *dstMemberTemplate = " \"dst-lag-member\" : \"%s\" ";
+  char *noProfileTemplate = " {\"status\":  \"Packet could not sent out of any lag\"} } ";
   char portStr[JSON_MAX_NODE_LENGTH] = { 0 };
   char lagStr[JSON_MAX_NODE_LENGTH] = { 0 };
   int  member = 0, ii, count = 0;
 
   _PT_JSONENCODE_LOG(_PT_JSONENCODE_DEBUG_TRACE, "PT-JSON-Encoder : (Report) encoding trace profile data \n");
 
-  val1 = pData->profile[port-1].hashingInfo.lag.trunk;
-  /* convert the lag id to an external representation 
-   Currently no API is present to convert the same.
-   Hence we are just adding the received lag id as string*/
-  memset(&lagStr[0], 0, JSON_MAX_NODE_LENGTH);
-  sprintf(lagStr, "%d", val1);
-
-  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-      lagTemplate, lagStr);
-
-       count = 0;
-      for (ii = 0; ii < BVIEW_MAX_TRUNK_MEMBERS; ii++)
-      {
-        member = pData->profile[port-1].hashingInfo.lag.trunk_members[ii];
-        if (0 != member) 
-        {
-          count++;
-          memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-          JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
-          _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-              dataTemplate, &portStr[0]); 
-        }
-      }
-
-
-  if (0 != count)
+  if (!(BVIEW_PT_TRUNK_RESOLUTION & pData->profile[port-1].hashingInfo.flags))
   {
-    /* adjust the buffer to remove the last ',' */
-    buffer = buffer - 1;
-    remLength += 1;
-    *length -= 1;
+    /* Encode the status */
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, noProfileTemplate);
+     return BVIEW_STATUS_SUCCESS;
   }
 
-  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-      "]," );
 
-  member = pData->profile[port-1].hashingInfo.lag.trunk_member;
-  memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-  JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
-  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, dstMemberTemplate, &portStr[0]);
+    val1 = pData->profile[port-1].hashingInfo.lag.trunk;
+    /* convert the lag id to an external representation 
+       Currently no API is present to convert the same.
+       Hence we are just adding the received lag id as string*/
+    memset(&lagStr[0], 0, JSON_MAX_NODE_LENGTH);
+    JSON_LAG_MAP_TO_NOTATION(val1, asicId, &lagStr[0]);
+
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+        lagTemplate, lagStr);
+
+    count = 0;
+    for (ii = 0; ii < BVIEW_MAX_TRUNK_MEMBERS; ii++)
+    {
+      member = pData->profile[port-1].hashingInfo.lag.trunk_members[ii];
+      if (0 != member) 
+      {
+        count++;
+        memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+        JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
+        _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+            dataTemplate, &portStr[0]); 
+      }
+    }
+
+
+    if (0 != count)
+    {
+      /* adjust the buffer to remove the last ',' */
+      buffer = buffer - 1;
+      remLength += 1;
+      *length -= 1;
+    }
+
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+        "]," );
+
+    member = pData->profile[port-1].hashingInfo.lag.trunk_member;
+    memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+    JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, dstMemberTemplate, &portStr[0]);
 
   /* add the " ," for the next  */
   _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
       "," );
 
+    val1 = pData->profile[port-1].hashingInfo.lag.fabric_trunk;
+    /* convert the lag id to an external representation */
+    memset(&lagStr[0], 0, JSON_MAX_NODE_LENGTH);
+    JSON_LAG_MAP_TO_NOTATION(val1, asicId, &lagStr[0]);
 
-  val1 = pData->profile[port-1].hashingInfo.lag.fabric_trunk;
-  /* convert the lag id to an external representation */
-  memset(&lagStr[0], 0, JSON_MAX_NODE_LENGTH);
-  sprintf(lagStr, "%d", val1);
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+        fabricTemplate, lagStr);
 
-  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-      fabricTemplate, lagStr);
-
-      count = 0;
-      for (ii = 0; ii < BVIEW_MAX_TRUNK_MEMBERS; ii++)
+    count = 0;
+    for (ii = 0; ii < BVIEW_MAX_TRUNK_MEMBERS; ii++)
+    {
+      member = pData->profile[port-1].hashingInfo.lag.fabric_trunk_members[ii];
+      if (0 != member) 
       {
-        member = pData->profile[port-1].hashingInfo.lag.fabric_trunk_members[ii];
-        if (0 != member) 
-        {
-          count++;
-          memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-          JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
-          _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-              dataTemplate, &portStr[0]); 
-        }
+        count++;
+        memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+        JSON_PORT_MAP_TO_NOTATION(member, asicId, &portStr[0]);
+        _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+            dataTemplate, &portStr[0]); 
       }
+    }
 
     if (0 != count)
     {
@@ -200,8 +210,8 @@ BVIEW_STATUS _jsonencode_encode_profile_lag_ ( char *buffer,
     }
 
 
-  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-      "]" );
+    _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+        "]" );
 
   _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
       "} } " );
@@ -230,65 +240,137 @@ static BVIEW_STATUS _jsonencode_encode_profile_ecmp_ ( char *buffer,
   /*  char *dataTemplate = " \"%s\","; */
     char *ecmpMemberTemplate = "[\"%s\",  \"%s\", \"%s\" ],";
     char *ecmpDstTemplate = " \"ecmp-dst-member\" : \"%s\", \"ecmp-dst-port\" : \"%s\", \"ecmp-next-hop-ip\" :\"%s\" }";
+    char *noProfileTemplate = " {\"status\":  \"Packet could not sent out of any existing ecmp group\"} ";
     void *ptr;
 
     _PT_JSONENCODE_LOG(_PT_JSONENCODE_DEBUG_TRACE, "PT-JSON-Encoder : (Report) encoding trace profile data \n");
 
 
-     for (jj = 0; jj < BVIEW_ECMP_MAX_LEVEL; jj++)
+     if ((!(BVIEW_PT_ECMP_1_RESOLUTION & pData->profile[port-1].hashingInfo.flags)) &&
+         (!(BVIEW_PT_ECMP_2_RESOLUTION & pData->profile[port-1].hashingInfo.flags)))
      {
-      val1 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group;
-      memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
-      sprintf(memberStr, "%d", val1);
-      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ecmpTemplate, &memberStr[0]);
+       _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, noProfileTemplate);
+       return BVIEW_STATUS_SUCCESS;
+     }
+     else if (BVIEW_PT_ECMP_2_RESOLUTION & pData->profile[port-1].hashingInfo.flags)
+     {
+       jj = PKT_TRACE_ECMP_2_INDEX;
+     }
+     else
+     {
+       jj = PKT_TRACE_ECMP_1_INDEX;
+     }
+    /* for (jj = 0; jj < level; jj++) */
+     {
+         val1 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group;
+         memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
+         sprintf(memberStr, "%d", val1);
+         _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ecmpTemplate, &memberStr[0]);
 
-      for (ii = 0; ii < BVIEW_ECMP_MAX_MEMBERS; ii++)
-      {
-        member = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].member;
-       /* if (0 != member) */
-        {
-          memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-          memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
-          memset(&next_hop_str[0], 0, PT_MAX_IP_ADDR_LENGTH);
-          
-          sprintf(memberStr, "%d", member);
-          JSON_PORT_MAP_TO_NOTATION(pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].port, asicId, &portStr[0]);
+         for (ii = 0; ii < BVIEW_ECMP_MAX_MEMBERS; ii++)
+         {
+           member = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].member;
+           if (0 != member) 
+           {
+             memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+             memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
+             memset(&next_hop_str[0], 0, PT_MAX_IP_ADDR_LENGTH);
 
-          ptr = (void *)&pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].ip;
-          inet_ntop(AF_INET, ptr, next_hop_str,  PT_MAX_IP_ADDR_LENGTH);
-          _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-              ecmpMemberTemplate, &memberStr[0], &next_hop_str[0], &portStr[0]); 
-        }
-      }
+             sprintf(memberStr, "%d", member);
+             JSON_PORT_MAP_TO_NOTATION(pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].port, asicId, &portStr[0]);
 
-    /* adjust the buffer to remove the last ',' */
-    buffer = buffer - 1;
-    remLength += 1;
-    *length -= 1;
+             ptr = (void *)&pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_group_members[ii].ip;
+             inet_ntop(AF_INET, ptr, next_hop_str,  PT_MAX_IP_ADDR_LENGTH);
+             _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+                 ecmpMemberTemplate, &memberStr[0], &next_hop_str[0], &portStr[0]); 
+           }
+         }
 
-      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-                                                  " ]," );
+         /* adjust the buffer to remove the last ',' */
+         buffer = buffer - 1;
+         remLength += 1;
+         *length -= 1;
 
-       val1 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.member;
-      memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
-      sprintf(memberStr, "%d", val1);
+         _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+             " ]," );
 
-      val2 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.port;
-      memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
-      sprintf(portStr, "%d", val2);
-      ptr = (void *)&pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.ip;
-      inet_ntop(AF_INET, ptr, next_hop_str,  PT_MAX_IP_ADDR_LENGTH);
-      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
-                                                      ecmpDstTemplate, memberStr, portStr, next_hop_str);
-      if (BVIEW_ECMP_MAX_LEVEL-1 != jj)
-      {
-        _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ",");
-      }
+         val1 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.member;
+         memset(&memberStr[0], 0, JSON_MAX_NODE_LENGTH);
+         sprintf(memberStr, "%d", val1);
+
+         val2 = pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.port;
+         memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+         sprintf(portStr, "%d", val2);
+         ptr = (void *)&pData->profile[port-1].hashingInfo.ecmp[jj].ecmp_egress_info.ip;
+         inet_ntop(AF_INET, ptr, next_hop_str,  PT_MAX_IP_ADDR_LENGTH);
+         _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length,
+             ecmpDstTemplate, memberStr, portStr, next_hop_str);
+
      }
       
     _PT_JSONENCODE_LOG(_PT_JSONENCODE_DEBUG_TRACE, "PT-JSON-Encoder : (Report) profle -ecmp-resolution Complete \n");
 
     return BVIEW_STATUS_SUCCESS;
+}
+/******************************************************************
+ * @brief  Creates a JSON buffer using the supplied data for the 
+ *         "get-packet-trace-profile" REST API 
+ *
+ *********************************************************************/
+static BVIEW_STATUS _jsonencode_encode_profile_link ( char *buffer,
+                                                    const BVIEW_PT_PROFILE_RECORD_t *pData,
+                                                    const PTJSON_REPORT_OPTIONS_t *options,
+                                                    int bufLen,
+                                                    int *length, 
+                                                    int asicId,
+                                                    int port)
+{
+  int remLength = bufLen;
+  int actualLength  = 0;
+  int prt = 0;
+  BVIEW_PORT_MASK_t temp_mask;
+  bool is_first = false;
+
+  char *portTemplate = " { \"dst-port\": \"%s\"} ";
+  char portStr[JSON_MAX_NODE_LENGTH] = { 0 };
+
+  _PT_JSONENCODE_LOG(_PT_JSONENCODE_DEBUG_TRACE, "PT-JSON-Encoder : (Report) encoding trace profile data \n");
+  _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, "[ ");
+
+  memset(&temp_mask, 0, sizeof(BVIEW_PORT_MASK_t));
+  memcpy(&temp_mask, &pData->profile[port-1].destPortMask, sizeof(BVIEW_PORT_MASK_t));
+
+  if ((!(BVIEW_PT_TRUNK_RESOLUTION & pData->profile[port-1].hashingInfo.flags)) && 
+      (!(BVIEW_PT_ECMP_1_RESOLUTION & pData->profile[port-1].hashingInfo.flags)) && 
+      (!(BVIEW_PT_ECMP_2_RESOLUTION & pData->profile[port-1].hashingInfo.flags)))
+  {
+    is_first = true;
+    prt = 0;
+    BVIEW_FLMASKBIT(temp_mask, prt, sizeof(BVIEW_PORT_MASK_t));
+
+    while(0 != prt)
+    {
+      if (false == is_first)
+      {
+        _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, ",");
+      }
+      /* convert the port to an external representation */
+      memset(&portStr[0], 0, JSON_MAX_NODE_LENGTH);
+      JSON_PORT_MAP_TO_NOTATION(prt, asicId, &portStr[0]);
+
+      /* copying the header . Pointer and Length adjustments are handled by the macro */
+      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, length, portTemplate, &portStr[0]);
+      BVIEW_CLRMASKBIT(temp_mask, prt);
+      BVIEW_FLMASKBIT(temp_mask, prt, sizeof(BVIEW_PORT_MASK_t));
+
+      if (true == is_first)
+      {
+        is_first = false;
+      }
+    }
+  }
+
+  return BVIEW_STATUS_SUCCESS;
 }
 
 
@@ -476,14 +558,14 @@ static BVIEW_STATUS _jsonencode_encode_profile ( char *buffer,
         bufLen -= (tempLength);
         *(length) += (tempLength);
 
-        tempLength = 0;
-     status = _jsonencode_encode_profile_lag_(buffer, pData, options, remLength, &tempLength, asicId, port);
-    _PT_JSONENCODE_ASSERT_ERROR((status == BVIEW_STATUS_SUCCESS), status);
+          tempLength = 0;
+          status = _jsonencode_encode_profile_lag_(buffer, pData, options, remLength, &tempLength, asicId, port);
+          _PT_JSONENCODE_ASSERT_ERROR((status == BVIEW_STATUS_SUCCESS), status);
 
-        remLength -= tempLength;
-        bufLen -= (tempLength);
-        buffer += (tempLength);
-        *(length) += (tempLength);
+          remLength -= tempLength;
+          bufLen -= (tempLength);
+          buffer += (tempLength);
+          *(length) += (tempLength);
 
       _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, &tempLength, ",");
 
@@ -492,8 +574,8 @@ static BVIEW_STATUS _jsonencode_encode_profile ( char *buffer,
         bufLen -= (tempLength);
         *(length) += (tempLength);
       }
-
       remLength = bufLen;
+
       tempLength = 0;
       _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, &tempLength, realmTemplate, "ecmp-link-resolution");
       _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, &tempLength, "[");
@@ -510,6 +592,30 @@ static BVIEW_STATUS _jsonencode_encode_profile ( char *buffer,
         *(length) += (tempLength);
       }
 
+      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, &tempLength, "] },");
+      if (tempLength != 0)
+      {
+        bufLen -= (tempLength);
+        *(length) += (tempLength);
+      }
+      remLength = bufLen;
+      tempLength = 0;
+
+      /* Encode the link resolution */
+      _PT_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actualLength, buffer, remLength, &tempLength, realmTemplate, "link-resolution");
+        bufLen -= (tempLength);
+        *(length) += (tempLength);
+        tempLength = 0;
+       status = _jsonencode_encode_profile_link(buffer, pData, options, remLength, &tempLength, asicId, port);
+
+      _PT_JSONENCODE_ASSERT_ERROR((status == BVIEW_STATUS_SUCCESS), status);
+      if (tempLength != 0)
+      {
+        bufLen -= (tempLength);
+        remLength -= tempLength;
+        buffer += (tempLength);
+        *(length) += (tempLength);
+      }
 
 
       BVIEW_CLRMASKBIT(temp_mask, port);
@@ -555,24 +661,38 @@ BVIEW_STATUS ptjson_encode_get_pt_profile ( int asicId,
                                             uint8_t **pJsonBuffer
                                             )
 {
-    char *jsonBuf, *start;
-    BVIEW_STATUS status;
-    int bufferLength = PTJSON_MEMSIZE_REPORT;
-    int tempLength = 0;
+  char *jsonBuf, *start;
+  BVIEW_STATUS status;
+  int bufferLength = PTJSON_MEMSIZE_REPORT;
+  int tempLength = 0;
 
-    time_t report_time;
-    struct tm *timeinfo;
-    char timeString[64];
-    char asicIdStr[JSON_MAX_NODE_LENGTH] = { 0 };
+  time_t report_time;
+  struct tm *timeinfo;
+  char timeString[64];
+  char asicIdStr[JSON_MAX_NODE_LENGTH] = { 0 };
 
-    char *getPtReportStart = " { \
-\"jsonrpc\": \"2.0\",\
-\"method\": \"%s\",\
-\"asic-id\": \"%s\",\
-\"version\": \"%d\",\
-\"time-stamp\": \"%s\",\
-\"report\": [ \
-";
+  char *getPtReportStart = " { \
+                            \"jsonrpc\": \"2.0\",\
+                            \"method\": \"%s\",\
+                            \"asic-id\": \"%s\",\
+                            \"version\": \"%d\",\
+                            \"time-stamp\": \"%s\",\
+                            \"packet-info\": [{ \
+                            ";
+
+    char *timeTemplate = "  \
+                          \"%s\": \"%s\",\
+                          ";
+
+    char *packet_template = "  \
+                             \"packet\": \"%s\"}],\
+                             ";
+
+    char *report_template = "  \
+                             \"report\": [\
+                             ";
+    char encoded_pkt[PT_MAX_B64_SIZE+1024] = {0};
+    unsigned int encodedLen = 0;
 
     _PT_JSONENCODE_LOG(_PT_JSONENCODE_DEBUG_TRACE, "PT-JSON-Encoder : Request for Get-Pt-profile \n");
 
@@ -584,7 +704,7 @@ BVIEW_STATUS ptjson_encode_get_pt_profile ( int asicId,
     memset(&timeString, 0, sizeof (timeString));
     report_time = pData->tv;
     timeinfo = localtime(&report_time);
-    strftime(timeString, 64, "%Y-%m-%d - %H:%M:%S ", timeinfo);
+    strftime(timeString, 64, "%Y-%m-%d - %H:%M:%S", timeinfo);
 
     /* allocate memory for JSON */
     status = ptjson_memory_allocate(PTJSON_MEMSIZE_REPORT, (uint8_t **) & jsonBuf);
@@ -607,6 +727,62 @@ BVIEW_STATUS ptjson_encode_get_pt_profile ( int asicId,
 
     jsonBuf += tempLength;
     bufferLength -= tempLength;
+
+    /* obtain the cpu time */
+    memset(&timeString, 0, sizeof (timeString));
+    report_time = pData->cpu_tv;
+    timeinfo = localtime(&report_time);
+    strftime(timeString, 64, "%Y-%m-%d - %H:%M:%S ", timeinfo);
+    tempLength = snprintf(jsonBuf, bufferLength, timeTemplate,"packet-received-time-stamp", timeString);
+    jsonBuf += tempLength;
+    bufferLength -= tempLength;
+
+    /* obtain the ingress time */
+    memset(&timeString, 0, sizeof (timeString));
+    if (true == options->ig_tv_present)
+    {
+      report_time = pData->cpu_tv;
+    timeinfo = localtime(&report_time);
+    strftime(timeString, 64, "%Y-%m-%d - %H:%M:%S ", timeinfo);
+    tempLength = snprintf(jsonBuf, bufferLength, timeTemplate,"packet-received-ingress-time-stamp", timeString);
+    jsonBuf += tempLength;
+    bufferLength -= tempLength;
+    }
+
+    /* obtain the egress time */
+    if (true == options->eg_tv_present)
+    {
+      memset(&timeString, 0, sizeof (timeString));
+      report_time = pData->egress_tv;
+      timeinfo = localtime(&report_time);
+      strftime(timeString, 64, "%Y-%m-%d - %H:%M:%S ", timeinfo);
+      tempLength = snprintf(jsonBuf, bufferLength, timeTemplate,"packet-received-egress-time-stamp", timeString);
+      jsonBuf += tempLength;
+      bufferLength -= tempLength;
+    }
+    /* encode packet and include in the report */
+    memset(encoded_pkt, 0x00, sizeof(encoded_pkt));
+    if (PT_PKT == options->req_method)
+    {
+       strncpy(encoded_pkt, pData->rcvd_pkt.packet, pData->rcvd_pkt.packet_len);
+       encodedLen = pData->rcvd_pkt.packet_len;
+       
+    }
+    else if (PT_5_TUPLE == options->req_method)
+    {
+      system_base64_encode((const unsigned char *)pData->rcvd_pkt.packet,pData->rcvd_pkt.packet_len,
+           encoded_pkt, PT_MAX_B64_SIZE, &encodedLen);
+    }
+
+    tempLength = snprintf(jsonBuf, bufferLength, packet_template, encoded_pkt);
+    jsonBuf += tempLength;
+    bufferLength -= tempLength;
+
+
+    tempLength = snprintf(jsonBuf, bufferLength, report_template);
+    jsonBuf += tempLength;
+    bufferLength -= tempLength;
+
     /* get the trace profile */
     if (options->report_lag_ecmp == false)
     {
@@ -617,30 +793,21 @@ BVIEW_STATUS ptjson_encode_get_pt_profile ( int asicId,
       if (options->report_lag == true)
       {
         status = _jsonencode_encode_profile_lag(jsonBuf, pData, options, bufferLength, &tempLength, asicId);
-    }
-    else
-    {
+      }
+      else
+      {
         status = _jsonencode_encode_profile_ecmp(jsonBuf, pData, options, bufferLength, &tempLength, asicId);
       }
     }
+    if (status != BVIEW_STATUS_SUCCESS)
+    {
+      *pJsonBuffer = (uint8_t *) start;
+    }
     _PT_JSONENCODE_ASSERT_ERROR((status == BVIEW_STATUS_SUCCESS), status);
-
-        /* adjust the buffer */
+    /* adjust the buffer */
         bufferLength -= (tempLength);
         jsonBuf += (tempLength);
 
-#if 0
-    /* finalizing the report */
-
-    bufferLength -= 1;
-    jsonBuf -= 1;
-
-    if (jsonBuf[0] == 0)
-    {
-        bufferLength -= 1;
-        jsonBuf--;
-    }
-#endif
     tempLength = snprintf(jsonBuf, bufferLength, " ] ,\"id\":%d }", pData->id);
 
     *pJsonBuffer = (uint8_t *) start;

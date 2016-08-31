@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -34,24 +35,11 @@ extern "C"
 #include "rest_debug.h"
 
 #define REST_MAX_STRING_LENGTH      128
-#define REST_MAX_HTTP_BUFFER_LENGTH 2048
+#define REST_MAX_HTTP_BUFFER_LENGTH 4096
 
 #define REST_MAX_SESSIONS    5
 
 #define REST_MAX_IP_ADDR_LENGTH    20
-
-/* file from where the configuration properties are read. */
-#define REST_CONFIG_FILE    "agent_config.cfg"
-
-#define REST_CONFIG_PROPERTY_CLIENT_IP   "bview_client_ip"
-#define REST_CONFIG_PROPERTY_CLIENT_IP_DEFAULT   "127.0.0.1"    
-
-#define REST_CONFIG_PROPERTY_CLIENT_PORT   "bview_client_port"
-#define REST_CONFIG_PROPERTY_CLIENT_PORT_DEFAULT   9070
-
-#define REST_CONFIG_PROPERTY_LOCAL_PORT "agent_port"
-#define REST_CONFIG_PROPERTY_LOCAL_PORT_DEFAULT 8080
-
 
 /* Macro to acquire lock */
 #define REST_LOCK_TAKE(_ptr)                                                        \
@@ -201,6 +189,19 @@ BVIEW_STATUS rest_send_404_with_data(int fd, char *buffer, int length);
  * @note     
  *********************************************************************/
 BVIEW_STATUS rest_send_400_with_data(int fd, char *buffer, int length);
+
+/******************************************************************
+ * @brief  sends a HTTP 403 message to the client 
+ *
+ * @param[in]   fd    socket for sending message
+ * @param[in]   buffer  Buffer containing data to be sent
+ * @param[in]   length  number of bytes to be sent 
+ *
+ * @retval   BVIEW_STATUS_SUCCESS if send is successful
+ * 
+ * @note     
+ *********************************************************************/
+BVIEW_STATUS rest_send_403_with_data(int fd, char *buffer, int length);
 
 /******************************************************************
  * @brief  sends a HTTP 500 message to the client 

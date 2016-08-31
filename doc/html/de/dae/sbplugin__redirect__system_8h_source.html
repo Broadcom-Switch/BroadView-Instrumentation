@@ -52,145 +52,163 @@
 <a href="../../de/dae/sbplugin__redirect__system_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="comment">/*****************************************************************************</span></div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="comment">  *</span></div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment">  * (C) Copyright Broadcom Corporation 2015</span></div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">  *</span></div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">  * you may not use this file except in compliance with the License.</span></div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">  *</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">  * You may obtain a copy of the License at</span></div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">  * http://www.apache.org/licenses/LICENSE-2.0</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">  *</span></div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">  * Unless required by applicable law or agreed to in writing, software</span></div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">  * See the License for the specific language governing permissions and</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">  * limitations under the License.</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">  *</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">  ***************************************************************************/</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#ifndef INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H</span></div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H</span></div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor">#ifdef  __cplusplus</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;{</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &quot;broadview.h&quot;</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;openapps_feature.h&quot;</span></div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &quot;system.h&quot;</span></div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;asic.h&quot;</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="comment">  * Copyright © 2016 Broadcom.  The term &quot;Broadcom&quot; refers</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="comment">  * to Broadcom Limited and/or its subsidiaries.</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="comment">  *</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="comment">  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="comment">  * you may not use this file except in compliance with the License.</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="comment">  *</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="comment">  * You may obtain a copy of the License at</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="comment">  * http://www.apache.org/licenses/LICENSE-2.0</span></div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="comment">  *</span></div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">  * Unless required by applicable law or agreed to in writing, software</span></div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="comment">  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="comment">  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="comment">  * See the License for the specific language governing permissions and</span></div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="comment">  * limitations under the License.</span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="comment">  *</span></div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="comment">  ***************************************************************************/</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="preprocessor">#ifndef INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H</span></div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#define INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H</span></div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="preprocessor">#ifdef  __cplusplus</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor"></span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span></div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;{</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &quot;broadview.h&quot;</span></div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &quot;openapps_feature.h&quot;</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#include &quot;system.h&quot;</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &quot;asic.h&quot;</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gafdf0908c2781fc3baf2c39e06478e6cc" title="Get asic capabilites of a unit.">sbapi_system_asic_capabilities_get</a> (<span class="keywordtype">int</span> asic, </div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;                                          BVIEW_ASIC_CAPABILITIES_t *asicCapPtr);</div>
-<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga240c8f9231e670749c019c461ad4e3e7" title="Get number of units in the system.">sbapi_system_num_units_get</a>(<span class="keywordtype">int</span> *unitNum);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaf6afa6ac1ad959508208d12cb77772b5" title="Get asic type of a unit.">sbapi_system_unit_to_asic_type_get</a>(<span class="keywordtype">int</span> asic,  BVIEW_ASIC_TYPE  *asicType);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga8fef47545407165c9f75333d2886d0fc" title="Get system name.">sbapi_system_name_get</a>(<span class="keywordtype">char</span> *buffer, <span class="keywordtype">int</span> length);</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9" title="Get system MAC address.">sbapi_system_mac_get</a>(uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00144"></a><span class="lineno">  144</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7efd51ad7a994b985b3527542fb8fcd4" title="Get system IPv4 address.">sbapi_system_ip4_get</a>(uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno">  166</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga97a83424b47bf0c163441c476fc1608f" title="Get system asic number from notational asic number representation - string form.">sbapi_system_asic_translate_from_notation</a>(<span class="keywordtype">char</span> *src, <span class="keywordtype">int</span> *asic);</div>
-<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="comment">/*******************************************************************/</span></div>
-<div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaa369b1e659c6c039d5c10a4a60e44986" title="Get asic number in notational representation(string) from system asic number.">sbapi_system_asic_translate_to_notation</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">char</span> *dst);</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="comment">/*******************************************************************/</span></div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga492c68c02b25afa3b5ee5ebfdd1ac39c" title="Get system port number from notational port number representation - string form.">sbapi_system_port_translate_from_notation</a>(<span class="keywordtype">char</span> *src, <span class="keywordtype">int</span> *port);</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;</div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;<span class="comment">/*******************************************************************/</span></div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gac41ac5c3fad92e5bab3b0bcd5e9bd243" title="Get port number in notational representation(string) from system port number and asic number...">sbapi_system_port_translate_to_notation</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span> *dst);</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
-<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;  <span class="comment">/* Acquire Read lock */</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;<span class="comment">/*******************************************************************/</span></div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gae4bb1d94d22384a23f0081a36d1a5894" title="Get number of ports in a unit.">sbapi_system_asic_num_ports_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numPorts);</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaa216c643dd37c8874ab81284f0df4eb0" title="Get number of unicast queues in a unit.">sbapi_system_asic_num_ucq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numUnicastQueues);</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga25595cf518fe794300f3262ab620e9a6" title="Get number of unicast queue groups in a unit.">sbapi_system_asic_num_ucqg_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numUnicastQueueGroups);</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga1d963ad0359f69208ec0856f1a45ddb5" title="Get number of multicast queues in a unit.">sbapi_system_asic_num_mcq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numMulticastQueues);</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaf1ba2da4b9759c37e53b236e45803b66" title="Get number of service pools in a unit.">sbapi_system_asic_num_sp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numServicePools);</div>
-<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;</div>
-<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga78fdcaefadd6f2ef29aea783101a770f" title="Get number of common pools in a unit.">sbapi_system_asic_num_cp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numCommonPools);</div>
-<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00344"></a><span class="lineno">  344</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7c24b3effb9656f461f8e406b189d85f" title="Get number of cpu queues in a unit.">sbapi_system_asic_num_cpuq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numCpuQueues);</div>
-<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;</div>
-<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00360"></a><span class="lineno">  360</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga51ce6c7777c91d608574ed64779e89fd" title="Get number of RQE queues in a unit.">sbapi_system_asic_num_rqeq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numRqeQueues);</div>
-<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;</div>
-<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00376"></a><span class="lineno">  376</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga6822a2cb8f0f02257f0d99450e856e0a" title="Get number of RQE queue pools in a unit.">sbapi_system_asic_num_rqeqp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numRqeQueuePools);</div>
-<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;</div>
-<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00392"></a><span class="lineno">  392</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga3c3700cd76640003d32519364f861cbe" title="Get number of priority groups in a unit.">sbapi_system_asic_num_pg_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numPriorityGroups);</div>
-<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;</div>
-<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;<span class="comment">/*****************************************************************/</span></div>
-<div class="line"><a name="l00408"></a><span class="lineno">  408</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gafb80ebdf8c9e7563de2892de6845eedb" title="Get whether a unit supports 1588 or not.">sbapi_system_asic_support_1588_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">bool</span> *support1588);</div>
-<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;</div>
-<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;<span class="comment">/*********************************************************************</span></div>
-<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;<span class="comment">* @brief       Get Supported Feature Mask</span></div>
-<div class="line"><a name="l00412"></a><span class="lineno">  412</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00413"></a><span class="lineno">  413</span>&#160;<span class="comment">* @param[out]  featureMask            Supported Feature Mask</span></div>
-<div class="line"><a name="l00414"></a><span class="lineno">  414</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00415"></a><span class="lineno">  415</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or</span></div>
-<div class="line"><a name="l00416"></a><span class="lineno">  416</span>&#160;<span class="comment">*                                     Failed to get asic type from unit or</span></div>
-<div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;<span class="comment">*                                     Failed to get asic capabilites for this unit</span></div>
-<div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_SUCCESS      Supported Feature Mask is successfully</span></div>
-<div class="line"><a name="l00420"></a><span class="lineno">  420</span>&#160;<span class="comment">*                                     queried</span></div>
-<div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;<span class="comment">* @notes    none</span></div>
-<div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00424"></a><span class="lineno">  424</span>&#160;<span class="comment">*********************************************************************/</span></div>
-<div class="line"><a name="l00425"></a><span class="lineno">  425</span>&#160;BVIEW_STATUS  sbapi_system_feature_mask_get (<span class="keywordtype">int</span> *featureMask);</div>
-<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;</div>
-<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;<span class="comment">/*********************************************************************</span></div>
-<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;<span class="comment">* @brief       Get Network OS</span></div>
-<div class="line"><a name="l00429"></a><span class="lineno">  429</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00430"></a><span class="lineno">  430</span>&#160;<span class="comment">* @param[out]  buffer                 Pointer to network OS String</span></div>
-<div class="line"><a name="l00431"></a><span class="lineno">  431</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00432"></a><span class="lineno">  432</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure </span></div>
-<div class="line"><a name="l00433"></a><span class="lineno">  433</span>&#160;<span class="comment">*                                     Failed to get network os</span></div>
-<div class="line"><a name="l00434"></a><span class="lineno">  434</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00435"></a><span class="lineno">  435</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_SUCCESS      Network OS is successfully</span></div>
-<div class="line"><a name="l00436"></a><span class="lineno">  436</span>&#160;<span class="comment">*                                     queried</span></div>
-<div class="line"><a name="l00437"></a><span class="lineno">  437</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00438"></a><span class="lineno">  438</span>&#160;<span class="comment">* @notes    none</span></div>
-<div class="line"><a name="l00439"></a><span class="lineno">  439</span>&#160;<span class="comment">*</span></div>
-<div class="line"><a name="l00440"></a><span class="lineno">  440</span>&#160;<span class="comment">*********************************************************************/</span></div>
-<div class="line"><a name="l00441"></a><span class="lineno">  441</span>&#160;BVIEW_STATUS  sbapi_system_network_os_get (uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
-<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;</div>
-<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;<span class="preprocessor">#ifdef  __cplusplus</span></div>
-<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;<span class="preprocessor"></span>}</div>
-<div class="line"><a name="l00445"></a><span class="lineno">  445</span>&#160;<span class="comment">/* __doxy_func_body_end__ */</span></div>
-<div class="line"><a name="l00446"></a><span class="lineno">  446</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="line"><a name="l00447"></a><span class="lineno">  447</span>&#160;<span class="preprocessor"></span></div>
-<div class="line"><a name="l00448"></a><span class="lineno">  448</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">/* INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H */</span><span class="preprocessor"></span></div>
-<div class="line"><a name="l00449"></a><span class="lineno">  449</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gafdf0908c2781fc3baf2c39e06478e6cc" title="Get asic capabilites of a unit.">sbapi_system_asic_capabilities_get</a> (<span class="keywordtype">int</span> asic, </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                                          BVIEW_ASIC_CAPABILITIES_t *asicCapPtr);</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga240c8f9231e670749c019c461ad4e3e7" title="Get number of units in the system.">sbapi_system_num_units_get</a>(<span class="keywordtype">int</span> *unitNum);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaf6afa6ac1ad959508208d12cb77772b5" title="Get asic type of a unit.">sbapi_system_unit_to_asic_type_get</a>(<span class="keywordtype">int</span> asic,  BVIEW_ASIC_TYPE  *asicType);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga8fef47545407165c9f75333d2886d0fc" title="Get system name.">sbapi_system_name_get</a>(<span class="keywordtype">char</span> *buffer, <span class="keywordtype">int</span> length);</div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9" title="Get system MAC address.">sbapi_system_mac_get</a>(uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7efd51ad7a994b985b3527542fb8fcd4" title="Get system IPv4 address.">sbapi_system_ip4_get</a>(uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;</div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga97a83424b47bf0c163441c476fc1608f" title="Get system asic number from notational asic number representation - string form.">sbapi_system_asic_translate_from_notation</a>(<span class="keywordtype">char</span> *src, <span class="keywordtype">int</span> *asic);</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="comment">/*******************************************************************/</span></div>
+<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaa369b1e659c6c039d5c10a4a60e44986" title="Get asic number in notational representation(string) from system asic number.">sbapi_system_asic_translate_to_notation</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">char</span> *dst);</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="comment">/*******************************************************************/</span></div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga492c68c02b25afa3b5ee5ebfdd1ac39c" title="Get system port number from notational port number representation - string form.">sbapi_system_port_translate_from_notation</a>(<span class="keywordtype">char</span> *src, <span class="keywordtype">int</span> *port);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;</div>
+<div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;<span class="comment">/*******************************************************************/</span></div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#gac41ac5c3fad92e5bab3b0bcd5e9bd243" title="Get port number in notational representation(string) from system port number and asic number...">sbapi_system_port_translate_to_notation</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> port, <span class="keywordtype">char</span> *dst);</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;  <span class="comment">/* Acquire Read lock */</span></div>
+<div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;<span class="comment">/*******************************************************************/</span></div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gae4bb1d94d22384a23f0081a36d1a5894" title="Get number of ports in a unit.">sbapi_system_asic_num_ports_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numPorts);</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaa216c643dd37c8874ab81284f0df4eb0" title="Get number of unicast queues in a unit.">sbapi_system_asic_num_ucq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numUnicastQueues);</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;</div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga25595cf518fe794300f3262ab620e9a6" title="Get number of unicast queue groups in a unit.">sbapi_system_asic_num_ucqg_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numUnicastQueueGroups);</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga1d963ad0359f69208ec0856f1a45ddb5" title="Get number of multicast queues in a unit.">sbapi_system_asic_num_mcq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numMulticastQueues);</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;</div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00313"></a><span class="lineno">  313</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gaf1ba2da4b9759c37e53b236e45803b66" title="Get number of service pools in a unit.">sbapi_system_asic_num_sp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numServicePools);</div>
+<div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;</div>
+<div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga78fdcaefadd6f2ef29aea783101a770f" title="Get number of common pools in a unit.">sbapi_system_asic_num_cp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numCommonPools);</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;</div>
+<div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00345"></a><span class="lineno">  345</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga7c24b3effb9656f461f8e406b189d85f" title="Get number of cpu queues in a unit.">sbapi_system_asic_num_cpuq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numCpuQueues);</div>
+<div class="line"><a name="l00346"></a><span class="lineno">  346</span>&#160;</div>
+<div class="line"><a name="l00347"></a><span class="lineno">  347</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00361"></a><span class="lineno">  361</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga51ce6c7777c91d608574ed64779e89fd" title="Get number of RQE queues in a unit.">sbapi_system_asic_num_rqeq_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numRqeQueues);</div>
+<div class="line"><a name="l00362"></a><span class="lineno">  362</span>&#160;</div>
+<div class="line"><a name="l00363"></a><span class="lineno">  363</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00377"></a><span class="lineno">  377</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga6822a2cb8f0f02257f0d99450e856e0a" title="Get number of RQE queue pools in a unit.">sbapi_system_asic_num_rqeqp_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numRqeQueuePools);</div>
+<div class="line"><a name="l00378"></a><span class="lineno">  378</span>&#160;</div>
+<div class="line"><a name="l00379"></a><span class="lineno">  379</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00393"></a><span class="lineno">  393</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga3c3700cd76640003d32519364f861cbe" title="Get number of priority groups in a unit.">sbapi_system_asic_num_pg_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> *numPriorityGroups);</div>
+<div class="line"><a name="l00394"></a><span class="lineno">  394</span>&#160;</div>
+<div class="line"><a name="l00395"></a><span class="lineno">  395</span>&#160;<span class="comment">/*****************************************************************/</span></div>
+<div class="line"><a name="l00409"></a><span class="lineno">  409</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gafb80ebdf8c9e7563de2892de6845eedb" title="Get whether a unit supports 1588 or not.">sbapi_system_asic_support_1588_get</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">bool</span> *support1588);</div>
+<div class="line"><a name="l00410"></a><span class="lineno">  410</span>&#160;</div>
+<div class="line"><a name="l00411"></a><span class="lineno">  411</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00426"></a><span class="lineno">  426</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gacf931f428c1dd2df4502001919d7317a" title="Get Supported Feature Mask.">sbapi_system_feature_mask_get</a> (<span class="keywordtype">int</span> *featureMask);</div>
+<div class="line"><a name="l00427"></a><span class="lineno">  427</span>&#160;</div>
+<div class="line"><a name="l00428"></a><span class="lineno">  428</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00442"></a><span class="lineno">  442</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga70acca50d403e9071793c3fd96bb40bb" title="Get Network OS.">sbapi_system_network_os_get</a> (uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
+<div class="line"><a name="l00443"></a><span class="lineno">  443</span>&#160;</div>
+<div class="line"><a name="l00444"></a><span class="lineno">  444</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;BVIEW_STATUS  <a class="code" href="../../d1/d82/group__GLBVIEW.html#gac5485297573fa96ae906a5f26cb00f3b" title="Get system UID.">sbapi_system_uid_get</a> (uint8_t *buffer, <span class="keywordtype">int</span> length);</div>
+<div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00477"></a><span class="lineno">  477</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga717eedf047a255f1c389bd3023917659" title="Get Current local time.">sbapi_system_time_get</a> (time_t *ptime);</div>
+<div class="line"><a name="l00478"></a><span class="lineno">  478</span>&#160;</div>
+<div class="line"><a name="l00479"></a><span class="lineno">  479</span>&#160;</div>
+<div class="line"><a name="l00480"></a><span class="lineno">  480</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00501"></a><span class="lineno">  501</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga99eb5f8b0054ae6923be7b8be163e630" title="Get lag number in notational representation(string) from system lag number and asic number...">sbapi_system_lag_translate_to_notation</a>(<span class="keywordtype">int</span> asic, <span class="keywordtype">int</span> lag, <span class="keywordtype">char</span> *dst);</div>
+<div class="line"><a name="l00502"></a><span class="lineno">  502</span>&#160;</div>
+<div class="line"><a name="l00503"></a><span class="lineno">  503</span>&#160;<span class="comment">/*********************************************************************/</span></div>
+<div class="line"><a name="l00526"></a><span class="lineno">  526</span>&#160;BVIEW_STATUS <a class="code" href="../../d1/d82/group__GLBVIEW.html#ga875af5c1b00bf383ed91552d2976df63" title="Get snapshot of max buffers allocated.">sbapi_system_max_buf_snapshot_get</a> (<span class="keywordtype">int</span> asic,</div>
+<div class="line"><a name="l00527"></a><span class="lineno">  527</span>&#160;                                      BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *maxBufSnapshot,</div>
+<div class="line"><a name="l00528"></a><span class="lineno">  528</span>&#160;                                      BVIEW_TIME_t * time);</div>
+<div class="line"><a name="l00529"></a><span class="lineno">  529</span>&#160;</div>
+<div class="line"><a name="l00530"></a><span class="lineno">  530</span>&#160;<span class="comment">/*********************************************************************</span></div>
+<div class="line"><a name="l00531"></a><span class="lineno">  531</span>&#160;<span class="comment">* @brief  Register with silicon for CPU bound packets</span></div>
+<div class="line"><a name="l00532"></a><span class="lineno">  532</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00533"></a><span class="lineno">  533</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00534"></a><span class="lineno">  534</span>&#160;<span class="comment">* @param[in]   asic                          ASIC number</span></div>
+<div class="line"><a name="l00535"></a><span class="lineno">  535</span>&#160;<span class="comment">* @param[in]   callback                      Function to called when</span></div>
+<div class="line"><a name="l00536"></a><span class="lineno">  536</span>&#160;<span class="comment">*                                            packet is recived.</span></div>
+<div class="line"><a name="l00537"></a><span class="lineno">  537</span>&#160;<span class="comment">* @param[int]  cookie                        cookie</span></div>
+<div class="line"><a name="l00538"></a><span class="lineno">  538</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00539"></a><span class="lineno">  539</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or</span></div>
+<div class="line"><a name="l00540"></a><span class="lineno">  540</span>&#160;<span class="comment">*                                     Not able to get asic type of this unit or</span></div>
+<div class="line"><a name="l00541"></a><span class="lineno">  541</span>&#160;<span class="comment">*                                     system feature is not present or</span></div>
+<div class="line"><a name="l00542"></a><span class="lineno">  542</span>&#160;<span class="comment">*                                     System south bound function has returned failure</span></div>
+<div class="line"><a name="l00543"></a><span class="lineno">  543</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00544"></a><span class="lineno">  544</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_SUCCESS      Registration is successful</span></div>
+<div class="line"><a name="l00545"></a><span class="lineno">  545</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00546"></a><span class="lineno">  546</span>&#160;<span class="comment">* @retval   BVIEW_STATUS_UNSUPPORTED  Packet RX registration is not supported </span></div>
+<div class="line"><a name="l00547"></a><span class="lineno">  547</span>&#160;<span class="comment">*                                    </span></div>
+<div class="line"><a name="l00548"></a><span class="lineno">  548</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00549"></a><span class="lineno">  549</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00550"></a><span class="lineno">  550</span>&#160;<span class="comment">* @notes    none</span></div>
+<div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;<span class="comment">*</span></div>
+<div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;<span class="comment">*********************************************************************/</span></div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;BVIEW_STATUS sbapi_system_packet_rx_register (<span class="keywordtype">int</span> asic,</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;                                              BVIEW_PACKET_RX_CALLBACK_t callback,</div>
+<div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;                                              <span class="keywordtype">char</span> *name,</div>
+<div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;                                              <span class="keywordtype">void</span> *cookie);</div>
+<div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;</div>
+<div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;<span class="preprocessor">#ifdef  __cplusplus</span></div>
+<div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;<span class="preprocessor"></span>}</div>
+<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;<span class="comment">/* __doxy_func_body_end__ */</span></div>
+<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;<span class="preprocessor">#endif  </span><span class="comment">/* INCLUDE_SBPLUGIN_REDIRECT_SYSTEM_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;<span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -35,6 +36,19 @@ extern "C"
 
 #include "cJSON.h"
 
+typedef enum _bst_config_param_mask_pos_
+{
+  BST_CONFIG_PARAMS_ENABLE = 0,
+  BST_CONFIG_PARAMS_SND_ASYNC_REP,
+  BST_CONFIG_PARAMS_COLL_INTRVL,
+  BST_CONFIG_PARAMS_STATS_UNITS,
+  BST_CONFIG_PARAMS_TGR_RATE_LIMIT,
+  BST_CONFIG_PARAMS_SND_SNAP_TGR,
+  BST_CONFIG_PARAMS_TGR_RL_INTVL,
+  BST_CONFIG_PARAMS_ASYNC_FULL_REP,
+  BST_CONFIG_PARAMS_STATS_IN_PERCENT
+}BST_CONFIG_PARAM_MASK_t;
+
 /* Structure to pass API parameters to the BST APP */
 typedef struct _bstjson_configure_bst_feature_
 {
@@ -47,6 +61,7 @@ typedef struct _bstjson_configure_bst_feature_
     int sendSnapshotOnTrigger;
     int triggerTransmitInterval;
     int sendIncrementalReport;
+    int configMask;
 } BSTJSON_CONFIGURE_BST_FEATURE_t;
 
 

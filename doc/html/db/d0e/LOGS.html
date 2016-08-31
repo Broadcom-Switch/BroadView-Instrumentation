@@ -43,7 +43,14 @@
 <div class="title">Checking the logs </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>Both the agent (BroadViewAgent) and the reference application (BroadViewBstApp and BroadViewPacketTraceApp) log all messages to syslog. These logs are available at /var/log/messages and can be checked using any editor. A sample log is shown below:</p>
+<div class="textblock"><p>The default logging implementation for the Agent uses syslog. However, it may be desirable to integrate the logging into an existing logging mechanism.</p>
+<p>There is a single function log_post() that needs to be re-implemented as per the desired needs. The function prototype is as follows.</p>
+<p>void log_post(BVIEW_SEVERITY severity, char * format, ...);</p>
+<p>The enumeration BVIEW_SEVERITY indicates the syslog-like severity level for the messaged being logged. This is presented below.</p>
+<div class="image">
+<img src="../../Log.jpg" alt="Log.jpg"/>
+</div>
+<p> Both the agent (BroadViewAgent) and the reference application (BroadViewBstApp and BroadViewPacketTraceApp) log all messages to syslog. These logs are available at /var/log/messages and can be checked using any editor. A sample log is shown below:</p>
 <div class="image">
 <img src="../../logs_check_1.jpg" alt="logs_check_1.jpg"/>
 </div>
@@ -79,7 +86,7 @@
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

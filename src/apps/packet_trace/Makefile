@@ -18,8 +18,11 @@ OBJECTS_PACKET_TRACE := $(notdir $(patsubst %.c,%.o,$(shell find . -name "*.c"))
 
 export VPATH += $(dir $(shell find . -name "*.c"))
 
-$(OUT_PACKET_TRACE)/%.o : %.c
+$(OUT_PACKET_TRACE)::
+	@echo Making PT
 	@mkdir -p $(OUT_PACKET_TRACE) 
+
+$(OUT_PACKET_TRACE)/%.o : %.c
 	$(CC) $(CFLAGS) -c  $< -o $@ 
 
 # target for .a 
@@ -27,14 +30,16 @@ $(OUT_PACKET_TRACE)/$(LIBS_PACKET_TRACE): $(patsubst %,$(OUT_PACKET_TRACE)/%,$(s
 	@cd $(OUT_PACKET_TRACE) && $(AR) rvs $(MODULE).a $(OBJECTS_PACKET_TRACE)  
 
 #default target
-$(MODULE) all: $(OUT_PACKET_TRACE)/$(LIBS_PACKET_TRACE) 
+packettrace all: $(OUT_PACKET_TRACE) $(OUT_PACKET_TRACE)/$(LIBS_PACKET_TRACE) 
 	$(NOOP)
 
-clean-$(MODULE) clean: 
-	rm -rf $(OUT_PACKET_TRACE)
+clean-packettrace clean: 
+	@echo Cleaning PT
+	@rm -f $(OUT_PACKET_TRACE)/*.o $(OUT_PACKET_TRACE)/*.a
+	@rmdir $(OUT_PACKET_TRACE) 2>/dev/null; true
 
 #target to print all exported variables
-debug-$(MODULE) dump-variables: 
+debug-packettrace dump-variables: 
 	@echo "OUT_PACKET_TRACE=$(OUT_PACKET_TRACE)"
 	@echo "LIBS_PACKET_TRACE=$(LIBS_PACKET_TRACE)"
 	@echo "OBJECTS_PACKET_TRACE=$(OBJECTS_PACKET_TRACE)"

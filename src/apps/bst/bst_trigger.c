@@ -1,20 +1,21 @@
 /*****************************************************************************
- *
- * (C) Copyright Broadcom Corporation 2015
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- ***************************************************************************/
+  *
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  *
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ***************************************************************************/
 
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +30,7 @@
 #include "get_bst_tracking.h"
 #include "get_bst_feature.h"
 #include "get_bst_thresholds.h"
+#include "get_bst_cgsn_drop_counters.h"
 #include "get_bst_report.h"
 #include "bst_json_encoder.h"
 #include "bst.h"
@@ -52,8 +54,8 @@ bool bst_trigger_index_get(char *realm, char *counter, unsigned int *val)
     {BST_ID_PORT_POOL, "ingress-port-service-pool", "um-share-buffer-count" },
     {BST_ID_PRI_GROUP_SHARED, "ingress-port-priority-group", "um-share-buffer-count"},
     {BST_ID_PRI_GROUP_HEADROOM, "ingress-port-priority-group", "um-headroom-buffer-count"},
-    {BST_ID_EGR_POOL, "egress-port-service-pool", "um-share-buffer-count"},
-    {BST_ID_EGR_MCAST_POOL, "egress-port-service-pool", "mc-share-buffer-count"},
+    {BST_ID_EGR_POOL, "egress-service-pool", "um-share-buffer-count"},
+    {BST_ID_EGR_MCAST_POOL, "egress-service-pool", "mc-share-buffer-count"},
     {BST_ID_UCAST, "egress-uc-queue", "uc-buffer-count"},
     {BST_ID_MCAST, "egress-mc-queue", "mc-buffer-count"},
     {BST_ID_EGR_UCAST_PORT_SHARED, "egress-port-service-pool", "uc-share-buffer-count"},
@@ -448,7 +450,7 @@ BVIEW_STATUS bst_trigger_timer_add (unsigned int  unit)
     rv =  system_timer_add (bst_trigger_timer_cb,
         &bst_data_ptr->bst_trigger_timer.bstTimer,
         interval*BVIEW_BST_TIME_CONVERSION_FACTOR,
-        PERIODIC_MODE, &bst_data_ptr->bst_trigger_timer.unit);
+        PERIODIC_MODE, &bst_data_ptr->bst_trigger_timer.context.unit);
 
     if (BVIEW_STATUS_SUCCESS == rv)
     {

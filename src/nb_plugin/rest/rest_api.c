@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -23,6 +24,7 @@
 
 #include <sys/types.h>
 #include <sys/socket.h>
+
 #include <arpa/inet.h>
 
 #include "broadview.h"
@@ -35,14 +37,17 @@
 
 static REST_CONTEXT_t rest;
 const REST_JSON_ERROR_t rest_json_error_array[] = {
-  {BVIEW_STATUS_FAILURE, -32603, "Internal Error", rest_send_400_with_data},
-  {BVIEW_STATUS_OUTOFMEMORY, -32603, "Internal Error", rest_send_400_with_data},
-  {BVIEW_STATUS_RESOURCE_NOT_AVAILABLE, -32603, "Internal Error", rest_send_400_with_data},
-  {BVIEW_STATUS_INVALID_MEMORY, -32603, "Internal Error", rest_send_400_with_data},
+  {BVIEW_STATUS_FAILURE, -32603, "Internal Error", rest_send_500_with_data},
+  {BVIEW_STATUS_OUTOFMEMORY, -32603, "Internal Error", rest_send_500_with_data},
+  {BVIEW_STATUS_RESOURCE_NOT_AVAILABLE, -32603, "Internal Error", rest_send_500_with_data},
+  {BVIEW_STATUS_INVALID_MEMORY, -32603, "Internal Error", rest_send_500_with_data},
   {BVIEW_STATUS_INVALID_PARAMETER, -32602, "Invalid Params", rest_send_400_with_data},
   {BVIEW_STATUS_INVALID_ID, -32602, "Invalid Params", rest_send_400_with_data},
   {BVIEW_STATUS_UNSUPPORTED, -32601, "Method Not Found", rest_send_404_with_data},
-  {BVIEW_STATUS_INVALID_JSON, -32700, "Parse Error", rest_send_500_with_data}
+  {BVIEW_STATUS_INVALID_JSON, -32700, "Parse Error", rest_send_400_with_data},
+  {BVIEW_STATUS_FEATURE_NOT_ENABLED, -32001, "Feature not enabled", rest_send_403_with_data},
+  {BVIEW_STATUS_NOT_CONFIGURED, -32002, "Not configured", rest_send_403_with_data},
+  {BVIEW_STATUS_ALREADY_CONFIGURED, -32003, "Already configured", rest_send_403_with_data}
 };
   const char json_error[] = "{     \
                              \"jsonrpc\": \"2.0\", \
@@ -311,7 +316,7 @@ BVIEW_STATUS rest_get_json_error_data(BVIEW_STATUS rv, int *json_val,
 {
   unsigned int i;
 
-  for (i = 0; i < REST_HTTP_JSON_MAX_ELEMENTS; i++)
+  for (i = 0; i < (sizeof(rest_json_error_array)/sizeof(rest_json_error_array[0])); i++)
   {
     if (rv == rest_json_error_array[i].return_code)
     {
@@ -383,5 +388,4 @@ int rest_agent_config_params_modify(char *ipaddr, unsigned int clientPort)
 
      return 0;
 }
-
 

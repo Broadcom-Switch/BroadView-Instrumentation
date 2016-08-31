@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -35,6 +36,10 @@ extern "C"
 
 #define BSTAPP_MAX_IP_ADDR_LENGTH    20
 
+#define BSTAPP_STAT_TYPE_ABSOLUTE         1
+#define BSTAPP_STAT_TYPE_PERCENTAGE       2
+
+
 /* file from where the configuration properties are read. */
 #define BSTAPP_CONFIG_FILE    "bstapp_config.cfg"
 
@@ -51,6 +56,9 @@ extern "C"
 #define BSTAPP_CONFIG_PROPERTY_POLLING_INTERVAL "polling_interval"
 #define BSTAPP_CONFIG_PROPERTY_POLLING_INTERVAL_DEFAULT  5
 
+#define BSTAPP_CONFIG_PROPERTY_STAT_TYPE "stat_type"
+#define BSTAPP_CONFIG_PROPERTY_STAT_TYPE_DEFAULT  BSTAPP_STAT_TYPE_PERCENTAGE
+
 
 typedef struct _bstapp_config_
 {
@@ -62,6 +70,7 @@ typedef struct _bstapp_config_
 
     int pollingInterval;
 
+    int statType;
 } BSTAPP_CONFIG_t;
 
 typedef struct _bstapp_rest_msg_ {

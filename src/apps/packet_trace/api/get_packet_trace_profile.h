@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -38,13 +39,33 @@ extern "C"
 
 #define PT_JSON_MAX_PKT_LEN  (4 * ((BVIEW_PT_MAX_PACKET_SIZE + 40 + 2) / 3))
 
-/* Structure to pass API parameters to the PT APP */
-typedef struct _ptjson_get_pt_profile_
+typedef enum _pt_profile_input_s_
+{
+  PT_PKT = 1,
+  PT_5_TUPLE
+}PT_PROFILE_INPUT_t;
+
+/* captured packet input params place holder */
+typedef struct _pt_packet_params_s_
 {
     char packet[PT_JSON_MAX_PKT_LEN];
+    unsigned int packet_len;
+}PT_PACKET_PARAMS_t;
+
+/* Structure to pass API parameters to the PT APP */
+typedef struct _ptjson_get_pt_profile_
+{ 
+    PT_PROFILE_INPUT_t req_method;
     BVIEW_PORT_MASK_t pbmp;
     int collection_interval;
     int drop_packet;
+    int pkt_limit;
+    union
+    {
+      PT_PACKET_PARAMS_t pkt;
+      PT_5_TUPLE_PARAMS_t tuple;
+    }req_prfl;
+
 } PTJSON_GET_PT_PROFILE_t;
 
 

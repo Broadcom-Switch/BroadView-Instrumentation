@@ -34,15 +34,33 @@ SB_BRCM_VENDOR_INCLUDE_DIR = $(INCDIR_OPENNSL)
 CFLAGS +=-DCDP_PACKAGE
 endif
 
-CFLAGS += $(OPENAPPS_SDKFLAGS) -Wall -g -I$(SB_BRCM_VENDOR_INCLUDE_DIR) -I../../public -I../include -I../sb_brcm/$(SB_BRCM_PLUGIN_COMMON_DIR)/include -I../sb_brcm/$(SB_BRCM_PLUGIN_DIR)/ -I../../../platform 
+CFLAGS += $(OPENAPPS_SDKFLAGS) -Wall -g -I$(SB_BRCM_VENDOR_INCLUDE_DIR) -I../../public -I../include -I../sb_brcm/$(SB_BRCM_PLUGIN_COMMON_DIR)/include -I../sb_brcm/$(SB_BRCM_PLUGIN_DIR)/ -I../../../platform -I../../../vendor/libxml2/include/ -I$(OPENAPPS_OUTPATH)
 
-searchdirs = $(realpath $(OPENAPPS_BASE)/src/sb_plugin/sb_brcm/$(SB_BRCM_PLUGIN_COMMON_DIR)/bst)
+OBJECTS_SBPLUGIN = sbplugin_init.o sbplugin_common_system.o
 
-export CPATH += $(searchdirs)
+ifneq (,$(filter bst,$(COMPONENTS)))
+  OBJECTS_SBPLUGIN += sbplugin_common_bst.o
+endif
 
-OBJECTS_SBPLUGIN := $(notdir $(patsubst %.c,%.o,$(shell find . -name "*.c")))
+ifneq (,$(filter pt,$(COMPONENTS)))
+  OBJECTS_SBPLUGIN += sbplugin_common_packet_trace.o
+endif
+
+ifneq (,$(filter bhd,$(COMPONENTS)))
+  OBJECTS_SBPLUGIN += sbplugin_common_bhd.o
+endif
+
+#searchdirs = $(realpath $(OPENAPPS_BASE)/src/sb_plugin/sb_brcm/$(SB_BRCM_PLUGIN_COMMON_DIR)/bst)
+
+#export CPATH += $(searchdirs)
+
+#OBJECTS_SBPLUGIN := $(notdir $(patsubst %.c,%.o,$(shell find . -name "*.c")))
 
 export VPATH += $(dir $(shell find . -name "*.c"))
+
+$(OUT_SBPLUGIN)::
+	@echo Making SB-PLUGIN
+	@mkdir -p $(OUT_SBPLUGIN)
 
 $(OUT_SBPLUGIN)/%.o : %.c
 	@mkdir -p $(OUT_SBPLUGIN) 
@@ -53,11 +71,13 @@ $(OUT_SBPLUGIN)/$(LIBS_SBPLUGIN): $(patsubst %,$(OUT_SBPLUGIN)/%,$(subst :, ,$(O
 	@cd $(OUT_SBPLUGIN) && $(AR) rvs $(MODULE).a $(OBJECTS_SBPLUGIN)  
 
 #default target
-$(MODULE) all: $(OUT_SBPLUGIN)/$(LIBS_SBPLUGIN) 
+$(MODULE) all: $(OUT_SBPLUGIN) $(OUT_SBPLUGIN)/$(LIBS_SBPLUGIN) 
 	$(NOOP)
 
 clean-$(MODULE) clean: 
-	rm -rf $(OUT_SBPLUGIN)
+	@echo Cleaning SB-PLUGIN
+	@rm -f $(OUT_SBPLUGIN)/*.o $(OUT_SBPLUGIN)/*.a
+	@rmdir $(OUT_SBPLUGIN) 2>/dev/null; true
 
 #target to print all exported variables
 debug-$(MODULE) dump-variables: 

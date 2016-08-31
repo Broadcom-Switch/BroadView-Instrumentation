@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -28,6 +29,27 @@ extern "C" {
 #include <signal.h>
 #include "modulemgr.h"
 
+#if 0
+typedef enum _pt_config_tuple_mask_ {
+  PT_CONFIG_TUPLE_SRC_IP = (1 << 0),
+  PT_CONFIG_TUPLE_DST_IP = (1 << 1),
+  PT_CONFIG_TUPLE_PROTOCOL = (1 << 2),
+  PT_CONFIG_TUPLE_SRC_PORT = (1 << 3),
+  PT_CONFIG_TUPLE_DST_PORT = (1 << 4)
+}PT_CONFIG_TUPLE_MASK_t;
+
+/* 5-tuple information place holder */
+typedef struct _pt_5_tuple_params_s_
+{
+  unsigned int src_ip;
+  unsigned int dst_ip;
+  unsigned int protocol;
+  unsigned int src_port;
+  unsigned int dst_port;
+  unsigned int 5_tuple_mask;
+}PT_5_TUPLE_PARAMS_t;
+#endif
+ 
 /*********************************************************************
 * @brief : application function to configure the packet trace
 *
@@ -132,7 +154,8 @@ BVIEW_STATUS pt_trace_profile_get (BVIEW_PT_REQUEST_MSG_t * msg_data);
 *********************************************************************/
 BVIEW_STATUS pt_periodic_collection_timer_add (int  unit, 
                                                int index,
-                                               long msg_type);
+                                               long msg_type,
+                                               int method);
 
 
 /*********************************************************************

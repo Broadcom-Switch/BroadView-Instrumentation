@@ -59,6 +59,8 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dbd/struct__pt__drop__counter__report___1_1__counter__.html">_pt_drop_counter_report_::_counter_</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d71/struct__pt__5__tuple__params__s__.html">_pt_5_tuple_params_s_</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dad/struct__pt__drop__counter__report__.html">_pt_drop_counter_report_</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d6b/struct__pt__drop__reason__config__.html">_pt_drop_reason_config_</a></td></tr>
@@ -66,8 +68,6 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/dd5/struct__pt__drop__reason__data__.html">_pt_drop_reason_data_</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d5a/struct__pt__trace__profile__.html">_pt_trace_profile_</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/de4/structBVIEW__PORT__MASK__t.html">BVIEW_PORT_MASK_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d62/structBVIEW__PT__DROP__REASON__MASK__t.html">BVIEW_PT_DROP_REASON_MASK_t</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -84,21 +84,45 @@ Macros</h2></td></tr>
 <tr class="memitem:ga88221ca31712b383e604de8bce5971d6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga88221ca31712b383e604de8bce5971d6"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_ECMP_MAX_MEMBERS</b>&#160;&#160;&#160;8</td></tr>
 <tr class="separator:ga88221ca31712b383e604de8bce5971d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5c2415251b2bb226ecd34a0210bface2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga5c2415251b2bb226ecd34a0210bface2"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MASK_BASE_UNIT</b>&#160;&#160;&#160;unsigned int</td></tr>
-<tr class="separator:ga5c2415251b2bb226ecd34a0210bface2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga38d84c815a05941a42bc2d06dc3a1a50"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga38d84c815a05941a42bc2d06dc3a1a50"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MASK_SIZE</b>(_max)&#160;&#160;&#160;(((_max) + BVIEW_MASKWID - 1) / BVIEW_MASKWID)</td></tr>
-<tr class="separator:ga38d84c815a05941a42bc2d06dc3a1a50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga713237bef4334ea9130cfe6529a9520a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga713237bef4334ea9130cfe6529a9520a"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MASKWID</b>&#160;&#160;&#160;(8*sizeof(BVIEW_MASK_BASE_UNIT))</td></tr>
-<tr class="separator:ga713237bef4334ea9130cfe6529a9520a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga378dd329f6c822a09655fe6f09195855"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga378dd329f6c822a09655fe6f09195855"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MAX_TRUNK_MEMBERS</b>&#160;&#160;&#160;8</td></tr>
 <tr class="separator:ga378dd329f6c822a09655fe6f09195855"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga728ef565108172de1e86fb90d376b87d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga728ef565108172de1e86fb90d376b87d"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_DST_PORT</b>&#160;&#160;&#160;65535</td></tr>
+<tr class="separator:ga728ef565108172de1e86fb90d376b87d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafcb74e024e09f992fabc55fd2e3782a5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gafcb74e024e09f992fabc55fd2e3782a5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_PACKET_LIMIT</b>&#160;&#160;&#160;10</td></tr>
+<tr class="separator:gafcb74e024e09f992fabc55fd2e3782a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga484a4694f9e2b7ae4a49021a16a59757"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga484a4694f9e2b7ae4a49021a16a59757"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_PACKET_SIZE</b>&#160;&#160;&#160;1558</td></tr>
 <tr class="separator:ga484a4694f9e2b7ae4a49021a16a59757"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga55f0cf2118ec83c0e280caa6e4a7576c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga55f0cf2118ec83c0e280caa6e4a7576c"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_PROTOCOL</b>&#160;&#160;&#160;144</td></tr>
+<tr class="separator:ga55f0cf2118ec83c0e280caa6e4a7576c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga60a78275eccc7f4b1199bd4b27713e2b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga60a78275eccc7f4b1199bd4b27713e2b"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_SRC_PORT</b>&#160;&#160;&#160;65535</td></tr>
+<tr class="separator:ga60a78275eccc7f4b1199bd4b27713e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga96562556a41f9f9f5d4b90bf4412ac76"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga96562556a41f9f9f5d4b90bf4412ac76"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MAX_WC</b>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:ga96562556a41f9f9f5d4b90bf4412ac76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacd8262228a6ea8c6e352d27dd2d62414"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacd8262228a6ea8c6e352d27dd2d62414"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MIN_DST_PORT</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:gacd8262228a6ea8c6e352d27dd2d62414"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf8b0d52f54524cfb7fc28a7d63caa4b5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaf8b0d52f54524cfb7fc28a7d63caa4b5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MIN_PACKET_LIMIT</b>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:gaf8b0d52f54524cfb7fc28a7d63caa4b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2b909a1ba075c965f49b100873fb148f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga2b909a1ba075c965f49b100873fb148f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MIN_PROTOCOL</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:ga2b909a1ba075c965f49b100873fb148f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4d1263a31dcbc01dde0fa593d39a813c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga4d1263a31dcbc01dde0fa593d39a813c"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_MIN_SRC_PORT</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:ga4d1263a31dcbc01dde0fa593d39a813c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga80fb6445233d59ebd08a65f15d5ba1cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga80fb6445233d59ebd08a65f15d5ba1cb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>PKT_TRACE_ECMP_1_INDEX</b>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:ga80fb6445233d59ebd08a65f15d5ba1cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab8d55aed3587ef21e2ef4c7d27a3d788"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gab8d55aed3587ef21e2ef4c7d27a3d788"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>PKT_TRACE_ECMP_2_INDEX</b>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:gab8d55aed3587ef21e2ef4c7d27a3d788"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
@@ -153,19 +177,37 @@ typedef struct <a class="el" href="../../d1/d5a/struct__pt__trace__profile__.htm
 <tr class="memitem:ga261af8611281152ebeba1ea0c72ae2b3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga261af8611281152ebeba1ea0c72ae2b3"></a>
 typedef BVIEW_STATUS(*&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_TRIGGER_CALLBACK_t</b> )(int asic, void *cookie, <a class="el" href="../../dd/dd5/struct__pt__drop__reason__data__.html">BVIEW_PT_DROP_REASON_DATA_t</a> dropReasonData)</td></tr>
 <tr class="separator:ga261af8611281152ebeba1ea0c72ae2b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadee7b09b82c677c6f41665556e979d52"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gadee7b09b82c677c6f41665556e979d52"></a>
+typedef struct <br class="typebreak"/>
+<a class="el" href="../../d8/d71/struct__pt__5__tuple__params__s__.html">_pt_5_tuple_params_s_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>PT_5_TUPLE_PARAMS_t</b></td></tr>
+<tr class="separator:gadee7b09b82c677c6f41665556e979d52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafe85f7c7717a46a7ce96914efb88de14"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gafe85f7c7717a46a7ce96914efb88de14"></a>
+typedef enum _pt_config_tuple_mask_&#160;</td><td class="memItemRight" valign="bottom"><b>PT_CONFIG_TUPLE_MASK_t</b></td></tr>
+<tr class="separator:gafe85f7c7717a46a7ce96914efb88de14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
 <tr class="memitem:gac14a0b85bc6531383ed956046dcf45d1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>_bview_pt_hashing_info_mask_</b> { <br/>
-&#160;&#160;<b>BVIEW_PT_NO_HASHING_RESOLUTION</b>, 
-<b>BVIEW_PT_ECMP_1_RESOLUTION</b>, 
-<b>BVIEW_PT_ECMP_2_RESOLUTION</b>, 
-<b>BVIEW_PT_TRUNK_RESOLUTION</b>, 
+&#160;&#160;<b>BVIEW_PT_NO_HASHING_RESOLUTION</b> = 1&lt;&lt;0, 
+<b>BVIEW_PT_ECMP_1_RESOLUTION</b> = 1&lt;&lt;1, 
+<b>BVIEW_PT_ECMP_2_RESOLUTION</b> = 1&lt;&lt;2, 
+<b>BVIEW_PT_TRUNK_RESOLUTION</b> = 1&lt;&lt;3, 
 <br/>
-&#160;&#160;<b>BVIEW_PT_FABRIC_TRUNK_RESOLUTION</b>
+&#160;&#160;<b>BVIEW_PT_FABRIC_TRUNK_RESOLUTION</b> = 1&lt;&lt;4, 
+<b>BVIEW_PT_DGPP_RESOLUTION</b> = 1 &lt;&lt;5
 <br/>
  }</td></tr>
 <tr class="separator:gac14a0b85bc6531383ed956046dcf45d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacdb6eef09fcb3d1d372428b09330e072"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>_pt_config_tuple_mask_</b> { <br/>
+&#160;&#160;<b>PT_CONFIG_TUPLE_SRC_IP</b> = (1 &lt;&lt; 0), 
+<b>PT_CONFIG_TUPLE_DST_IP</b> = (1 &lt;&lt; 1), 
+<b>PT_CONFIG_TUPLE_PROTOCOL</b> = (1 &lt;&lt; 2), 
+<b>PT_CONFIG_TUPLE_SRC_PORT</b> = (1 &lt;&lt; 3), 
+<br/>
+&#160;&#160;<b>PT_CONFIG_TUPLE_DST_PORT</b> = (1 &lt;&lt; 4)
+<br/>
+ }</td></tr>
+<tr class="separator:gacdb6eef09fcb3d1d372428b09330e072"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga893fa5b81b15188098d666cb4c1bdddc"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_type_</b> { <br/>
 &#160;&#160;<b>BVIEW_PT_VLAN_XLATE_MISS_DROP</b>, 
 <b>BVIEW_PT_BPDU_DROP</b>, 
@@ -331,12 +373,21 @@ unsigned char&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_PAC
 struct <br class="typebreak"/>
 <a class="el" href="../../d2/dbd/struct__pt__drop__counter__report___1_1__counter__.html">_pt_drop_counter_report_::_counter_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_counter_report_::data</b> [BVIEW_PT_MAX_DROP_REASON][BVIEW_ASIC_MAX_PORTS]</td></tr>
 <tr class="separator:ga51986ab95aa1a2b3867376d64fa81ccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae62887fa42668d11e0491a88b5be4dfd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae62887fa42668d11e0491a88b5be4dfd"></a>
+BVIEW_PORT_MASK_t&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_trace_profile_::destPortMask</b></td></tr>
+<tr class="separator:gae62887fa42668d11e0491a88b5be4dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafe3941fd121f45682c26d66166c3fa6d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gafe3941fd121f45682c26d66166c3fa6d"></a>
 BVIEW_PT_DROP_REASON_TYPE_t&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_data_::dropReason</b></td></tr>
 <tr class="separator:gafe3941fd121f45682c26d66166c3fa6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8ec97aa737b96aac551ada1a088d4736"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga8ec97aa737b96aac551ada1a088d4736"></a>
 <a class="el" href="../../d7/d62/structBVIEW__PT__DROP__REASON__MASK__t.html">BVIEW_PT_DROP_REASON_MASK_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_config_::dropReasonMask</b></td></tr>
 <tr class="separator:ga8ec97aa737b96aac551ada1a088d4736"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa9f119b346820bb1a06fb0759b47c6c7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaa9f119b346820bb1a06fb0759b47c6c7"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::dst_ip</b></td></tr>
+<tr class="separator:gaa9f119b346820bb1a06fb0759b47c6c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae84deb22458c89fae68730bc2b140f1d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae84deb22458c89fae68730bc2b140f1d"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::dst_port</b></td></tr>
+<tr class="separator:gae84deb22458c89fae68730bc2b140f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga47f857d07a304358f1418fb96608bfd3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga47f857d07a304358f1418fb96608bfd3"></a>
 <a class="el" href="../../dd/da2/struct__bview__ecmp__lag__hashing__info__.html">BVIEW_PT_ECMP_HASHING_INFO_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_bview_pt_hashing_info_::ecmp</b> [BVIEW_ECMP_MAX_LEVEL]</td></tr>
 <tr class="separator:ga47f857d07a304358f1418fb96608bfd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -392,7 +443,7 @@ BVIEW_PT_RESOULTION_t&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_
 int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_config_::packetThreshold</b></td></tr>
 <tr class="separator:gad12e27356c0d3ab350a468a085f0e180"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2206035c2c52c60e6a90c0469455ba60"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga2206035c2c52c60e6a90c0469455ba60"></a>
-<a class="el" href="../../d5/de4/structBVIEW__PORT__MASK__t.html">BVIEW_PORT_MASK_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_config_::pbmp</b></td></tr>
+BVIEW_PORT_MASK_t&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_config_::pbmp</b></td></tr>
 <tr class="separator:ga2206035c2c52c60e6a90c0469455ba60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga69b67ccd6bb46a367719878227346ac1"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga69b67ccd6bb46a367719878227346ac1"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_PACKET_t::pkt_len</b></td></tr>
@@ -406,9 +457,18 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>_bview_ecmp_member_inf
 <tr class="memitem:ga913e02045ac346871e688fcf8e47df0c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga913e02045ac346871e688fcf8e47df0c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_trace_profile_::port</b></td></tr>
 <tr class="separator:ga913e02045ac346871e688fcf8e47df0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0053f6b0a879ceb9e466ba9958bd573c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0053f6b0a879ceb9e466ba9958bd573c"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::protocol</b></td></tr>
+<tr class="separator:ga0053f6b0a879ceb9e466ba9958bd573c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3bd21bace23268f3faa63cadfa512949"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3bd21bace23268f3faa63cadfa512949"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_drop_reason_config_::sendDropedPacket</b></td></tr>
 <tr class="separator:ga3bd21bace23268f3faa63cadfa512949"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab21052f37dc2bbe8848ebefee8500417"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gab21052f37dc2bbe8848ebefee8500417"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::src_ip</b></td></tr>
+<tr class="separator:gab21052f37dc2bbe8848ebefee8500417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadd62f4b18fd42688a50bcd85a4d519e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gadd62f4b18fd42688a50bcd85a4d519e0"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::src_port</b></td></tr>
+<tr class="separator:gadd62f4b18fd42688a50bcd85a4d519e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1294746f4a6fd880e15d4127d91dd8f6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1294746f4a6fd880e15d4127d91dd8f6"></a>
 BVIEW_PT_STP_STATE_t&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_trace_profile_::stpState</b></td></tr>
 <tr class="separator:ga1294746f4a6fd880e15d4127d91dd8f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -424,9 +484,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>_bview_pt_lag_hashing_
 <tr class="memitem:ga1be54b9d9d514e80795d5a21e81823d0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1be54b9d9d514e80795d5a21e81823d0"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>_bview_pt_lag_hashing_info_::trunk_members</b> [BVIEW_MAX_TRUNK_MEMBERS]</td></tr>
 <tr class="separator:ga1be54b9d9d514e80795d5a21e81823d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4e805f0622ea94556ef3a669a15d5284"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga4e805f0622ea94556ef3a669a15d5284"></a>
-BVIEW_MASK_BASE_UNIT&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PORT_MASK_t::value</b> [BVIEW_MASK_SIZE(BVIEW_ASIC_MAX_PORTS)]</td></tr>
-<tr class="separator:ga4e805f0622ea94556ef3a669a15d5284"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf0dabd8100c26c55a58167e70b0f93a7"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaf0dabd8100c26c55a58167e70b0f93a7"></a>
+unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>_pt_5_tuple_params_s_::tuple_mask</b></td></tr>
+<tr class="separator:gaf0dabd8100c26c55a58167e70b0f93a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga592d6bba9e74b7a26c93f0ed97182436"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga592d6bba9e74b7a26c93f0ed97182436"></a>
 BVIEW_MASK_BASE_UNIT&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_PT_DROP_REASON_MASK_t::value</b> [BVIEW_MASK_SIZE(BVIEW_PT_MAX_DROP_REASON)]</td></tr>
 <tr class="separator:ga592d6bba9e74b7a26c93f0ed97182436"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -438,7 +498,7 @@ BVIEW_MASK_BASE_UNIT&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -681,198 +682,73 @@ BVIEW_STATUS sbplugin_common_bst_threshold_get (int asic,
 *********************************************************************/
 BVIEW_STATUS sbplugin_common_bst_callback (int asic, SB_BRCM_SWITCH_EVENT_t event,
                        int bid, int port, int cosq, void *cookie);
-/*********************************************************************
-* @brief  Obtain default Device Stat settings
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - Device data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_SUCCESS           if device stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_device_data_get (int asic, 
-                                    BVIEW_BST_DEVICE_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Ingress Port + Priority Groups Statistics default vals
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - i_p_pg data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if ippg stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if ippg stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_ippg_data_get (int asic, 
-                              BVIEW_BST_INGRESS_PORT_PG_DATA_t *data); 
-/*********************************************************************
-* @brief  Obtain Ingress Port + Service Pools Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - i_p_sp data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if ipsp stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if ipsp stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_ipsp_data_get (int asic, 
-                                  BVIEW_BST_INGRESS_PORT_SP_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Ingress Service Pools Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - i_sp structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if isp stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if isp stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_isp_data_get (int asic, 
-                                 BVIEW_BST_INGRESS_SP_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Port + Service Pools Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - e_p_sp data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if epsp stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if epsp stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_epsp_data_get (int asic, 
-                                BVIEW_BST_EGRESS_PORT_SP_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Service Pools Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - e_sp data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if esp stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if esp stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_esp_data_get  (int asic, 
-                               BVIEW_BST_EGRESS_SP_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Egress Unicast Queues Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - e_uc_q data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if eucq stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if eucq stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_eucq_data_get (int asic, 
-                              BVIEW_BST_EGRESS_UC_QUEUE_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Egress Unicast Queue Groups Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - e_uc_qg data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if eucqg stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if eucqg stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_eucqg_data_get (int asic, 
-                        BVIEW_BST_EGRESS_UC_QUEUEGROUPS_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Egress Multicast Queues Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - e_mc_q data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if emcq stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if emcq stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_emcq_data_get (int asic, 
-                              BVIEW_BST_EGRESS_MC_QUEUE_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Egress CPU Queues Statistics
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - CPU queue data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if CPU stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if CPU stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_cpuq_data_get (int asic, 
-                             BVIEW_BST_EGRESS_CPU_QUEUE_DATA_t *data);
-/*********************************************************************
-* @brief  Obtain Egress Egress RQE Queues Statistics 
-*
-* @param[in]   asic             - unit
-* @param[out]  data             - RQE data data structure
-*
-* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if RQE stat get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if RQE stat get is success.
-*
-* @notes    none
-*
-*
-*********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_rqeq_data_get (int asic, 
-                                   BVIEW_BST_EGRESS_RQE_QUEUE_DATA_t *data);
 
 /*********************************************************************
-* @brief  Obtain default buffer settings. 
+* @brief   Get unicast congestion drop counter of a particular port-queue
+*                     combination
 *
-* @param[in]      asic               - unit
-* @param[out]     snapshot           - snapshot data structure
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
+*
 *
 * @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
-* @retval BVIEW_STATUS_FAILURE           if snapshot get is failed.
-* @retval BVIEW_STATUS_SUCCESS           if snapshot get is success.
+* @retval BVIEW_STATUS_FAILURE           if drop counter get is succes.
+* @retval BVIEW_STATUS_SUCCESS           if drop counter get is failed.
 *
 * @notes    none
 *
 *
 *********************************************************************/
-BVIEW_STATUS sbplugin_common_bst_default_snapshot_get (int asic, 
-                                 BVIEW_BST_ASIC_SNAPSHOT_DATA_t *snapshot); 
+BVIEW_STATUS sbplugin_common_bst_port_ucast_cgs_drop_get(int asic, int port, 
+                                                int queue, uint64_t *dropCount);
+
+
+
+/*********************************************************************
+* @brief   Get multicast congestion drop counter of a particular port-queue
+*                     combination
+*
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
+*
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if drop counter get is succes.
+* @retval BVIEW_STATUS_SUCCESS           if drop counter get is failed.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_port_mcast_cgs_drop_get(int asic, int port, 
+                                              int queue, uint64_t *dropCount);
+
+
+/*********************************************************************
+* @brief   Get Total congestion drop counter of a particular port
+*
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[out] dropCount                              - Drop counter value
+*
+*
+* @retval BVIEW_STATUS_INVALID_PARAMETER if input data is invalid.
+* @retval BVIEW_STATUS_FAILURE           if drop counter get is succes.
+* @retval BVIEW_STATUS_SUCCESS           if drop counter get is failed.
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbplugin_common_bst_port_total_cgs_drop_get(int asic, int port, 
+                                                         uint64_t *dropCount);
 
 #ifdef __cplusplus
 }

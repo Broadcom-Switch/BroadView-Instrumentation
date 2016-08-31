@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -33,7 +34,7 @@ extern "C"
 typedef enum _bstjson_memory_size_
 {
     BSTJSON_MEMSIZE_RESPONSE = 1024,
-    BSTJSON_MEMSIZE_REPORT = (sizeof(BVIEW_BST_ASIC_SNAPSHOT_DATA_t)+ 2048),
+    BSTJSON_MEMSIZE_REPORT = (sizeof(BVIEW_BST_ASIC_SNAPSHOT_DATA_t)+ (32*2048)),
 } BSTJSON_MEMORY_SIZE;
 
 

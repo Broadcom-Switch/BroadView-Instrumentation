@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
   * limitations under the License.
   *
   ***************************************************************************/
+
 #ifndef INCLUDE_EXAMPLE_SERVER_H
 #define INCLUDE_EXAMPLE_SERVER_H
 

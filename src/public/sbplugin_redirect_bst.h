@@ -8,7 +8,8 @@
  */
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -662,27 +663,82 @@ BVIEW_STATUS sbapi_bst_clear_thresholds(int asic);
 *********************************************************************/
 BVIEW_STATUS sbapi_bst_register_trigger(int asic, BVIEW_BST_TRIGGER_CALLBACK_t callback, void *cookie);
 
-/*********************************************************************
-* @brief       Get BST default buffer values 
+
+/************************************************************************
+* @brief  Get unicast congestion drop counter of a particular port-queue
+*                     combination       
+*           
 *
-* @param[in]     asic                  Unit number
-* @param[out]    snapshot              BST snapshot
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
 *
 * @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
 *                                     Not able to get asic type of this unit or
 *                                     BST feature is not present or
 *                                     BST south bound function has returned failure
 *
-* @retval   BVIEW_STATUS_SUCCESS      BST snapshot get is successful 
+* @retval   BVIEW_STATUS_SUCCESS      unicast congestion drop counter
+*                                     get is successful 
 *
-* @retval   BVIEW_STATUS_UNSUPPORTED  BST snapshot get functionality is 
+* @retval   BVIEW_STATUS_UNSUPPORTED  unicast congestion drop counter
+*                                     get functionality is 
 *                                     not supported on this unit
 *
-* @notes    none
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_port_ucast_cgs_drop_get(int asic, int port, int queue, uint64_t *dropCount);
+
+
+/************************************************************************
+* @brief  Get multicast congestion drop counter of a particular port-queue
+*                     combination       
+*           
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      multicast congestion drop counter
+*                                     get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  multicast congestion drop counter
+*                                     get functionality is 
+*                                     not supported on this unit
 *
 *********************************************************************/
-BVIEW_STATUS sbapi_bst_default_snapshot_get (int asic,
-                                     BVIEW_BST_ASIC_SNAPSHOT_DATA_t * snapshot);
+BVIEW_STATUS sbapi_bst_port_mcast_cgs_drop_get(int asic, int port, int queue, uint64_t *dropCount);
+
+
+/************************************************************************
+* @brief  Get Total congestion drop counter of a particular port
+*           
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[out] dropCount                              - Drop counter value
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Total congestion drop counter
+*                                     get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Total congestion drop counter
+*                                     get functionality is 
+*                                     not supported on this unit
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_port_total_cgs_drop_get(int asic, int port, uint64_t *dropCount);
+
 
 
 #ifdef	__cplusplus

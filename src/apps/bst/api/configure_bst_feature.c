@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -122,7 +123,6 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     /* Ensure  that the number 'id' is within range of [1,100000] */
     JSON_CHECK_VALUE_AND_CLEANUP (id, 1, 100000);
 
-
     /* Parsing and Validating 'bst-enable' from JSON buffer */
     json_bstEnable = cJSON_GetObjectItem(params, "bst-enable");
     JSON_VALIDATE_JSON_POINTER(json_bstEnable, "bst-enable", BVIEW_STATUS_INVALID_JSON);
@@ -131,6 +131,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     command.bstEnable = json_bstEnable->valueint;
     /* Ensure  that the number 'bst-enable' is within range of [0,1] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.bstEnable, 0, 1);
+    command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_ENABLE));
 
 
     /* Parsing and Validating 'send-async-reports' from JSON buffer */
@@ -141,6 +142,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     command.sendAsyncReports = json_sendAsyncReports->valueint;
     /* Ensure  that the number 'send-async-reports' is within range of [0,1] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.sendAsyncReports, 0, 1);
+    command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_SND_ASYNC_REP));
 
 
     /* Parsing and Validating 'collection-interval' from JSON buffer */
@@ -151,16 +153,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     command.collectionInterval = json_collectionInterval->valueint;
     /* Ensure  that the number 'collection-interval' is within range of [0,600] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.collectionInterval, 0, 600);
-
-    /* Parsing and Validating 'stats-in-percentage' from JSON buffer */
-    json_statsInPercentage = cJSON_GetObjectItem(params, "stats-in-percentage");
-    JSON_VALIDATE_JSON_POINTER(json_statsInPercentage, "stats-in-percentage", BVIEW_STATUS_INVALID_JSON);
-    JSON_VALIDATE_JSON_AS_NUMBER(json_statsInPercentage, "stats-in-percentage");
-    /* Copy the value */
-    command.statsInPercentage = json_statsInPercentage->valueint;
-    /* Ensure  that the number 'stats-in-percentage' is within range of [0,1] */
-    JSON_CHECK_VALUE_AND_CLEANUP (command.statsInPercentage, 0, 1);
-
+    command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_COLL_INTRVL));
 
 
     /* Parsing and Validating 'stat-units-in-cells' from JSON buffer */
@@ -171,6 +164,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
     command.statUnitsInCells = json_statUnitsInCells->valueint;
     /* Ensure  that the number 'stat-units-in-cells' is within range of [0,1] */
     JSON_CHECK_VALUE_AND_CLEANUP (command.statUnitsInCells, 0, 1);
+    command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_STATS_UNITS));
 
     /* Parsing and Validating 'max-trigger-reports' from JSON buffer */
     json_maxTriggerReports = cJSON_GetObjectItem(params, "trigger-rate-limit");
@@ -181,6 +175,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
       /* Copy the value */
       command.bstMaxTriggers = json_maxTriggerReports->valueint;
       JSON_CHECK_VALUE_AND_CLEANUP (command.bstMaxTriggers, 1, 30);
+      command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_TGR_RATE_LIMIT));
     }
 
     /* Parsing and Validating 'send-snapshot-on-trigger' from JSON buffer */
@@ -192,6 +187,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
       /* Copy the value */
       command.sendSnapshotOnTrigger = json_sendSnapshotTrigger->valueint;
       JSON_CHECK_VALUE_AND_CLEANUP (command.sendSnapshotOnTrigger, 0, 1);
+      command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_SND_SNAP_TGR));
     }
 
     /* Parsing and Validating 'trigger-rate-limit-interval' from JSON buffer */
@@ -203,6 +199,7 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
       /* Copy the value */
       command.triggerTransmitInterval = json_triggerTransmitInterval->valueint;
       JSON_CHECK_VALUE_AND_CLEANUP (command.triggerTransmitInterval, 1, 60);
+      command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_TGR_RL_INTVL));
     }
 
     /* Parsing and Validating 'aync-full-reports' from JSON buffer */
@@ -214,7 +211,22 @@ BVIEW_STATUS bstjson_configure_bst_feature (void *cookie, char *jsonBuffer, int 
       /* Copy the value */
       command.sendIncrementalReport = json_sendIncrementalReport->valueint;
       JSON_CHECK_VALUE_AND_CLEANUP (command.sendIncrementalReport, 0, 1);
+      command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_ASYNC_FULL_REP));
     }
+
+    /* Parsing and Validating 'stats-in-percentage' from JSON buffer */
+    json_statsInPercentage = cJSON_GetObjectItem(params, "stats-in-percentage");
+    if (NULL != json_statsInPercentage)
+    {
+      JSON_VALIDATE_JSON_POINTER(json_statsInPercentage, "stats-in-percentage", BVIEW_STATUS_INVALID_JSON);
+      JSON_VALIDATE_JSON_AS_NUMBER(json_statsInPercentage, "stats-in-percentage");
+      /* Copy the value */
+      command.statsInPercentage = json_statsInPercentage->valueint;
+      /* Ensure  that the number 'stats-in-percentage' is within range of [0,1] */
+      JSON_CHECK_VALUE_AND_CLEANUP (command.statsInPercentage, 0, 1);
+      command.configMask = (command.configMask | (1 << BST_CONFIG_PARAMS_STATS_IN_PERCENT));
+    }
+
 
 
     /* Send the 'command' along with 'asicId' and 'cookie' to the Application thread. */

@@ -1,6 +1,7 @@
 /*****************************************************************************
 *
-* (C) Copyright Broadcom Corporation 2015
+* Copyright © 2016 Broadcom.  The term "Broadcom" refers
+* to Broadcom Limited and/or its subsidiaries.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -30,12 +31,12 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 0, \
                 \"collection-interval\": 10, \
-                \"stats-in-percentage\": 0, \
                 \"stat-units-in-cells\": 1, \
                 \"send-snapshot-on-trigger\": 1, \
                 \"trigger-rate-limit\": 1, \
                 \"trigger-rate-limit-interval\": 5, \
-                \"async-full-reports\": 0 \
+                \"async-full-reports\": 0, \
+                \"stats-in-percentage\": 0 \
                 }, \
                 \"id\": 1 \
                 }"
@@ -198,12 +199,12 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 0, \
                 \"collection-interval\": 3, \
-                \"stats-in-percentage\": 0, \
                 \"stat-units-in-cells\": 1, \
                 \"send-snapshot-on-trigger\": 1, \
                 \"trigger-rate-limit\": 2, \
                 \"trigger-rate-limit-interval\": 10, \
-                \"async-full-reports\": 0 \
+                \"async-full-reports\": 0, \
+                \"stats-in-percentage\": 0 \
                 }, \
                 \"id\": 10 \
                 }"
@@ -237,6 +238,106 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                        }"
     },
     {
+     .httpMethod = "GET",
+     .descr = "Get top congestion drop counters",
+     .method = "get-bst-congestion-drop-counters",
+     .json = "{ \
+             \"jsonrpc\": \"2.0\", \
+             \"method\": \"get-bst-congestion-drop-counters\", \
+             \"asic-id\": \"1\", \
+             \"params\": {  \
+                 \"request-type\" : \"top-drops\", \
+                 \"request-params\": { \
+                      \"count\":8 \
+                 }, \
+                 \"collection-interval\": 0 \
+              }, \
+              \"id\": 13 \
+            }" 
+
+    },
+
+    {
+     .httpMethod = "GET",
+     .descr = "Get top port-queue congestion drop counters",
+     .method = "get-bst-congestion-drop-counters",
+     .json = "{ \
+             \"jsonrpc\": \"2.0\", \
+             \"method\": \"get-bst-congestion-drop-counters\", \
+             \"asic-id\": \"1\", \
+             \"params\": {  \
+                 \"request-type\" : \"top-port-queue-drops\", \
+                 \"request-params\": { \
+                      \"count\":8, \
+                      \"queue-type\": \"all\" \
+                 }, \
+                 \"collection-interval\": 10 \
+              }, \
+              \"id\": 14 \
+            }"            
+
+    },
+
+    {
+     .httpMethod = "GET",
+     .descr = "Get port congestion drop counters",
+     .method = "get-bst-congestion-drop-counters",
+     .json = "{ \
+             \"jsonrpc\": \"2.0\", \
+             \"method\": \"get-bst-congestion-drop-counters\", \
+             \"asic-id\": \"1\", \
+             \"params\": {  \
+                 \"request-type\" : \"port-drops\", \
+                 \"request-params\": { \
+                    \"port-list\": [\"all\"] \
+                 }, \
+                 \"collection-interval\": 10 \
+              },\
+              \"id\": 15 \
+            }"            
+
+    },
+
+    {
+     .httpMethod = "GET",
+     .descr = "Get port-queue congestion drop counters",
+     .method = "get-bst-congestion-drop-counters",
+     .json = "{ \
+             \"jsonrpc\": \"2.0\", \
+             \"method\": \"get-bst-congestion-drop-counters\", \
+             \"asic-id\": \"1\", \
+             \"params\": {  \
+                 \"request-type\" : \"port-queue-drops\", \
+                 \"request-params\": { \
+                      \"port-list\": [\"all\"], \
+                      \"queue-type\": \"all\", \
+                      \"queue-list\": [ 1, 2, 3, 4, 5, 6, 7, 8] \
+                 }, \
+                 \"collection-interval\": 0 \
+              },\
+              \"id\": 16 \
+            }"            
+
+    },
+
+
+    {
+     .httpMethod = "POST",
+     .descr = "Cancel Congestion drop counters request",
+     .method = "cancel-request",
+     .json = "{ \
+             \"jsonrpc\": \"2.0\", \
+             \"method\": \"cancel-request\", \
+             \"asic-id\": \"1\", \
+             \"params\": {  \
+                 \"request-id\": 15 \
+              },\
+              \"id\": 17 \
+            }"
+
+    },
+
+    {
      .httpMethod = "POST",
      .descr = "Enabling ASYNC Reports",
      .method = "configure-bst-feature to turn on ASYNC reports",
@@ -248,16 +349,17 @@ BSTAPP_REST_MSG_t bstRestMessages[] = {
                 \"bst-enable\": 1, \
                 \"send-async-reports\": 1, \
                 \"collection-interval\": 1, \
-                \"stats-in-percentage\": 0, \
                 \"stat-units-in-cells\": 1, \
                 \"send-snapshot-on-trigger\": 1, \
                 \"trigger-rate-limit\": 2, \
                 \"trigger-rate-limit-interval\": 3, \
-                \"async-full-reports\": 0 \
+                \"async-full-reports\": 0, \
+                \"stats-in-percentage\": 0 \
                 }, \
-                \"id\": 13 \
+                \"id\": 18 \
                 }"
     },
 
 };
 
+int numOfMsgs = sizeof(bstRestMessages)/sizeof(BSTAPP_REST_MSG_t);

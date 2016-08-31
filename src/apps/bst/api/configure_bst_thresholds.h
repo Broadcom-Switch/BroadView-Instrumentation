@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -34,7 +35,6 @@ extern "C"
 #include "json.h"
 
 #include "cJSON.h"
-
 /* Structure to pass API parameters to the BST APP */
 typedef struct _bstjson_configure_bst_thresholds_
 {
@@ -55,6 +55,7 @@ typedef struct _bstjson_configure_bst_thresholds_
     int mcQueueEntriesThreshold;
     int cpuThreshold;
     int rqeThreshold;
+    unsigned int mask;
 } BSTJSON_CONFIGURE_BST_THRESHOLDS_t;
 
 

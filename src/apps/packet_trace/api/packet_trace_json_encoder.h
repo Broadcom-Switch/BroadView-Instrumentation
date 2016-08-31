@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -26,6 +27,8 @@ extern "C"
 
 #include "broadview.h"
 #include "json.h"
+
+#define PT_MAX_B64_SIZE  ((4 * ((BVIEW_PT_MAX_PACKET_SIZE + 2)/3)) + 16)
 
 
 #define _PT_JSONENCODE_DEBUG

@@ -118,16 +118,15 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d4c/struct__bst__rqe__q___1_1__rqeq__data__.html">_bst_rqe_q_::_rqeq_data_</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d58/struct__switch__asic__info__.html">_switch_asic_info_</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/struct__switch__properties__.html">_switch_properties_</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ga8de7ad4eab00feda048c9d93870fd689"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga8de7ad4eab00feda048c9d93870fd689"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_ASIC_NOTATION_LEN</b>&#160;&#160;&#160;32</td></tr>
-<tr class="separator:ga8de7ad4eab00feda048c9d93870fd689"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae897ffc62dbead08e5fac47f5be049e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae897ffc62dbead08e5fac47f5be049e4"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_CPU_MASK</b>&#160;&#160;&#160;(1&lt;&lt;CPU_COUNTER)</td></tr>
+<tr class="separator:gae897ffc62dbead08e5fac47f5be049e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae1bfcdc4da550cced69719ac3653a507"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae1bfcdc4da550cced69719ac3653a507"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;DEVICE_COUNTER)</td></tr>
+<tr class="separator:gae1bfcdc4da550cced69719ac3653a507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6638383264685b0b74ff6789012ee436"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga6638383264685b0b74ff6789012ee436"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga12c096489126d06164389abff5eb81fe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_E_CPU_QUEUE_THRESHOLD_CHECK</b>(_p)</td></tr>
@@ -160,6 +159,8 @@ Macros</h2></td></tr>
 <tr class="separator:ga32b47fee04a48e2b005494ef0ad306f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae43157dc35942c4d25899ad2e1e43ac8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_RQE_QUEUE_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:gae43157dc35942c4d25899ad2e1e43ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cb5798b4fb5e294fcda89fb0f4ff9bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_UC_GRP_THRESHOLD_CHECK</b>(_p)</td></tr>
+<tr class="separator:ga0cb5798b4fb5e294fcda89fb0f4ff9bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6b74378892c2ba9652cc8e2849293e54"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_UC_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga6b74378892c2ba9652cc8e2849293e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga38074e601adf8045cd1181b2985a85d9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EPSP_MC_SQ_THRESHOLD_CHECK</b>(_p)</td></tr>
@@ -178,6 +179,66 @@ Macros</h2></td></tr>
 <tr class="separator:ga811861e9757a4a20850a22bcea211df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0a7ee699e966d57c572a54ff3ce95a62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_ISP_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga0a7ee699e966d57c572a54ff3ce95a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae66a48b0ef36dd83364d71e3ec73d8fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae66a48b0ef36dd83364d71e3ec73d8fb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MC_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MC_COUNTER)</td></tr>
+<tr class="separator:gae66a48b0ef36dd83364d71e3ec73d8fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cd1967744290e82f2de181178a34ace"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0cd1967744290e82f2de181178a34ace"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCQUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCQUEUE_COUNTER)</td></tr>
+<tr class="separator:ga0cd1967744290e82f2de181178a34ace"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0e8d50eb0f62be10d15ab068ab473395"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0e8d50eb0f62be10d15ab068ab473395"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCSHARE_COUNTER)</td></tr>
+<tr class="separator:ga0e8d50eb0f62be10d15ab068ab473395"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3d65952dfbf9b773af621fbeb2caa495"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3d65952dfbf9b773af621fbeb2caa495"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCSHARE_QUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCSHARE_QUEUE_COUNTER)</td></tr>
+<tr class="separator:ga3d65952dfbf9b773af621fbeb2caa495"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga690e8cd9988120244d4181e8a8806375"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga690e8cd9988120244d4181e8a8806375"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PG_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_PG_POS)</td></tr>
+<tr class="separator:ga690e8cd9988120244d4181e8a8806375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0fb50b84793d5d0146b4cd170e477136"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0fb50b84793d5d0146b4cd170e477136"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PG_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+3)</td></tr>
+<tr class="separator:ga0fb50b84793d5d0146b4cd170e477136"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05fdc8fb7c996d1ddd46d9ede1bd4367"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga05fdc8fb7c996d1ddd46d9ede1bd4367"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PORT_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_PORT_POS)</td></tr>
+<tr class="separator:ga05fdc8fb7c996d1ddd46d9ede1bd4367"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf19ec536adfb868c293de1271e3f0be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacf19ec536adfb868c293de1271e3f0be"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PORT_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+1)</td></tr>
+<tr class="separator:gacf19ec536adfb868c293de1271e3f0be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga827d9d581837befd8113502bdd9d2c88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga827d9d581837befd8113502bdd9d2c88"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_GRP_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_QUEUE_GRP_POS)</td></tr>
+<tr class="separator:ga827d9d581837befd8113502bdd9d2c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf955e4e925db5959f7b14146cfb2cc5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaf955e4e925db5959f7b14146cfb2cc5f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_GRP_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+5)</td></tr>
+<tr class="separator:gaf955e4e925db5959f7b14146cfb2cc5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac4aa48bba3355f779de7e36b3ab5fa42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gac4aa48bba3355f779de7e36b3ab5fa42"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_QUEUE_POS)</td></tr>
+<tr class="separator:gac4aa48bba3355f779de7e36b3ab5fa42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa3cb6b6f8b72fefac5083e5d312f21fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaa3cb6b6f8b72fefac5083e5d312f21fb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+4)</td></tr>
+<tr class="separator:gaa3cb6b6f8b72fefac5083e5d312f21fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d227ccfde79a44114fc66474778e3ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga6d227ccfde79a44114fc66474778e3ff"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_REALM_MAX</b>&#160;&#160;&#160;RQE_COUNTER</td></tr>
+<tr class="separator:ga6d227ccfde79a44114fc66474778e3ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1233375c24bc84df65ebb99bc2af1f64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1233375c24bc84df65ebb99bc2af1f64"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_RQE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;RQE_COUNTER)</td></tr>
+<tr class="separator:ga1233375c24bc84df65ebb99bc2af1f64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6f0544dc806d5cfc433aee71618772ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga6f0544dc806d5cfc433aee71618772ec"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_SP_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_SP_POS)</td></tr>
+<tr class="separator:ga6f0544dc806d5cfc433aee71618772ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3a4040e537754a26978d277dc6fa13f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3a4040e537754a26978d277dc6fa13f5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_SP_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+2)</td></tr>
+<tr class="separator:ga3a4040e537754a26978d277dc6fa13f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf4ff7d073d63b6f1a1adb775078a334"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacf4ff7d073d63b6f1a1adb775078a334"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UC_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UC_COUNTER)</td></tr>
+<tr class="separator:gacf4ff7d073d63b6f1a1adb775078a334"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8c3fa9341a48d7c7932fb7d62c7da98c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga8c3fa9341a48d7c7932fb7d62c7da98c"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UCSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UCSHARE_COUNTER)</td></tr>
+<tr class="separator:ga8c3fa9341a48d7c7932fb7d62c7da98c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga14f91c4472efe735ef2ab96b037c55e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga14f91c4472efe735ef2ab96b037c55e0"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UMHEADROOM_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UMHEADROOM_COUNTER)</td></tr>
+<tr class="separator:ga14f91c4472efe735ef2ab96b037c55e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga16cce0fe25d919d5cccc81a061d9b335"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga16cce0fe25d919d5cccc81a061d9b335"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UMSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UMSHARE_COUNTER)</td></tr>
+<tr class="separator:ga16cce0fe25d919d5cccc81a061d9b335"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0068349606b0ba269c789b795ba3528d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0068349606b0ba269c789b795ba3528d"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MAX_STRING_NAME_LEN</b>&#160;&#160;&#160;256</td></tr>
 <tr class="separator:ga0068349606b0ba269c789b795ba3528d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,6 +255,9 @@ typedef enum _bst_collection_mode_&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:ga4bfc5fe11f03df88df00fee7796ad74f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga4bfc5fe11f03df88df00fee7796ad74f"></a>
 typedef struct <a class="el" href="../../d1/d45/struct__bst__config__.html">_bst_config_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_CONFIG_t</b></td></tr>
 <tr class="separator:ga4bfc5fe11f03df88df00fee7796ad74f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad513c604b6d115b6c27442373c94ef99"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gad513c604b6d115b6c27442373c94ef99"></a>
+typedef enum _threshold_fields_&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_COUNTER_t</b></td></tr>
+<tr class="separator:gad513c604b6d115b6c27442373c94ef99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0d117f356e8f28d586f34644d34ec70b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0d117f356e8f28d586f34644d34ec70b"></a>
 typedef struct <a class="el" href="../../db/ddd/struct__bst__device__.html">_bst_device_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_DATA_t</b></td></tr>
 <tr class="separator:ga0d117f356e8f28d586f34644d34ec70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -278,12 +342,6 @@ typedef struct <a class="el" href="../../db/dfd/struct__bst__trigger__info__.htm
 <tr class="memitem:ga3b368d72d3cb5ac15f96fcd519f9aaf4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3b368d72d3cb5ac15f96fcd519f9aaf4"></a>
 typedef enum _bst_trigger_type_&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_TRIGGER_TYPE</b></td></tr>
 <tr class="separator:ga3b368d72d3cb5ac15f96fcd519f9aaf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga835e366f2a83c78b25776d7f12fefd2d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga835e366f2a83c78b25776d7f12fefd2d"></a>
-typedef struct <a class="el" href="../../d3/d58/struct__switch__asic__info__.html">_switch_asic_info_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_SWITCH_ASIC_INFO_t</b></td></tr>
-<tr class="separator:ga835e366f2a83c78b25776d7f12fefd2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1ce8bc03dacf64e4111c9db5fdf158e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1ce8bc03dacf64e4111c9db5fdf158e4"></a>
-typedef struct <a class="el" href="../../db/df7/struct__switch__properties__.html">_switch_properties_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_SWITCH_PROPERTIES_t</b></td></tr>
-<tr class="separator:ga1ce8bc03dacf64e4111c9db5fdf158e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -296,6 +354,23 @@ Enumerations</h2></td></tr>
 <b>BVIEW_BST_TRIGGER_EGRESS</b> = (0x1 &lt;&lt; 2)
  }</td></tr>
 <tr class="separator:gabee979840b7ec9429e17a364667fb229"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf0c36edd1374ad46e116c60987b4ebcd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>_threshold_fields_</b> { <br/>
+&#160;&#160;<b>DEVICE_COUNTER</b> = 0, 
+<b>UMSHARE_COUNTER</b>, 
+<b>UMHEADROOM_COUNTER</b>, 
+<b>UCSHARE_COUNTER</b>, 
+<br/>
+&#160;&#160;<b>MCSHARE_COUNTER</b>, 
+<b>MCSHARE_QUEUE_COUNTER</b>, 
+<b>UC_COUNTER</b>, 
+<b>MCQUEUE_COUNTER</b>, 
+<br/>
+&#160;&#160;<b>MC_COUNTER</b>, 
+<b>CPU_COUNTER</b>, 
+<b>RQE_COUNTER</b>
+<br/>
+ }</td></tr>
+<tr class="separator:gaf0c36edd1374ad46e116c60987b4ebcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -308,6 +383,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gae7816d16c0e0a51ade5ed7ed3e2fe526">bst_app_uninit</a> ()</td></tr>
 <tr class="memdesc:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="mdescLeft">&#160;</td><td class="mdescRight">: function to clean up bst application  <a href="#gae7816d16c0e0a51ade5ed7ed3e2fe526"></a><br/></td></tr>
 <tr class="separator:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga79c56215416cb7fd47697d7f037d7429"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga79c56215416cb7fd47697d7f037d7429"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>bst_cancel_request</b> (unsigned int unit, unsigned int id)</td></tr>
+<tr class="separator:ga79c56215416cb7fd47697d7f037d7429"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf3e61c55443a5eed572344e4d67abb51"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gaf3e61c55443a5eed572344e4d67abb51">bst_main</a> ()</td></tr>
 <tr class="memdesc:gaf3e61c55443a5eed572344e4d67abb51"><td class="mdescLeft">&#160;</td><td class="mdescRight">: function to creathe the bst application thread.  <a href="#gaf3e61c55443a5eed572344e4d67abb51"></a><br/></td></tr>
 <tr class="separator:gaf3e61c55443a5eed572344e4d67abb51"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -359,30 +437,45 @@ Functions</h2></td></tr>
 <tr class="memitem:gaa369b1e659c6c039d5c10a4a60e44986"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gaa369b1e659c6c039d5c10a4a60e44986">sbapi_system_asic_translate_to_notation</a> (int asic, char *dst)</td></tr>
 <tr class="memdesc:gaa369b1e659c6c039d5c10a4a60e44986"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get asic number in notational representation(string) from system asic number.  <a href="#gaa369b1e659c6c039d5c10a4a60e44986"></a><br/></td></tr>
 <tr class="separator:gaa369b1e659c6c039d5c10a4a60e44986"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gacf931f428c1dd2df4502001919d7317a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacf931f428c1dd2df4502001919d7317a"></a>
-BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_feature_mask_get</b> (int *featureMask)</td></tr>
+<tr class="memitem:gacf931f428c1dd2df4502001919d7317a"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gacf931f428c1dd2df4502001919d7317a">sbapi_system_feature_mask_get</a> (int *featureMask)</td></tr>
+<tr class="memdesc:gacf931f428c1dd2df4502001919d7317a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Supported Feature Mask.  <a href="#gacf931f428c1dd2df4502001919d7317a"></a><br/></td></tr>
 <tr class="separator:gacf931f428c1dd2df4502001919d7317a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7efd51ad7a994b985b3527542fb8fcd4"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga7efd51ad7a994b985b3527542fb8fcd4">sbapi_system_ip4_get</a> (uint8_t *buffer, int length)</td></tr>
 <tr class="memdesc:ga7efd51ad7a994b985b3527542fb8fcd4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get system IPv4 address.  <a href="#ga7efd51ad7a994b985b3527542fb8fcd4"></a><br/></td></tr>
 <tr class="separator:ga7efd51ad7a994b985b3527542fb8fcd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga99eb5f8b0054ae6923be7b8be163e630"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga99eb5f8b0054ae6923be7b8be163e630">sbapi_system_lag_translate_to_notation</a> (int asic, int lag, char *dst)</td></tr>
+<tr class="memdesc:ga99eb5f8b0054ae6923be7b8be163e630"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get lag number in notational representation(string) from system lag number and asic number.  <a href="#ga99eb5f8b0054ae6923be7b8be163e630"></a><br/></td></tr>
+<tr class="separator:ga99eb5f8b0054ae6923be7b8be163e630"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9">sbapi_system_mac_get</a> (uint8_t *buffer, int length)</td></tr>
 <tr class="memdesc:ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get system MAC address.  <a href="#ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9"></a><br/></td></tr>
 <tr class="separator:ga7bb8d8cbfe98d2f8a4d6c509fc5c6fb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga875af5c1b00bf383ed91552d2976df63"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga875af5c1b00bf383ed91552d2976df63">sbapi_system_max_buf_snapshot_get</a> (int asic, BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *maxBufSnapshot, BVIEW_TIME_t *time)</td></tr>
+<tr class="memdesc:ga875af5c1b00bf383ed91552d2976df63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get snapshot of max buffers allocated.  <a href="#ga875af5c1b00bf383ed91552d2976df63"></a><br/></td></tr>
+<tr class="separator:ga875af5c1b00bf383ed91552d2976df63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8fef47545407165c9f75333d2886d0fc"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga8fef47545407165c9f75333d2886d0fc">sbapi_system_name_get</a> (char *buffer, int length)</td></tr>
 <tr class="memdesc:ga8fef47545407165c9f75333d2886d0fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get system name.  <a href="#ga8fef47545407165c9f75333d2886d0fc"></a><br/></td></tr>
 <tr class="separator:ga8fef47545407165c9f75333d2886d0fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga70acca50d403e9071793c3fd96bb40bb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga70acca50d403e9071793c3fd96bb40bb"></a>
-BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_network_os_get</b> (uint8_t *buffer, int length)</td></tr>
+<tr class="memitem:ga70acca50d403e9071793c3fd96bb40bb"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga70acca50d403e9071793c3fd96bb40bb">sbapi_system_network_os_get</a> (uint8_t *buffer, int length)</td></tr>
+<tr class="memdesc:ga70acca50d403e9071793c3fd96bb40bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Network OS.  <a href="#ga70acca50d403e9071793c3fd96bb40bb"></a><br/></td></tr>
 <tr class="separator:ga70acca50d403e9071793c3fd96bb40bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga240c8f9231e670749c019c461ad4e3e7"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga240c8f9231e670749c019c461ad4e3e7">sbapi_system_num_units_get</a> (int *unitNum)</td></tr>
 <tr class="memdesc:ga240c8f9231e670749c019c461ad4e3e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get number of units in the system.  <a href="#ga240c8f9231e670749c019c461ad4e3e7"></a><br/></td></tr>
 <tr class="separator:ga240c8f9231e670749c019c461ad4e3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab68aea8f0a66b7e3797767e0b38c30f8"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gab68aea8f0a66b7e3797767e0b38c30f8"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_packet_rx_register</b> (int asic, BVIEW_PACKET_RX_CALLBACK_t callback, char *name, void *cookie)</td></tr>
+<tr class="separator:gab68aea8f0a66b7e3797767e0b38c30f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga492c68c02b25afa3b5ee5ebfdd1ac39c"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga492c68c02b25afa3b5ee5ebfdd1ac39c">sbapi_system_port_translate_from_notation</a> (char *src, int *port)</td></tr>
 <tr class="memdesc:ga492c68c02b25afa3b5ee5ebfdd1ac39c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get system port number from notational port number representation - string form.  <a href="#ga492c68c02b25afa3b5ee5ebfdd1ac39c"></a><br/></td></tr>
 <tr class="separator:ga492c68c02b25afa3b5ee5ebfdd1ac39c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac41ac5c3fad92e5bab3b0bcd5e9bd243"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gac41ac5c3fad92e5bab3b0bcd5e9bd243">sbapi_system_port_translate_to_notation</a> (int asic, int port, char *dst)</td></tr>
 <tr class="memdesc:gac41ac5c3fad92e5bab3b0bcd5e9bd243"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get port number in notational representation(string) from system port number and asic number.  <a href="#gac41ac5c3fad92e5bab3b0bcd5e9bd243"></a><br/></td></tr>
 <tr class="separator:gac41ac5c3fad92e5bab3b0bcd5e9bd243"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga717eedf047a255f1c389bd3023917659"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#ga717eedf047a255f1c389bd3023917659">sbapi_system_time_get</a> (time_t *ptime)</td></tr>
+<tr class="memdesc:ga717eedf047a255f1c389bd3023917659"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get Current local time.  <a href="#ga717eedf047a255f1c389bd3023917659"></a><br/></td></tr>
+<tr class="separator:ga717eedf047a255f1c389bd3023917659"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac5485297573fa96ae906a5f26cb00f3b"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gac5485297573fa96ae906a5f26cb00f3b">sbapi_system_uid_get</a> (uint8_t *buffer, int length)</td></tr>
+<tr class="memdesc:gac5485297573fa96ae906a5f26cb00f3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get system UID.  <a href="#gac5485297573fa96ae906a5f26cb00f3b"></a><br/></td></tr>
+<tr class="separator:gac5485297573fa96ae906a5f26cb00f3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf6afa6ac1ad959508208d12cb77772b5"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gaf6afa6ac1ad959508208d12cb77772b5">sbapi_system_unit_to_asic_type_get</a> (int asic, BVIEW_ASIC_TYPE *asicType)</td></tr>
 <tr class="memdesc:gaf6afa6ac1ad959508208d12cb77772b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get asic type of a unit.  <a href="#gaf6afa6ac1ad959508208d12cb77772b5"></a><br/></td></tr>
 <tr class="separator:gaf6afa6ac1ad959508208d12cb77772b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -405,7 +498,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;threshold &lt;= 0 || \</div>
 <div class="line">                                                   (_p)-&gt;threshold &gt; BVIEW_BST_DEVICE_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00392">392</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00373">373</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -425,7 +518,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;cpuQueueThreshold &lt;= 0 || \</div>
 <div class="line">                                                    (_p)-&gt;cpuQueueThreshold &gt; (BVIEW_BST_E_CPU_UCMC_THRES_DEFAULT))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00343">343</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00324">324</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -445,7 +538,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;cpuBufferThreshold &lt;= 0 || \</div>
 <div class="line">                                              (_p)-&gt;cpuBufferThreshold &gt; (BVIEW_BST_E_CPU_UCMC_THRES_DEFAULT))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00339">339</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00320">320</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -465,7 +558,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcThreshold &lt;= 0 || \</div>
 <div class="line">                                                    (_p)-&gt;mcThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00423">423</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00404">404</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -485,7 +578,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcQueueThreshold &lt;= 0 || \</div>
 <div class="line">                                                   (_p)-&gt;mcQueueThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00351">351</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00332">332</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -505,7 +598,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcQueueEntriesThreshold &lt;= 0 || \</div>
 <div class="line">                                                    (_p)-&gt;mcQueueEntriesThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00427">427</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00408">408</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -525,7 +618,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcBufferThreshold &lt;= 0 || \</div>
 <div class="line">                                             (_p)-&gt;mcBufferThreshold &gt; BVIEW_BST_MCAST_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00347">347</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00328">328</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -545,7 +638,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;rqeQueueThreshold &lt;= 0 || \</div>
 <div class="line">                                                    (_p)-&gt;rqeQueueThreshold &gt; (0xFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00419">419</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00400">400</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -565,7 +658,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;rqeBufferThreshold &lt;= 0 || \</div>
 <div class="line">                                                    (_p)-&gt;rqeBufferThreshold &gt; BVIEW_BST_E_RQE_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00415">415</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00396">396</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -585,7 +678,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcShareQueueEntriesThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;mcShareQueueEntriesThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00409">409</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00390">390</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -605,7 +698,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcShareThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;mcShareThreshold &gt; BVIEW_BST_E_SP_MC_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00405">405</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00386">386</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -625,7 +718,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umShareThreshold &lt;= 0 || \</div>
 <div class="line">                                               (_p)-&gt;umShareThreshold &gt; BVIEW_BST_E_SP_UCMC_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00400">400</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00381">381</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -645,7 +738,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;ucBufferThreshold &lt;= 0 || \</div>
 <div class="line">                                                 (_p)-&gt;ucBufferThreshold &gt; BVIEW_BST_UCAST_QUEUE_GROUP_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00355">355</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00336">336</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -665,7 +758,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;ucBufferThreshold &lt;= 0 || \</div>
 <div class="line">                                             (_p)-&gt;ucBufferThreshold &gt; BVIEW_BST_UCAST_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00359">359</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00340">340</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -685,7 +778,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;cpuThreshold &lt;= 0 || \</div>
 <div class="line">                                              (_p)-&gt;cpuThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00432">432</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00413">413</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -705,7 +798,27 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;rqeThreshold &lt;= 0 || \</div>
 <div class="line">                                              (_p)-&gt;rqeThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00437">437</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00418">418</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="ga0cb5798b4fb5e294fcda89fb0f4ff9bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BVIEW_BST_EGRESS_UC_GRP_THRESHOLD_CHECK</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">_p</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;ucThreshold &lt;= 0 || \</div>
+<div class="line">                                                 (_p)-&gt;ucThreshold &gt; BVIEW_BST_UCAST_QUEUE_GROUP_DEFAULT)</div>
+</div><!-- fragment -->
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00427">427</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -725,7 +838,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;ucThreshold &lt;= 0 || \</div>
 <div class="line">                                              (_p)-&gt;ucThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00442">442</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00423">423</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -745,7 +858,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcShareQueueEntriesThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;mcShareQueueEntriesThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00375">375</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00356">356</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -765,7 +878,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;mcShareThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;mcShareThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00371">371</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00352">352</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -785,7 +898,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;ucShareThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;ucShareThreshold &gt; BVIEW_BST_E_P_SP_UC_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00363">363</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00344">344</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -805,7 +918,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umShareThreshold &lt;= 0 || \</div>
 <div class="line">                                                (_p)-&gt;umShareThreshold &gt; BVIEW_BST_E_P_SP_UCMC_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00367">367</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00348">348</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -825,7 +938,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umHeadroomThreshold &lt;= 0 || \</div>
 <div class="line">                                                  (_p)-&gt;umHeadroomThreshold &gt; BVIEW_BST_I_P_PG_UCMC_HDRM_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00387">387</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00368">368</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -845,7 +958,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umShareThreshold &lt;= 0 || \</div>
 <div class="line">                                                  (_p)-&gt;umShareThreshold &gt; BVIEW_BST_I_P_SP_UCMC_SHARED_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00383">383</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00364">364</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -865,7 +978,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umShareThreshold &lt;= 0 || \</div>
 <div class="line">                                             (_p)-&gt;umShareThreshold &gt; BVIEW_BST_I_SP_UCMC_SHARED_THRES_DEFAULT)</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00379">379</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00360">360</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -885,7 +998,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 <b>Value:</b><div class="fragment"><div class="line">((_p)-&gt;umShareThreshold &lt;=0 || \</div>
 <div class="line">                                                   (_p)-&gt;umShareThreshold &gt; (0x1FFFF * 208))</div>
 </div><!-- fragment -->
-<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00396">396</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
+<p>Definition at line <a class="el" href="../../d2/d4f/bst_8h_source.html#l00377">377</a> of file <a class="el" href="../../d2/d4f/bst_8h_source.html">bst.h</a>.</p>
 
 </div>
 </div>
@@ -1662,6 +1775,38 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 
 </div>
 </div>
+<a class="anchor" id="gacf931f428c1dd2df4502001919d7317a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_feature_mask_get </td>
+          <td>(</td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>featureMask</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Supported Feature Mask. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">featureMask</td><td>Supported Feature Mask</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure or Failed to get asic type from unit or Failed to get asic capabilites for this unit</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>Supported Feature Mask is successfully queried</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>none </p>
+
+</div>
+</div>
 <a class="anchor" id="ga7efd51ad7a994b985b3527542fb8fcd4"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1702,6 +1847,57 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="ga99eb5f8b0054ae6923be7b8be163e630"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_lag_translate_to_notation </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>asic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>lag</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>dst</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get lag number in notational representation(string) from system lag number and asic number. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">asic</td><td>System asic number </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">lag</td><td>System lag number </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">dst</td><td>lag number in notational(string) form</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure or System feature is not present or System south bound function has returned failure</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>System south bound function for name get is successful</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_UNSUPPORTED</td><td>System name get functionality is not supported on this unit</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>none </p>
 
 </div>
 </div>
@@ -1748,6 +1944,57 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 
 </div>
 </div>
+<a class="anchor" id="ga875af5c1b00bf383ed91552d2976df63"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_max_buf_snapshot_get </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>asic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *&#160;</td>
+          <td class="paramname"><em>maxBufSnapshot</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">BVIEW_TIME_t *&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get snapshot of max buffers allocated. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">asic</td><td>unit </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">maxBufSnapshot</td><td>Max buffers snapshot </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">time</td><td>time</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure or Not able to get asic type of this unit or system feature is not present or System south bound function has returned failure</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>Snapshot get is successful</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_UNSUPPORTED</td><td>Snapshot get functionality is not supported on this unit</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>none </p>
+
+</div>
+</div>
 <a class="anchor" id="ga8fef47545407165c9f75333d2886d0fc"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1788,6 +2035,48 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="ga70acca50d403e9071793c3fd96bb40bb"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_network_os_get </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Network OS. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>Pointer to network OS String</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure Failed to get network os</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>Network OS is successfully queried</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>none </p>
 
 </div>
 </div>
@@ -1917,6 +2206,80 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 
 </div>
 </div>
+<a class="anchor" id="ga717eedf047a255f1c389bd3023917659"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_time_get </td>
+          <td>(</td>
+          <td class="paramtype">time_t *&#160;</td>
+          <td class="paramname"><em>ptime</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get Current local time. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">tm</td><td>- Pointer to tm structure</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure or System feature is not present or System south bound function has returned failure</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>System south bound function for time get is successful</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_UNSUPPORTED</td><td>System time get functionality is not supported on this unit  none </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="gac5485297573fa96ae906a5f26cb00f3b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">BVIEW_STATUS sbapi_system_uid_get </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>length</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get system UID. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buffer</td><td>Pointer to UID String</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">BVIEW_STATUS_FAILURE</td><td>Due to lock acquistion failure Failed to get network os</td></tr>
+    <tr><td class="paramname">BVIEW_STATUS_SUCCESS</td><td>UID is successfully queried</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>none </p>
+
+</div>
+</div>
 <a class="anchor" id="gaf6afa6ac1ad959508208d12cb77772b5"></a>
 <div class="memitem">
 <div class="memproto">
@@ -1962,7 +2325,7 @@ BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>sbapi_system_
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

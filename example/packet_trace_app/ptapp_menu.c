@@ -1,20 +1,21 @@
 /*****************************************************************************
-*
-* (C) Copyright Broadcom Corporation 2015
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-*
-* You may obtain a copy of the License at
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-***************************************************************************/
+  *
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  *
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ***************************************************************************/
 
 #define _GNU_SOURCE
 
@@ -1918,6 +1919,202 @@ int get_pt_profile(char *jsonFrmt, char *finalJsonBuf)
 
   jsonId = get_new_json_id();
   sprintf(finalJsonBuf, jsonFrmt, asicId, pcapFileB64Data, portList, collectionInterval, dropPkt, jsonId);
+  printf("\t Request sent to Agent with Id %u\n", jsonId);
+  return 0;
+}
+
+/******************************************************************
+ * @brief      Target function to read input from user to prepare 
+ *             JSON buffer to get packet trace profile of a PCAP 
+ *             formattted packet. If input is not provided for particular 
+ *             fields, default values would be taken to prepare JSON 
+ *
+ * @param[in]   jsonFrmt       Format of the JSON buffer 
+ *              finalJsonBuf   Buffer to hold the json message with user inputs 
+ *
+ * @retval   0    Successfully read user inputs and prepared json buffer
+ *
+ * @note     
+ *********************************************************************/
+int get_live_pt_profile(char *jsonFrmt, char *finalJsonBuf)
+{
+  char asicId[16] = PTAPP_DEFAULT_ASIC_ID;
+  char portList[4*1024] = {0};
+  char tempPortList[1024] = PTAPP_DEFAULT_PORT_LIST;
+
+  unsigned int srcIp;
+  unsigned int destIp;
+  unsigned int tempTos; 
+  unsigned int srcPort;
+  unsigned int destPort;
+
+  char defaultIpAddr[8] = "any";
+  char defaultPort[8] = "any";
+  char defaultTos[8]  = "any";
+
+  
+  char srcIpStr[32] = {0};
+  char destIpStr[32] = {0}; 
+  char tosStr[32] = {0}; 
+  char srcPortStr[32] = {0};
+  char destPortStr[32] = {0}; 
+
+  struct in_addr ipAddr;
+
+  char dropPktStr[16] = PTAPP_DEFAULT_TRACE_PKT_DROP_CONFIG_STR;
+  unsigned int collectionInterval = PTAPP_DEFAULT_COLLECTION_INTERVAL; 
+  unsigned int dropPkt = PTAPP_DEFAULT_TRACE_PKT_DROP_CONFIG;
+  unsigned int packetLimit = 5; 
+  unsigned int jsonId = 0;
+  PTAPP_USER_INPUT_STATUS_t retValue; 
+  printf("\t Provide asic Id[%s] :", asicId);
+  get_string_from_user(asicId, sizeof(asicId));
+  
+  printf("\t Provide Ingress port list[%s]:", tempPortList);
+  sprintf (portList, "\"%s\"", tempPortList);
+  get_port_list_from_user(portList, sizeof(portList));
+ 
+  while (1)
+  {
+    printf("\t Provide source IP address(a.b.c.d format) [%s]:", defaultIpAddr);
+    retValue = get_ipv4_address_from_user(&srcIp);
+    if (retValue == USER_INPUT_NONE)
+    {
+      strcpy(srcIpStr, defaultIpAddr);
+      break;
+    }
+    if (retValue == USER_INPUT_OK)
+    {
+      ipAddr.s_addr = srcIp;
+      sprintf(srcIpStr, "%s", inet_ntoa(ipAddr));
+      break; 
+    }
+    printf("\t\t Invalid Input! Please provide correct value\n");
+  }
+
+  while (1)
+  {
+    printf("\t Provide destination IP address(a.b.c.d format) [%s]:", defaultIpAddr);
+    retValue = get_ipv4_address_from_user(&destIp);
+    if (retValue == USER_INPUT_NONE)
+    {
+      strcpy(destIpStr, defaultIpAddr);
+      break;
+    }
+    if (retValue == USER_INPUT_OK)
+    {
+      ipAddr.s_addr = destIp;
+      sprintf(destIpStr, "%s", inet_ntoa(ipAddr));
+      break; 
+    }
+    printf("\t\t Invalid Input! Please provide correct value\n");
+  }
+
+  while(1)
+  {
+    printf("\t Provide value for protocol[%s]:", defaultTos);
+    retValue = get_uint_from_user(&tempTos);
+    if (retValue == USER_INPUT_NONE)
+    {
+      strcpy(tosStr, defaultTos); 
+      break;
+    }
+    if (retValue == USER_INPUT_OK)
+    {
+      if (tempTos < 256)
+      {
+        sprintf(tosStr, "%d", tempTos);
+        break;
+      }
+    }
+    printf("\t\t Invalid Input! Max supported value is 255\n");
+  }
+
+  while(1)
+  {
+    printf("\t Provide value for source port[%s]:", defaultPort);
+    retValue = get_uint_from_user(&srcPort);
+    if (retValue == USER_INPUT_NONE)
+    {
+      strcpy(srcPortStr, defaultPort);
+      break;
+    }
+    if (retValue == USER_INPUT_OK)
+    {
+      if (srcPort <= 0xffff)
+      {
+        sprintf(srcPortStr, "%d", srcPort);
+        break;
+      }
+    }
+    printf("\t\t Invalid Input! Please provide correct value(<= %u)\n", 0xffff);
+  }
+
+  while(1)
+  {
+    printf("\t Provide value for destination port[%s]:", defaultPort);
+    retValue = get_uint_from_user(&destPort);
+    if (retValue == USER_INPUT_NONE)
+    {
+      strcpy(destPortStr, defaultPort);
+      break;
+    }
+    if (retValue == USER_INPUT_OK)
+    {
+      if (destPort <= 0xffff)
+      {
+        sprintf(destPortStr, "%d", destPort);
+        break;
+      }
+    }
+    printf("\t\t Invalid Input! Please provide correct value(<= %u)\n", 0xffff);
+  }
+
+  while (1)
+  {
+    printf("\t Provide collection interval[%u]:", collectionInterval);
+    if (get_uint_from_user(&collectionInterval) == USER_INPUT_ERROR)
+    {
+      printf("\n\t Invalid Value!  Please enter correct value \n");
+      continue;
+    }
+    break;
+  }
+
+  while (1)
+  {
+    printf("\t Provide packet-limit[%u]:", packetLimit);
+    if (get_uint_from_user(&packetLimit) == USER_INPUT_ERROR)
+    {
+      printf("\n\t Invalid Value!  Please enter correct value \n");
+      continue;
+    }
+    break;
+  }
+
+  while (1)
+  {
+    printf("\t Drop the packet after trace[%s] (enter yes/no):", PTAPP_DEFAULT_TRACE_PKT_DROP_CONFIG_STR);
+    get_string_from_user(dropPktStr, sizeof(dropPktStr));
+    if (!((strcmp(dropPktStr,"yes") == 0) || (strcmp(dropPktStr,"no") == 0))) 
+    {
+      printf("\t Invalid input! Please enter yes/no \n");
+      continue;
+    }
+    if (strcmp(dropPktStr,"yes") == 0)
+    {
+      dropPkt = TRACE_PKT_DROP;
+    }
+    else if (strcmp(dropPktStr,"no") == 0)
+    {
+      dropPkt = TRACE_PKT_FORWARD;
+    }
+
+    break;
+  } 
+
+  jsonId = get_new_json_id();
+  sprintf(finalJsonBuf, jsonFrmt, asicId, srcIpStr, destIpStr, tosStr, srcPortStr, destPortStr, portList, packetLimit, collectionInterval, dropPkt, jsonId);
   printf("\t Request sent to Agent with Id %u\n", jsonId);
   return 0;
 }

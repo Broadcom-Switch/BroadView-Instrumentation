@@ -1,20 +1,21 @@
 /*****************************************************************************
-*
-* (C) Copyright Broadcom Corporation 2015
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-*
-* You may obtain a copy of the License at
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-***************************************************************************/
+  *
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  *
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ***************************************************************************/
 
 #include "ptapp.h"
 
@@ -110,6 +111,13 @@ PTAPP_REST_MSG_t ptRestMessages[] = {
      .method = "cancel-packet-trace-drop-counter-report",
     },
 #endif
+    {
+     .methodId = PTAPP_JSON_GET_LIVE_PACKET_TRACE_LAG_RESOLUTION, 
+     .httpMethod = "GET",
+     .descr = "Setting up 5 tuple request and Obtaining LAG resolution for captured live packet",
+     .method = "get-packet-trace-lag-resolution",
+    },
+    
 };
 
 
@@ -229,6 +237,76 @@ PTAPP_JSON_METHOD_INFO_t ptJsonMethodDetails[PTAPP_JSON_METHOD_LAST] = {
                   }",
 
     },
+    {
+     .methodId = PTAPP_JSON_GET_LIVE_PACKET_TRACE_PROFILE, 
+     .method = "get-packet-trace-profile",  
+     .menuString = "Capture and Trace a live packet",
+     .get_input_for_json = get_live_pt_profile,
+	 .jsonFrmt = "{      \
+						 \"jsonrpc\": \"2.0\", \
+						 \"method\": \"get-packet-trace-profile\", \
+						 \"asic-id\": \"%s\", \
+							 \"params\": {  \
+                             \"src-ip\": \"%s\", \
+                             \"dst-ip\": \"%s\", \
+                             \"protocol\": \"%s\", \
+							 \"l4-src-port\": \"%s\", \
+                             \"l4-dst-port\": \"%s\", \
+                             \"port-list\": [%s], \
+                             \"packet-limit\": %u, \
+                             \"collection-interval\": %u, \
+                             \"drop-packet\": %u \
+						 }, \
+						 \"id\": %u \
+					  }",
+
+    },
+    {
+     .methodId = PTAPP_JSON_GET_LIVE_PACKET_TRACE_LAG_RESOLUTION, 
+     .method = "get-packet-trace-lag-resolution",
+     .menuString = "Capture and Trace LAG resolution for a live packet",
+     .get_input_for_json = get_live_pt_profile,
+	 .jsonFrmt = "{      \
+						 \"jsonrpc\": \"2.0\", \
+						 \"method\": \"get-packet-trace-lag-resolution\", \
+						 \"asic-id\": \"%s\", \
+							 \"params\": {  \
+                             \"src-ip\": \"%s\", \
+                             \"dst-ip\": \"%s\", \
+						     \"protocol\": \"%s\", \
+							 \"l4-src-port\": \"%s\", \
+                             \"l4-dst-port\": \"%s\", \
+                             \"port-list\": [%s], \
+                             \"packet-limit\": %u, \
+                             \"collection-interval\": %u, \
+                             \"drop-packet\": %u \
+						 }, \
+						 \"id\": %u \
+					  }",
+    },
+    {
+     .methodId = PTAPP_JSON_GET_LIVE_PACKET_TRACE_ECMP_RESOLUTION, 
+     .method = "get-packet-trace-ecmp-resolution",
+     .menuString = "Cature and Trace ECMP resolution for a live capture",
+     .get_input_for_json = get_live_pt_profile,
+	 .jsonFrmt = "{      \
+						 \"jsonrpc\": \"2.0\", \
+						 \"method\": \"get-packet-trace-ecmp-resolution\", \
+						 \"asic-id\": \"%s\", \
+							 \"params\": {  \
+                             \"src-ip\": \"%s\", \
+                             \"dst-ip\": \"%s\", \
+						     \"protocol\": \"%s\", \
+							 \"l4-src-port\": \"%s\", \
+                             \"l4-dst-port\": \"%s\", \
+                             \"port-list\": [%s], \
+                             \"packet-limit\": %u, \
+                             \"collection-interval\": %u, \
+                             \"drop-packet\": %u \
+						 }, \
+						 \"id\": %u \
+					  }",
+     },
 #if DROP_REASON_SUPPORTED
     {
      .methodId = PTAPP_JSON_GET_PACKET_TRACE_DROP_REASON,
@@ -364,6 +442,8 @@ PTAPP_JSON_METHOD_INFO_t ptJsonMethodDetails[PTAPP_JSON_METHOD_LAST] = {
                    }",
     },
 #endif
+
+  
 };
 
 /* A global buf to prepare the JSON message */

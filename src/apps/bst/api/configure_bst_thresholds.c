@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -25,6 +26,7 @@
 #include "json.h"
 
 #include "cJSON.h"
+#include "bst.h"
 #include "configure_bst_thresholds.h"
 
 /******************************************************************
@@ -142,6 +144,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_STRING(json_port, "port", BVIEW_STATUS_INVALID_JSON);
         /* Copy the 'port' in external notation to our internal representation */
         JSON_PORT_MAP_FROM_NOTATION(command.port, json_port->valuestring);
+        command.mask = command.mask | BVIEW_BST_PORT_MASK;
     } /* if optional */
 
 
@@ -156,6 +159,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         command.priorityGroup = json_priorityGroup->valueint;
         /* Ensure  that the number 'priority-group' is within range of [0,7] */
         JSON_CHECK_VALUE_AND_CLEANUP (command.priorityGroup, 0, 7);
+        command.mask = command.mask | BVIEW_BST_PG_MASK;
     } /* if optional */
 
 
@@ -170,6 +174,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         command.servicePool = json_servicePool->valueint;
         /* Ensure  that the number 'service-pool' is within range of [0,3] */
         JSON_CHECK_VALUE_AND_CLEANUP (command.servicePool, 0, 3);
+        command.mask = command.mask | BVIEW_BST_SP_MASK;
     } /* if optional */
 
 
@@ -184,6 +189,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         command.queue = json_queue->valueint;
         /* Ensure  that the number 'queue' is within range of [0,4095] */
         JSON_CHECK_VALUE_AND_CLEANUP (command.queue, 0, 4095);
+        command.mask = command.mask | BVIEW_BST_QUEUE_MASK;
     } /* if optional */
 
 
@@ -198,6 +204,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         command.queueGroup = json_queueGroup->valueint;
         /* Ensure  that the number 'queue-group' is within range of [0,7] */
         JSON_CHECK_VALUE_AND_CLEANUP (command.queueGroup, 0, 127);
+        command.mask = command.mask | BVIEW_BST_QUEUE_GRP_MASK;
     } /* if optional */
 
 
@@ -210,6 +217,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_threshold, "threshold");
         /* Copy the value */
         command.threshold = json_threshold->valueint;
+        command.mask = command.mask | BVIEW_BST_DEVICE_MASK;
     } /* if optional */
 
 
@@ -222,6 +230,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_umShareThreshold, "um-share-threshold");
         /* Copy the value */
         command.umShareThreshold = json_umShareThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_UMSHARE_MASK;
     } /* if optional */
 
 
@@ -234,6 +243,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_umHeadroomThreshold, "um-headroom-threshold");
         /* Copy the value */
         command.umHeadroomThreshold = json_umHeadroomThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_UMHEADROOM_MASK;
     } /* if optional */
 
 
@@ -246,6 +256,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_ucShareThreshold, "uc-share-threshold");
         /* Copy the value */
         command.ucShareThreshold = json_ucShareThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_UCSHARE_MASK;
     } /* if optional */
 
 
@@ -258,6 +269,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_mcShareThreshold, "mc-share-threshold");
         /* Copy the value */
         command.mcShareThreshold = json_mcShareThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_MCSHARE_MASK;
     } /* if optional */
 
 
@@ -270,6 +282,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_mcShareQueueEntriesThreshold, "mc-share-queue-entries-threshold");
         /* Copy the value */
         command.mcShareQueueEntriesThreshold = json_mcShareQueueEntriesThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_MCSHARE_QUEUE_MASK;
     } /* if optional */
 
 
@@ -282,6 +295,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_ucThreshold, "uc-threshold");
         /* Copy the value */
         command.ucThreshold = json_ucThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_UC_MASK;
     } /* if optional */
 
 
@@ -294,6 +308,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_mcThreshold, "mc-threshold");
         /* Copy the value */
         command.mcThreshold = json_mcThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_MC_MASK;
     } /* if optional */
 
 
@@ -306,6 +321,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_mcQueueEntriesThreshold, "mc-queue-entries-threshold");
         /* Copy the value */
         command.mcQueueEntriesThreshold = json_mcQueueEntriesThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_MCQUEUE_MASK;
     } /* if optional */
 
 
@@ -318,6 +334,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_cpuThreshold, "cpu-threshold");
         /* Copy the value */
         command.cpuThreshold = json_cpuThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_CPU_MASK;
     } /* if optional */
 
 
@@ -330,6 +347,7 @@ BVIEW_STATUS bstjson_configure_bst_thresholds (void *cookie, char *jsonBuffer, i
         JSON_VALIDATE_JSON_AS_NUMBER(json_rqeThreshold, "rqe-threshold");
         /* Copy the value */
         command.rqeThreshold = json_rqeThreshold->valueint;
+        command.mask = command.mask | BVIEW_BST_RQE_MASK;
     } /* if optional */
 
 

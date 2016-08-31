@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -120,8 +121,15 @@ typedef struct _bst_sb_feature_
     /** register a callback to be invoked when a configured trigger goes off*/
     BVIEW_STATUS(*bst_register_trigger_cb) (int asic, BVIEW_BST_TRIGGER_CALLBACK_t callback, void *cookie);
 
-    /** Obtain Complete ASIC default buffer values  */
-    BVIEW_STATUS(*bst_default_snapshot_get_cb)(int asic, BVIEW_BST_ASIC_SNAPSHOT_DATA_t *snapshot);
+    /** Get unicast congestion drop counter of a particular port-queue */
+    BVIEW_STATUS (*bst_port_ucast_cgs_drop_get_cb)(int asic, int port, int queue, uint64_t *dropCount);
+
+    /** Get mcast congestion drop counter of a particular port-queue */
+    BVIEW_STATUS (*bst_port_mcast_cgs_drop_get_cb)(int asic, int port, int queue, uint64_t *dropCount);
+
+    /** Get Total congestion drop counter of a particular port */
+    BVIEW_STATUS (*bst_port_total_cgs_drop_get_cb)(int asic, int port, uint64_t *dropCount);
+
 } BVIEW_SB_BST_FEATURE_t;
 
 #ifdef __cplusplus

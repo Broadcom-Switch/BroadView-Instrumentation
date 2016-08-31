@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -35,7 +36,12 @@ extern "C"
         /** enum to represent BST feature */
         BVIEW_FEATURE_BST = (0x1 << 1),
         /** enum to represent Packet Trace feature */
-        BVIEW_FEATURE_PACKET_TRACE = (0x1 << 2)
+        BVIEW_FEATURE_PACKET_TRACE = (0x1 << 2),
+        /** enum to represent Packet Trace feature */
+        BVIEW_FEATURE_BHD = (0x1 << 3),
+        /** enum to represent Live Packet Trace feature */
+        BVIEW_FEATURE_LIVE_PT = (0x1 << 4)
+
     } BVIEW_FEATURE_ID;
 
     /** the web server invokes the handler associated with the incoming REST API  *

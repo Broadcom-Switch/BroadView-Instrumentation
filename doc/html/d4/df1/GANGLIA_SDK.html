@@ -39,7 +39,7 @@
 <div class="title">Ganglia Plugin </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>BroadView Instrumentation Agent integrates Ganglia monitoring tool to get BST statistics. The Ganglia monitoring tool runs on separate PC/Server and it gets the data from BroadViewAgent in the REST format. The BroadView Ganglia plugin configures periodic interval and enables BST in the BroadViewAgent via REST mechanism. The BroadViewAgent sends the BST statistics to Ganglia monitoring tool(gmond). The Ganglia web plots the data that can be viewed by user by connecting to Ganglia server over HTTP.</p>
+<div class="textblock"><p>BroadView&trade; Instrumentation Agent source code provides Ganglia Plugin for Ganglia monitoring tool to get BST statistics. The Ganglia monitoring tool runs on separate PC/Server and it gets the data from BroadViewAgent in the REST format. The BroadView Ganglia plugin configures periodic interval and enables BST in the BroadViewAgent via REST mechanism. The BroadViewAgent sends the BST statistics to Ganglia monitoring tool(gmond). The Ganglia web plots the data that can be viewed by user by connecting to Ganglia server over HTTP.</p>
 <p>The gmond is installed on ganglia server. There can be multiple gmond running on ganglia server each interacting with one BroadView Agent running at specific target hardware (switch). The diagram below illustrates execution of multiple gmond.</p>
 <div class="image">
 <img src="../../ganglia_multiple.jpg" alt="ganglia_multiple.jpg"/>
@@ -139,7 +139,7 @@ apt-get install php5 php5-gd</pre><pre></pre><p><b>Running BroadViewAgent</b></p
 </li>
 </ul>
 <ul>
-<li><p class="startli">Copy various scripts, configurations and json files (compile_install.sh, gen_bst_metrics.sh, gen_gmond_primary.sh, gen_gmond_secondary.sh, gen_bst_metrics.pl, gen_gmond_primary.pl, gen_gmond_secondary.pl, gmond_src_primary.conf, gmond_src_secondary.conf, metric_input.json, switch_conf.json) from BroadView source archive .&lt;broadview&gt;/example/ganglia. to &lt;ganglia&gt; directory.</p>
+<li><p class="startli">Copy various scripts, configurations and json files (compile_install.sh, gen_bst_metrics.sh, gen_gmond_primary.sh, gen_gmond_secondary.sh, change_metric_type.sh, gen_bst_metrics.pl, gen_gmond_primary.pl, gen_gmond_secondary.pl, gmond_src_primary.conf, gmond_src_secondary.conf, metric_input.json, switch_conf.json) from BroadView source archive '&lt;broadview&gt;/example/ganglia' to &lt;ganglia&gt; directory.</p>
 <p class="startli"># cd &lt;ganglia&gt;<br/>
  # cp &lt;local_dir&gt;/&lt;broadview&gt;/example/ganglia/*.sh .<br/>
  # cp &lt;local_dir&gt;/&lt;broadview&gt;/example/ganglia/*.pl .<br/>
@@ -152,12 +152,13 @@ apt-get install php5 php5-gd</pre><pre></pre><p><b>Running BroadViewAgent</b></p
 <li>Specify all metrics to be displayed on Ganglia web in metric_input.json. This is a super set of all metrics to be collected from individual switch/gmond.</li>
 </ul>
 <pre></pre><pre>   "metricinfo" : [
+   "metric_type": "absolute",
       { "metric": "bst_device_data_NONE_NONE", "shortname": "DeviceStat", "color": "33cccc"},
       { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_37_7", "shortname": "ippg_umhb_37_7", "color": "335555"},
       { "metric": "bst_ingress-service-pool_um-share-buffer-count_0_NONE", "shortname": "ipsp_umsb_0", "color": "cc5555"},
       { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_38_7", "shortname": "ippg_umhb_38_7", "color": "775555"}
      ]
-</pre><p><b>metricinfo attribute</b> This attribute is used to collect and display specific statistics on Ganglia web. The string for 'metric' field has to be in a specific format. The string encoding format is</p>
+</pre><p><b>metricinfo attribute</b> This attribute is used to collect and display specific statistics on Ganglia web. The 'metric_type' holds value as 'absolute' or 'percentage' with a default as 'percentage'. The string for 'metric' field has to be in a specific format. The string encoding format is</p>
 <p>bst_&lt;realm&gt;_&lt;name&gt;_&lt;index1&gt;_&lt;index2&gt;</p>
 <p>The following table provides the list of realms and the associated indices for each of the realm. It also lists all the available statistics for each realm.</p>
 <div class="image">
@@ -218,13 +219,17 @@ apt-get install php5 php5-gd</pre><pre></pre><p><b>Running BroadViewAgent</b></p
 </p>
 </li>
 </ul>
-<p><b>Changing metrics and switch parameter and re-running</b></p>
+<p><b>Changing metrics, metric type and switch parameter and re-running</b></p>
 <p>Follow below steps to change metric and re-running gmetad and gmond.</p>
 <ul>
 <li><p class="startli">Killall gmond and gmetad</p>
 <p class="startli"># killall gmetad gmond<br/>
 </p>
 </li>
+</ul>
+<ul>
+<li>If the metric_type is changed then run the following script.<br/>
+ # sh change_metric_type.sh</li>
 </ul>
 <ul>
 <li>Change the metric in the metric_input.json file</li>
@@ -261,7 +266,7 @@ apt-get install php5 php5-gd</pre><pre></pre><p><b>Running BroadViewAgent</b></p
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

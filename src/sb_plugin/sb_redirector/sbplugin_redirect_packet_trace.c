@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -460,3 +461,132 @@ BVIEW_STATUS sbapi_pt_register_trigger_cb (int asic,
   SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
   return rv;
 }
+
+/*********************************************************************
+* @brief  Create a 5 tuple profile/rule in HW to capture live traffic.
+*
+* @param[in]    asic              unit
+* @param[in]    request_id        request id of the profile
+* @param[in]    port_list         List of ports on which this rule has to be applied
+* @param[in]    tuple_params      5 tuple params
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     Packet Trace feature is not present or
+*                                     Packet Trace south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Profile is created in HW 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Profile creation for this 5 tuple is   
+*                                     not supported on this unit
+*
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_pt_5_tuple_profile_create (int asic, int request_id,
+                                BVIEW_PORT_MASK_t *port_list, PT_5_TUPLE_PARAMS_t *tuple_params)
+{
+  BVIEW_SB_PT_FEATURE_t *ptFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType;
+
+  /* Get asic type of the unit */
+  if (sbapi_system_unit_to_asic_type_get (asic, &asicType) !=
+      BVIEW_STATUS_SUCCESS)
+  {
+    SB_REDIRECT_DEBUG_PRINT (BVIEW_LOG_ERROR,
+                             "(%s:%d) Failed to get asic type for unit %d \n",
+                             __FILE__, __LINE__, asic);
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+  /* Get best matching south bound feature functions based on Asic type */
+  ptFeaturePtr =
+    (BVIEW_SB_PT_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                               BVIEW_FEATURE_PACKET_TRACE);
+  /* Validate feature pointer and south bound handler. 
+   * Call south bound handler                        */    
+  if (ptFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  } 
+  else if (ptFeaturePtr->pt_5_tuple_profile_create_cb == NULL)
+  {
+    rv = BVIEW_STATUS_UNSUPPORTED;
+  }
+  else
+  {                              
+    rv = ptFeaturePtr->pt_5_tuple_profile_create_cb(asic, request_id, 
+                                               port_list, tuple_params);
+  }
+  /* Release read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
+
+
+/*********************************************************************
+* @brief  Delete 5 tuple profile/rule from HW.
+*
+* @param[in]    asic              unit
+* @param[in]    request_id        request id of the profile
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     Packet Trace feature is not present or
+*                                     Packet Trace south bound function has returned failure
+*                                     Failed to delete 5 tuple rule
+*
+* @retval   BVIEW_STATUS_SUCCESS      Profile is deleted 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Profile deletion for this request id is   
+*                                     not supported on this unit
+*
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_pt_5_tuple_profile_delete (int asic, int request_id)
+{
+  BVIEW_SB_PT_FEATURE_t *ptFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType;
+
+  /* Get asic type of the unit */
+  if (sbapi_system_unit_to_asic_type_get (asic, &asicType) !=
+      BVIEW_STATUS_SUCCESS)
+  {
+    SB_REDIRECT_DEBUG_PRINT (BVIEW_LOG_ERROR,
+                             "(%s:%d) Failed to get asic type for unit %d \n",
+                             __FILE__, __LINE__, asic);
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+  /* Get best matching south bound feature functions based on Asic type */
+  ptFeaturePtr =
+    (BVIEW_SB_PT_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                               BVIEW_FEATURE_PACKET_TRACE);
+  /* Validate feature pointer and south bound handler. 
+   * Call south bound handler                        */    
+  if (ptFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  } 
+  else if (ptFeaturePtr->pt_5_tuple_profile_delete_cb == NULL)
+  {
+    rv = BVIEW_STATUS_UNSUPPORTED;
+  }
+  else
+  {                              
+    rv = ptFeaturePtr->pt_5_tuple_profile_delete_cb(asic, request_id); 
+  }
+  /* Release read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
+

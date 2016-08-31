@@ -8,7 +8,8 @@
  */
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -305,26 +306,6 @@ typedef struct _bst_rqe_q_threshold_
     uint64_t rqeQueueThreshold;
 } BVIEW_BST_EGRESS_RQE_QUEUE_THRESHOLD_t;
 
-/* Maximum length of ASIC ID notation*/
-#define BVIEW_ASIC_NOTATION_LEN             32
-
-typedef struct _switch_asic_info_
-{
-   char              asic_notation[BVIEW_ASIC_NOTATION_LEN];
-   BVIEW_ASIC_TYPE   asicType;
-   int               numPorts;
-   BVIEW_BST_ASIC_SNAPSHOT_DATA_t defBufferVal;
-}  BVIEW_SWITCH_ASIC_INFO_t;
-
-/* Structure to pass API parameters to the BST APP */
-typedef struct _switch_properties_
-{
-    uint8_t networkOs[BVIEW_NETWORK_OS_LEN_MAX];
-    int     numAsics;
-    int     featureMask;
-     BVIEW_SWITCH_ASIC_INFO_t   asicInfo[BVIEW_MAX_ASICS_ON_A_PLATFORM];
-} BVIEW_SWITCH_PROPERTIES_t;
-
 /* The callback for invoking when a configured trigger goes off */
 typedef BVIEW_STATUS(*BVIEW_BST_TRIGGER_CALLBACK_t) (int asic,
         void *cookie,
@@ -442,6 +423,53 @@ typedef BVIEW_STATUS(*BVIEW_BST_TRIGGER_CALLBACK_t) (int asic,
 #define BVIEW_BST_EGRESS_UC_THRESHOLD_CHECK(_p)  ((_p)->ucThreshold <= 0 || \
                                               (_p)->ucThreshold > (0x1FFFF * 208))
 
+/* Check the validy of configuration for Egress Unicast Queue Groups Statistics */
+#define BVIEW_BST_EGRESS_UC_GRP_THRESHOLD_CHECK(_p)  ((_p)->ucThreshold <= 0 || \
+                                                 (_p)->ucThreshold > BVIEW_BST_UCAST_QUEUE_GROUP_DEFAULT)
+
+typedef enum _threshold_fields_
+{
+  DEVICE_COUNTER = 0,
+  UMSHARE_COUNTER,
+  UMHEADROOM_COUNTER,
+  UCSHARE_COUNTER,
+  MCSHARE_COUNTER,
+  MCSHARE_QUEUE_COUNTER,
+  UC_COUNTER,
+  MCQUEUE_COUNTER,
+  MC_COUNTER,
+  CPU_COUNTER,
+  RQE_COUNTER
+}BVIEW_BST_COUNTER_t;
+
+#define BVIEW_BST_REALM_MAX RQE_COUNTER
+
+#define BVIEW_BST_PORT_POS (BVIEW_BST_REALM_MAX+1)
+#define BVIEW_BST_SP_POS (BVIEW_BST_REALM_MAX+2)
+#define BVIEW_BST_PG_POS (BVIEW_BST_REALM_MAX+3)
+#define BVIEW_BST_QUEUE_POS (BVIEW_BST_REALM_MAX+4)
+#define BVIEW_BST_QUEUE_GRP_POS (BVIEW_BST_REALM_MAX+5)
+
+#define BVIEW_BST_DEVICE_MASK  (1<<DEVICE_COUNTER)
+#define BVIEW_BST_UMSHARE_MASK  (1<<UMSHARE_COUNTER)
+#define BVIEW_BST_UMHEADROOM_MASK  (1<<UMHEADROOM_COUNTER)
+#define BVIEW_BST_UCSHARE_MASK  (1<<UCSHARE_COUNTER)
+#define BVIEW_BST_MCSHARE_MASK  (1<<MCSHARE_COUNTER)
+#define BVIEW_BST_MCSHARE_QUEUE_MASK  (1<<MCSHARE_QUEUE_COUNTER)
+#define BVIEW_BST_UC_MASK  (1<<UC_COUNTER)
+#define BVIEW_BST_MCQUEUE_MASK  (1<<MCQUEUE_COUNTER)
+#define BVIEW_BST_MC_MASK  (1<<MC_COUNTER)
+#define BVIEW_BST_CPU_MASK  (1<<CPU_COUNTER)
+#define BVIEW_BST_RQE_MASK  (1<<RQE_COUNTER)
+
+#define BVIEW_BST_PORT_MASK  (1<<BVIEW_BST_PORT_POS)
+#define BVIEW_BST_SP_MASK  (1<<BVIEW_BST_SP_POS)
+#define BVIEW_BST_PG_MASK  (1<<BVIEW_BST_PG_POS)
+#define BVIEW_BST_QUEUE_MASK  (1<<BVIEW_BST_QUEUE_POS)
+#define BVIEW_BST_QUEUE_GRP_MASK  (1<<BVIEW_BST_QUEUE_GRP_POS)
+
+
+
 /*****************************************************************//**
 * @brief : function to creathe the bst application thread.
 *
@@ -500,6 +528,8 @@ BVIEW_STATUS bst_app_main(void);
 *
 *********************************************************************/
 BVIEW_STATUS bst_app_config_init(unsigned int num_units);
+
+BVIEW_STATUS bst_cancel_request(unsigned int unit, unsigned int id);
 
        
 #ifdef __cplusplus

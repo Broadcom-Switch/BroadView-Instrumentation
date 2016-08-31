@@ -1,20 +1,21 @@
 /*****************************************************************************
-*
-* (C) Copyright Broadcom Corporation 2015
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-*
-* You may obtain a copy of the License at
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-***************************************************************************/
+  *
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  *
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ***************************************************************************/
 
 #ifndef INCLUDE_PTAPP_H
 #define	INCLUDE_PTAPP_H
@@ -102,6 +103,9 @@ typedef enum _ptapp_json_method_ {
     PTAPP_JSON_GET_PACKET_TRACE_PROFILE,
     PTAPP_JSON_GET_PACKET_TRACE_LAG_RESOLUTION,
     PTAPP_JSON_GET_PACKET_TRACE_ECMP_RESOLUTION,
+    PTAPP_JSON_GET_LIVE_PACKET_TRACE_PROFILE,
+    PTAPP_JSON_GET_LIVE_PACKET_TRACE_LAG_RESOLUTION,
+    PTAPP_JSON_GET_LIVE_PACKET_TRACE_ECMP_RESOLUTION,
 #ifdef DROP_REASON_SUPPORTED
     PTAPP_JSON_GET_PACKET_TRACE_DROP_REASON,
     PTAPP_JSON_GET_PACKET_TRACE_DROP_COUNTER_REPORT,
@@ -153,6 +157,7 @@ int config_pt_feature(char *jsonFrmt, char *finalJsonBuf);
 int get_pt_feature(char *jsonFrmt, char *finalJsonBuf);
 
 int get_pt_profile(char *jsonFrmt, char *finalJsonBuf);
+int get_live_pt_profile(char *jsonFrmt, char *finalJsonBuf);
 
 int cancel_pt_profile_request(char *jsonFrmt, char *finalJsonBuf);
 

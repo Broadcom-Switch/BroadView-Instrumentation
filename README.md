@@ -1,6 +1,6 @@
 BroadView
 ======
-BroadView 2.0.4.3 Switch Specification and Software
+BroadView Switch Specification and Software
 
 Overview
 ========

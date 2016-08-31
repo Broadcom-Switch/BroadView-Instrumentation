@@ -8,7 +8,8 @@
  */
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -33,15 +34,33 @@ extern "C"
 #endif
 
 #include "broadview.h"
+#include "asic.h"
 #include "sbplugin.h"
+#include "port_utils.h"
 
 #define     BVIEW_PT_MAX_PACKET_SIZE                1558 
+
+/* maximum allowed wild cards */
+#define BVIEW_PT_MAX_WC 3
+#define BVIEW_PT_MIN_PROTOCOL 0
+#define BVIEW_PT_MAX_PROTOCOL 144
+
+#define BVIEW_PT_MIN_SRC_PORT 0
+#define BVIEW_PT_MAX_SRC_PORT 65535
+
+#define BVIEW_PT_MIN_DST_PORT 0
+#define BVIEW_PT_MAX_DST_PORT 65535
+
+#define BVIEW_PT_MIN_PACKET_LIMIT 1
+#define BVIEW_PT_MAX_PACKET_LIMIT 10
+
+
 
 /* Packet Including Checksum*/
 typedef struct
 {
   unsigned char     data[BVIEW_PT_MAX_PACKET_SIZE];
-  unsigned int      pkt_len;
+  unsigned int      pkt_len; 
 } BVIEW_PT_PACKET_t;
 
 
@@ -137,19 +156,6 @@ typedef BVIEW_STATUS(*BVIEW_PT_TRIGGER_CALLBACK_t) (int asic,
         void *cookie,
         BVIEW_PT_DROP_REASON_DATA_t dropReasonData);
 
-/* Base type for declarations */
-#define     BVIEW_MASK_BASE_UNIT     unsigned int
-#define     BVIEW_MASKWID            (8*sizeof(BVIEW_MASK_BASE_UNIT)) 
-
-/* (internal) Number of BVIEW_MASK_BASE_UNITs needed to contain _max bits */
-#define     BVIEW_MASK_SIZE(_max)    (((_max) + BVIEW_MASKWID - 1) / BVIEW_MASKWID)
-
-/* Interface storage */
-typedef struct
-{
-  BVIEW_MASK_BASE_UNIT   value[BVIEW_MASK_SIZE(BVIEW_ASIC_MAX_PORTS)];
-} BVIEW_PORT_MASK_t;
-
 
 typedef struct
 {
@@ -179,15 +185,17 @@ typedef struct _pt_drop_reason_config_
 
 typedef enum _bview_pt_hashing_info_mask_
 {
-  BVIEW_PT_NO_HASHING_RESOLUTION,
+  BVIEW_PT_NO_HASHING_RESOLUTION = 1<<0,
   /* level 1 ecmp hashing resolution done */
-  BVIEW_PT_ECMP_1_RESOLUTION,
+  BVIEW_PT_ECMP_1_RESOLUTION = 1<<1,
   /* level 2 ecmp hashing resolution done */
-  BVIEW_PT_ECMP_2_RESOLUTION,
+  BVIEW_PT_ECMP_2_RESOLUTION = 1<<2,
   /* trunk hashing resolution done*/
-  BVIEW_PT_TRUNK_RESOLUTION,
+  BVIEW_PT_TRUNK_RESOLUTION = 1<<3,
   /* hg trunk hashing resolution done*/
-  BVIEW_PT_FABRIC_TRUNK_RESOLUTION
+  BVIEW_PT_FABRIC_TRUNK_RESOLUTION = 1<<4,
+  /* Destination port resolution done */
+  BVIEW_PT_DGPP_RESOLUTION = 1 <<5
 } BVIEW_PT_HASHING_INFO_MASK_t; 
 
 
@@ -218,6 +226,8 @@ typedef struct _bview_ecmp_lag_hashing_info_
   BVIEW_ECMP_MEMBER_t ecmp_egress_info;
 } BVIEW_PT_ECMP_HASHING_INFO_t;
 
+#define                  PKT_TRACE_ECMP_1_INDEX     0
+#define                  PKT_TRACE_ECMP_2_INDEX     1
 #define                  BVIEW_ECMP_MAX_LEVEL          2
 
 
@@ -318,8 +328,30 @@ typedef struct  _pt_trace_profile_
     BVIEW_PT_HASHING_INFO_t    hashingInfo;
     /* packet trace ingress stp state */
     BVIEW_PT_STP_STATE_t       stpState;
-
+    /* Mask of destination ports*/ 
+    BVIEW_PORT_MASK_t               destPortMask;
 } BVIEW_PT_TRACE_PROFILE_t;
+
+
+
+typedef enum _pt_config_tuple_mask_ {
+  PT_CONFIG_TUPLE_SRC_IP = (1 << 0),
+  PT_CONFIG_TUPLE_DST_IP = (1 << 1),
+  PT_CONFIG_TUPLE_PROTOCOL = (1 << 2),
+  PT_CONFIG_TUPLE_SRC_PORT = (1 << 3),
+  PT_CONFIG_TUPLE_DST_PORT = (1 << 4)
+}PT_CONFIG_TUPLE_MASK_t;
+
+/* 5-tuple information place holder */
+typedef struct _pt_5_tuple_params_s_
+{
+  unsigned int src_ip;
+  unsigned int dst_ip;
+  unsigned int protocol;
+  unsigned int src_port;
+  unsigned int dst_port;
+  unsigned int tuple_mask;
+}PT_5_TUPLE_PARAMS_t;
 
 
 #ifdef __cplusplus

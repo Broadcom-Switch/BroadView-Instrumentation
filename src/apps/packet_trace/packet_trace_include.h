@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -37,15 +38,12 @@ extern "C" {
 /* Default values for PT configurations */
   /* default  packet trace settings */
 #define BVIEW_PT_DEFAULT_ENABLE    true  
-#define BVIEW_PT_MAX_PROFILE_REQUESTS 5
 
 #define BVIEW_PT_MAX_UNITS  3
 
 
   /* Maximum number of failed Receive messages */
 #define BVIEW_PT_MAX_QUEUE_SEND_FAILS      10
-
-
   /* packet trace command enums */
   typedef enum _pt_cmd_ {
     /* Set group */
@@ -58,10 +56,22 @@ extern "C" {
     BVIEW_PT_CMD_API_GET_TRACE_PROFILE,
     BVIEW_PT_CMD_API_GET_LAG_RESOLUTION,
     BVIEW_PT_CMD_API_GET_ECMP_RESOLUTION,
+    BVIEW_PT_CMD_API_MATCH_PKT_RCVD,
     BVIEW_PT_CMD_API_MAX
   }BVIEW_FEATURE_PT_CMD_API_t;
 
 
+  typedef struct _pt_trace_pkt_profile_s
+  {
+    BVIEW_PT_PACKET_t packet;
+  }PT_PKT_PROFILE_t;
+
+  typedef struct _pt_trace_5_tuple_s
+  {
+    PT_5_TUPLE_PARAMS_t tpl;
+    int rcvd_pkts;
+    int pkt_limit;
+  }PT_5_TUPLE_t;
   typedef struct _pt_trace_profile_s
   {
     bool in_use;
@@ -69,10 +79,14 @@ extern "C" {
     int collection_interval;
     BVIEW_PORT_MASK_t port_list;
     bool drop_packet;
-    BVIEW_PT_PACKET_t packet;
     long type;
+    unsigned int req_method;
+    union
+    {
+      PT_PKT_PROFILE_t pcap;
+      PT_5_TUPLE_t tuple;
+    }prfl;
   }PT_PROFILE_t;
-
 
   typedef struct _pt_cfg_data_s
   {
@@ -87,6 +101,10 @@ extern "C" {
   {
     int id;
     BVIEW_TIME_t tv;
+    BVIEW_TIME_t cpu_tv;
+    BVIEW_TIME_t ingress_tv;
+    BVIEW_TIME_t egress_tv;
+    PT_PACKET_PARAMS_t rcvd_pkt;
     BVIEW_PORT_MASK_t port_list;
     BVIEW_PT_TRACE_PROFILE_t profile[BVIEW_ASIC_MAX_PORTS];
   } BVIEW_PT_PROFILE_RECORD_t;
@@ -97,6 +115,7 @@ extern "C" {
    int unit;
    int index;
    long msg_type;
+   int req_method;
  }BVIEW_PT_TIMER_CONTEXT_t; 
 
   typedef struct _pt_timer_s_ {
@@ -139,6 +158,9 @@ extern "C" {
   {
       bool report_lag_ecmp;
       bool report_lag;
+      bool ig_tv_present;
+      bool eg_tv_present;
+      PT_PROFILE_INPUT_t req_method;
   } PTJSON_REPORT_OPTIONS_t;
 
 
@@ -187,6 +209,8 @@ extern "C" {
     /* pthread ID*/
     pthread_t pt_thread;
 
+    /* PT packet multiplexer hook */
+    pktMuxRegister_t pt_pkt_mux_hook;
   } BVIEW_PT_CXT_t;
 
 
@@ -311,6 +335,37 @@ BVIEW_STATUS pt_periodic_collection_cb (union sigval sigval);
   *
   *********************************************************************/
 BVIEW_STATUS pt_send_request (BVIEW_PT_REQUEST_MSG_t * msg_data);
+/*********************************************************************
+* @brief : function to collect trace profile for 5 tuple 
+*
+* @param[in] msg_data : pointer to the pt message request.
+*
+* @retval  : BVIEW_STATUS_SUCCESS : successfully collected the trace profile
+* @retval  : BVIEW_STATUS_FAILURE : The trace profile collection has failed.
+* @retval  : BVIEW_STATUS_INVALID_PARAMETER : invalid parameter.
+*
+* @note : 
+*
+*********************************************************************/
+BVIEW_STATUS pt_trace_pkt_rcv_process(BVIEW_PT_REQUEST_MSG_t * msg_data);
+
+/*********************************************************************
+ * @brief   Packet trace packet multiplexer callback function
+ *
+ * @param    pkt_info_ptr @b{(input)} Pointer to packet info
+ *
+ * @returns  BVIEW_STATUS_SUCCESS    if packet data is valid and posted
+ *                                   pkt info to packet trace app
+ * @returns  BVIEW_STATUS_FAILURE    if packet data is invalid and failed
+ *                                   to post to 
+ *                                  
+ *
+ * @notes    This function sends the packet and its info to packet trace 
+ *                 application through message queue
+ *
+ * @end
+ *********************************************************************/
+BVIEW_STATUS pt_pkt_mux_cb(BVIEW_PACKET_MSG_t *pkt_info_ptr);
 
 
 #ifdef __cplusplus

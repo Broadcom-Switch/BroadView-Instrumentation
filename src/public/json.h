@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -157,7 +158,40 @@ extern "C"
             return BVIEW_STATUS_INVALID_JSON; \
     } \
     } while(0)
+
+
+ #define JSON_LAG_MAP_TO_NOTATION(_port, _asic, _portStr) do { \
+    BVIEW_STATUS rv = sbapi_system_lag_translate_to_notation((_asic), (int)(_port), (_portStr)); \
+    if (rv != BVIEW_STATUS_SUCCESS) { \
+            _jsonlog("The lag can't be converted to external notation %d ", (int)(_port)); \
+            return BVIEW_STATUS_INVALID_JSON; \
+    } \
+    } while(0)
     
+   
+#define _BVIEW_JSONENCODE_COPY_FORMATTED_STRING_AND_ADVANCE(actLen, dst, len, lenptr, format, args...) \
+    do { \
+            int xtemp = *(lenptr); \
+            (actLen) = snprintf((dst), (len), format, ##args); \
+            *(lenptr) = (xtemp) + (actLen); \
+            if ( (len) == (actLen)) { \
+                        /* Out of buffer here */ \
+                        _jsonlog("(%s:%d) Out of Json memory while encoding \n", __func__, __LINE__); \
+                        return BVIEW_STATUS_OUTOFMEMORY; \
+                    } \
+            (dst) += (actLen); \
+            (len) -= (actLen); \
+        } while(0)
+
+
+#define BVIEW_COMPARE_WILDCARD(_str,y)  do { \
+    if (0 == strncmp("any", _str, strlen(_str))) { \
+    y = true; \
+    } \
+}while(0)
+
+
+ 
 #ifdef __cplusplus
 }
 #endif

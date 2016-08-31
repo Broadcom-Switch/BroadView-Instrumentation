@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -16,19 +17,39 @@
   *
   ***************************************************************************/
 
+#include "feature.h"
 #include "sbplugin.h"
+#ifdef FEAT_BST
 #include "sbplugin_common_bst.h"
+#endif
+#ifdef FEAT_BHD
+#include "sbplugin_common_bhd.h"
+#endif
 #include "sbplugin_common_system.h"
+#ifdef FEAT_PT
 #include "sbplugin_common_packet_trace.h"
+#endif
 #include "sbplugin_common.h"
 #include "sb_redirector_api.h"
 
+#ifdef FEAT_BHD
+/* BHD feature data structure*/
+BVIEW_SB_BHD_FEATURE_t      bcmBhd;
+#endif
+
+#ifdef FEAT_BST
 /* BST feature data structure*/
 BVIEW_SB_BST_FEATURE_t       bcmBst;
+#endif
+
 /* SYSTEM feature data structure*/
 BVIEW_SB_SYSTEM_FEATURE_t    bcmSystem;
+
+#ifdef FEAT_PT
 /* Packet Trace feature data structure*/
 BVIEW_SB_PT_FEATURE_t       bcmPT;
+#endif
+
 /* SB Plugin data structure*/
 BVIEW_SB_PLUGIN_t sbPlugin;
 
@@ -64,6 +85,7 @@ BVIEW_STATUS  sbplugin_common_init ()
   sbPlugin.numSupportedFeatures++;
   featureIndex++;
 
+#ifdef FEAT_BST
   /* Init BST feature*/  
   rv = sbplugin_common_bst_init (&bcmBst);
   if (rv != BVIEW_STATUS_SUCCESS)
@@ -75,7 +97,9 @@ BVIEW_STATUS  sbplugin_common_init ()
   sbPlugin.numSupportedFeatures++;
   bcmSystem.featureMask |= BVIEW_FEATURE_BST; 
   featureIndex++;
+#endif
 
+#ifdef FEAT_PT
   /* Init Packet Trace Feature*/
   rv = sbplugin_common_packet_trace_init (&bcmPT);
   if (rv != BVIEW_STATUS_SUCCESS)
@@ -85,7 +109,23 @@ BVIEW_STATUS  sbplugin_common_init ()
   }
   sbPlugin.featureList[featureIndex] = (BVIEW_SB_FEATURE_t *)&bcmPT;
   sbPlugin.numSupportedFeatures++;
-  bcmSystem.featureMask |= BVIEW_FEATURE_PACKET_TRACE; 
+  bcmSystem.featureMask |= (BVIEW_FEATURE_PACKET_TRACE | BVIEW_FEATURE_LIVE_PT);
+  featureIndex++;
+#endif
+
+#ifdef FEAT_BHD
+  /* Init BHD feature*/
+  rv = sbplugin_common_bhd_init (&bcmBhd);
+  if (rv != BVIEW_STATUS_SUCCESS)
+  {
+    SB_LOG (BVIEW_LOG_ERROR,"Failed to Intialize BHD feature");
+    return rv;
+  }
+  sbPlugin.featureList[featureIndex] = (BVIEW_SB_FEATURE_t *)&bcmBhd;
+  sbPlugin.numSupportedFeatures++;
+  bcmSystem.featureMask |= BVIEW_FEATURE_BHD;
+#endif
+   
   /* Register plugin to the sb-redirector*/
   rv = sb_plugin_register (sbPlugin);
   if (rv != BVIEW_STATUS_SUCCESS)

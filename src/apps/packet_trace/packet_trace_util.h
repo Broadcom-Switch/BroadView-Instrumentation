@@ -1,20 +1,21 @@
 /*****************************************************************************
- *
- * (C) Copyright Broadcom Corporation 2015
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- ***************************************************************************/
+  *
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  *
+  * You may obtain a copy of the License at
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  *
+  ***************************************************************************/
 
 #ifndef INCLUDE_PACKET_TRACE_UTIL_H
 #define INCLUDE_PACKET_TRACE_UTIL_H
@@ -125,7 +126,7 @@ extern "C" {
     }                                                    \
   };                                                           \
 }
-
+#if 0
 /* FLMASKBIT finds the index of the least-significant bit turned-on in
    mask j and returns that index in k.  Since this is a 1-based
    mask, 0 is returned for "no bits set". */
@@ -149,7 +150,7 @@ extern "C" {
       }                                                    \
   };                                                           \
 }
-
+#endif
 /*  Byte swap unsigned short */
 #define BVIEW_SWAP_UINT16(_val_)  ((_val_ << 8) | (_val_ >> 8 ))
 /*  Byte swap unsigned short */
@@ -225,8 +226,8 @@ extern "C" {
   BVIEW_PORT_MASK_t _temp_mask__;\
   char _temp_buf__[PT_MAX_RANGE_STR_LEN] = {0};\
 \
-  unsigned int _start, _end, _length, _ii=0, match = 0;\
-  char *_str_ptr = NULL;\
+  int _start, _end, _length = 0, _ii=0;\
+  char *_str_ptr = NULL, *_end_ptr = NULL;\
   char *_ptr = NULL;\
 \
   _length = strlen(_buf);\
@@ -241,55 +242,35 @@ extern "C" {
     return BVIEW_STATUS_INVALID_PARAMETER;\
   }\
 \
-  for (_ii = 0; _ii < _length; _ii++)\
-  {\
-    if (!(isdigit(_temp_buf__[_ii]) || ('-' == _temp_buf__[_ii]) || (',' == _temp_buf__[_ii])))\
-    {\
-      return BVIEW_STATUS_INVALID_PARAMETER;\
-    }\
-  }\
-\
   _ptr = strtok_r (_temp_buf__, ",", &(_str_ptr));\
 \
   memset(&_temp_mask__, 0, sizeof(BVIEW_PORT_MASK_t));\
 \
   while (NULL != _ptr)\
   {\
-    match = sscanf (_ptr, "%d-%d", &_start, &_end);\
-    if (1 == match)\
+    _end_ptr =  strstr(_ptr, "-");\
+     if (NULL != _end_ptr)\
     {\
-      /* check that a trailing - is not present */ \
-\
-      if ('-' == _ptr[strlen(_ptr)-1])\
+       JSON_PORT_MAP_FROM_NOTATION(_start, _ptr);\
+       _end_ptr++;\
+       JSON_PORT_MAP_FROM_NOTATION(_end, _end_ptr);\
+     }\
+     else\
       {\
-        return BVIEW_STATUS_INVALID_PARAMETER;\
+       JSON_PORT_MAP_FROM_NOTATION(_start, _ptr);\
+      _end = _start;\
       }\
-\
-      if (_start > BVIEW_ASIC_MAX_PORTS)\
+      if ((_start > BVIEW_ASIC_MAX_PORTS) || \
+          (_end > BVIEW_ASIC_MAX_PORTS))\
         return BVIEW_STATUS_INVALID_PARAMETER;\
-\
-      BVIEW_SETMASKBIT(_temp_mask__, _start);\
-    }\
-    else if (2 == match)\
-    {\
       if (_start > _end )\
       {\
         return BVIEW_STATUS_INVALID_PARAMETER;\
       }\
-\
-      if ((_start > BVIEW_ASIC_MAX_PORTS) || \
-          (_end > BVIEW_ASIC_MAX_PORTS))\
-        return BVIEW_STATUS_INVALID_PARAMETER;\
-\
       for (_ii = _start; _ii <= _end; _ii++)\
       {\
         BVIEW_SETMASKBIT(_temp_mask__, _ii);\
       }\
-    }\
-    else\
-    {\
-      return BVIEW_STATUS_INVALID_PARAMETER;\
-    }\
     _ptr = strtok_r(NULL, ",", &_str_ptr);\
 \
     _start = 0;\

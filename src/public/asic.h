@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -68,7 +69,7 @@ typedef struct _capabilities_
         
 } BVIEW_ASIC_CAPABILITIES_t;
 
-
+#define BVIEW_MAX_QUEUES_PORT 8
 /** This structure defines an ASIC from an instrumentation perspective */
 typedef struct _bview_asic_
 {

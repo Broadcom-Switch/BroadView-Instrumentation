@@ -13,8 +13,11 @@ export LIBS_BSTAPP=$(MODULE).a
 
 OBJECTS_BSTAPP := $(patsubst %.c,%.o,$(wildcard *.c))
 
+$(OUT_BSTAPP)::
+	@echo Making BST EXAMPLE APP
+	@mkdir -p $(OUT_BSTAPP)
+
 $(OUT_BSTAPP)/%.o : %.c
-	@mkdir -p $(OUT_BSTAPP) 
 	$(CC) $(CFLAGS) -c  $< -o $@ 
 
 # target for .a 
@@ -23,13 +26,16 @@ $(OUT_BSTAPP)/$(LIBS_BSTAPP): $(patsubst %,$(OUT_BSTAPP)/%,$(subst :, ,$(OBJECTS
 #	@cd $(OUT_BSTAPP) && $(CC) $(CFLAGS) -L../ -L. -o $(MODULE) $(OBJECTS_BSTAPP) -lm -lcjson -lpthread
 
 #default target
-$(MODULE) all: $(OUT_BSTAPP)/$(LIBS_BSTAPP) 
+$(MODULE) all: $(OUT_BSTAPP) $(OUT_BSTAPP)/$(LIBS_BSTAPP) 
 	$(NOOP)
 
 clean-$(MODULE) clean: 
-	rm -rf $(OUT_BSTAPP)
+	@echo Cleaning BST EXAMPLE APP
+	@rm -f $(OUT_BSTAPP)/*.o $(OUT_BSTAPP)/*.a
+	@rmdir $(OUT_BSTAPP) 2>/dev/null; true
 
 #target to print all exported variables
 debug-$(MODULE) dump-variables: 
 	@echo "OUT_BSTAPP=$(OUT_BSTAPP)"
 	@echo "LIBS_BSTAPP=$(LIBS_BSTAPP)"
+	@echo "OBJECTS_BSTAPP=$(OBJECTS_BSTAPP)"

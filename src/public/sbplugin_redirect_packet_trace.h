@@ -8,7 +8,8 @@
  */
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -23,7 +24,8 @@
   * limitations under the License.
   *
   ***************************************************************************/
-
+#ifndef INCLUDE_SBPLUGIN_REDIRECT_PACKET_TRACE_H
+#define INCLUDE_SBPLUGIN_REDIRECT_PACKET_TRACE_H  
 /*#include "sbplugin_redirect.h"*/
 #include "sbfeature_packet_trace.h"
 #include "sbplugin_redirect_system.h"
@@ -202,3 +204,54 @@ BVIEW_STATUS sbapi_pt_clear_drop_reason_cb (int asic);
 BVIEW_STATUS sbapi_pt_register_trigger_cb (int asic,
                                          BVIEW_PT_TRIGGER_CALLBACK_t callback,
                                          void *cookie);
+
+/*********************************************************************
+* @brief  Create a 5 tuple profile/rule in HW to capture live traffic.
+*
+* @param[in]    asic              unit
+* @param[in]    request_id        request id of the profile
+* @param[in]    port_list         List of ports on which this rule has to be applied
+* @param[in]    tuple_params      5 tuple params
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or
+*                                     Not able to get asic type of this unit or
+*                                     Packet Trace feature is not present or
+*                                     Packet Trace south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Profile is created in HW
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Profile creation for this 5 tuple is
+*                                     not supported on this unit
+*
+*
+* @notes    none
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_pt_5_tuple_profile_create (int asic, int request_id,
+                                BVIEW_PORT_MASK_t *port_list, PT_5_TUPLE_PARAMS_t *tuple_params);
+
+/*********************************************************************
+* @brief  Delete 5 tuple profile/rule from HW.
+*
+* @param[in]    asic              unit
+* @param[in]    request_id        request id of the profile
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or
+*                                     Not able to get asic type of this unit or
+*                                     Packet Trace feature is not present or
+*                                     Packet Trace south bound function has returned failure
+*                                     Failed to delete 5 tuple rule
+*
+* @retval   BVIEW_STATUS_SUCCESS      Profile is deleted
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Profile deletion for this request id is
+*                                     not supported on this unit
+*
+*
+* @notes    none
+*
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_pt_5_tuple_profile_delete (int asic, int request_id);
+
+#endif

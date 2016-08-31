@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -15,6 +16,7 @@
   * limitations under the License.
   *
   ***************************************************************************/
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -719,7 +721,7 @@ void bstapp_config_init( BSTAPP_CONFIG_t *config)
     config->agentPort = BSTAPP_CONFIG_PROPERTY_AGENT_PORT_DEFAULT;
     config->localPort = BSTAPP_CONFIG_PROPERTY_LOCAL_PORT_DEFAULT;
     config->pollingInterval =  BSTAPP_CONFIG_PROPERTY_POLLING_INTERVAL_DEFAULT;
-
+    config->statType        = BSTAPP_CONFIG_PROPERTY_STAT_TYPE_DEFAULT;
 }
 
 int bstapp_server_main (void)
@@ -835,23 +837,45 @@ int  bstapp_communicate_with_agent(void *param)
             "Content-Length: %d\r\n"
             "\r\n";
 
-     char myjsonFormat[] = "{     \
-                \"jsonrpc\": \"2.0\", \
-                \"method\": \"configure-bst-feature\", \
-                \"asic-id\": \"1\", \
-                \"params\": { \
-                \"bst-enable\": 1, \
-                \"send-async-reports\": 1, \
-                \"collection-interval\": %d, \
-                \"stats-in-percentage\": 1 ,\
-                \"stat-units-in-cells\": 1 ,\
-                \"send-snapshot-on-trigger\": 1, \
-                \"trigger-rate-limit\": 2, \
-                \"trigger-rate-limit-interval\": 10, \
-                \"async-full-reports\": 1 \
+     char *myjsonFormat[] = { "{     \
+                       \"jsonrpc\": \"2.0\", \
+                       \"method\": \"configure-bst-feature\", \
+                       \"asic-id\": \"1\", \
+                       \"params\": { \
+                       \"bst-enable\": 1, \
+                       \"send-async-reports\": 1, \
+                       \"collection-interval\": %d, \
+                       \"stat-units-in-cells\": 1 ,\
+                       \"send-snapshot-on-trigger\": 1, \
+                       \"trigger-rate-limit\": 2, \
+                       \"trigger-rate-limit-interval\": 10, \
+                       \"async-full-reports\": 1, \
+                       \"stats-in-percentage\": %d\
                 }, \
                 \"id\": 1 \
-                }";
+                }",
+
+                "{   \
+                       \"jsonrpc\": \"2.0\", \
+                       \"method\": \"configure-bst-tracking\", \
+                       \"asic-id\": \"1\", \
+                       \"params\": { \
+                       \"track-peak-stats\" : 0, \
+                       \"track-ingress-port-priority-group\" : 1, \
+                       \"track-ingress-port-service-pool\" : 1,  \
+                       \"track-ingress-service-pool\" : 1, \
+                       \"track-egress-port-service-pool\" : 1, \
+                       \"track-egress-service-pool\" : 1, \
+                       \"track-egress-uc-queue\" : 1, \
+                       \"track-egress-uc-queue-group\" : 1, \
+                       \"track-egress-mc-queue\" : 1, \
+                       \"track-egress-cpu-queue\" : 1, \
+                       \"track-egress-rqe-queue\" : 1, \
+                       \"track-device\" : 1 \
+                       }, \
+                       \"id\": 2 \
+                 }"
+              };
 
     char myjson[BSTAPP_MAX_JSON_LEN] = { 0 };
     char sendBuf[BSTAPP_MAX_HTTP_BUFFER_LENGTH] = { 0 };
@@ -860,15 +884,29 @@ int  bstapp_communicate_with_agent(void *param)
     int temp = 0;
     char report[BSTAPP_MAX_BUFFER_LEN]  = {0};
     char *buff = &report[0];
+    int total_num_of_jsons = 2;
+    int current_json_num  = 1;
 
     _BSTAPP_ASSERT(config != NULL);
 
-    sprintf(myjson, myjsonFormat, config->pollingInterval);
-
-    memset(sendBuf, 0, sizeof (sendBuf));
-    snprintf(sendBuf, BSTAPP_MAX_HTTP_BUFFER_LENGTH, header, strlen(myjson)); 
-    for (; ;)
+    while (current_json_num <= total_num_of_jsons)
     {
+      memset(myjson, 0, sizeof (myjson));
+      if (current_json_num == 1)
+      {
+        sprintf(myjson, myjsonFormat[current_json_num-1], config->pollingInterval,
+                          ((config->statType == BSTAPP_STAT_TYPE_ABSOLUTE)? 0 : 1)) ;
+      }
+      else if (current_json_num == 2)
+      {
+        sprintf(myjson, myjsonFormat[current_json_num-1]);
+      }
+
+      current_json_num++;
+      memset(sendBuf, 0, sizeof (sendBuf));
+      snprintf(sendBuf, BSTAPP_MAX_HTTP_BUFFER_LENGTH, header, strlen(myjson));
+      for (; ;)
+      {
         /* create socket to send data to */
         clientFd = socket(AF_INET, SOCK_STREAM, 0);
         if (clientFd == -1) {
@@ -909,6 +947,7 @@ int  bstapp_communicate_with_agent(void *param)
          read_from_client(clientFd, buff);
          close(clientFd);
          break;
+      }
     }
     return 0;
 }
@@ -956,7 +995,7 @@ int  bstapp_communicate_with_agent(void *param)
      * i.e., doesn't contain valid tokens, return error
      */
 
-    while (numLinesRead < 4)
+    while (numLinesRead < 5)
     {
         memset (&line[0], 0, _BSTAPP_CONFIGFILE_LINE_MAX_LEN);
 
@@ -1028,6 +1067,19 @@ int  bstapp_communicate_with_agent(void *param)
             config->pollingInterval = temp;
             continue;
         }
+
+        /* Is this token the bst app stat type?*/
+        if (strcmp(property, BSTAPP_CONFIG_PROPERTY_STAT_TYPE) == 0)
+        {
+           /* is this port number valid ? */
+           temp = strtol(value, NULL, 10);
+           _BSTAPP_ASSERT_CONFIG_FILE_ERROR( errno != ERANGE);
+
+           /* copy the agent port number */
+           config->statType = temp;
+           continue;
+        }
+
         /* unknown property */
          debug_msg("BSTAPP : Unknown property in configuration file : %s \n",
                     property);

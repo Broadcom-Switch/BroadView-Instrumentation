@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -26,6 +27,7 @@ extern "C"
 
 #include "broadview.h"
 #include "sbplugin.h"
+#include "system.h"
 
     /** The System Southbound Feature Definition */
 
@@ -68,6 +70,23 @@ extern "C"
  
         /** Get network OS*/
         BVIEW_STATUS(*system_network_os_get_cb) (uint8_t *buffer, int length);        
+
+        /** Obtain System UID */
+        BVIEW_STATUS(*system_uid_get_cb)(uint8_t *buffer, int length);
+
+        /** Get lag String from lag Number*/
+        BVIEW_STATUS(*system_lag_translate_to_notation_cb) (int asic, int port, char *dst);        
+
+        /** Get snapshot of max buffers allocated  */
+	    BVIEW_STATUS(*system_max_buf_snapshot_get_cb)(int asic, 
+                      BVIEW_SYSTEM_ASIC_MAX_BUF_SNAPSHOT_DATA_t *maxBufSnapshot,
+                      BVIEW_TIME_t * time);
+
+        /** Register for CPU packets*/
+        BVIEW_STATUS(*system_packet_rx_register_cb)(int asic,
+                      BVIEW_PACKET_RX_CALLBACK_t callback,
+                      char *name,
+                      void *cookie);
 
     } BVIEW_SB_SYSTEM_FEATURE_t;
 

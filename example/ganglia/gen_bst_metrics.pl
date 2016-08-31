@@ -15,7 +15,10 @@ my $gmondSrcConfFile = "gmond_src.conf";
 my $gmondDestConfFile = "./gmond_dest.conf";
 my $poll_interval = 2;
 my $threshold_time = 5;
-my $mygraph_title = "Buffers Consumed";
+my $metric_type_absolute = "absolute";
+my $metric_type_percentage = "percentage";
+my $mygraph_title_percentage = "% of Buffers Consumed";
+my $mygraph_title_absolute = "Buffers Consumed";
 
 
 my $myjson;
@@ -44,11 +47,18 @@ sub genDefaultJsonRep
 
 sub genBstJsonRep
 {
-    my $jSONStrStart = "{\"report_name\" : \"$bstReportFile\", \"report_type\" : \"standard\", \"title\" : \"BST STATS\", \"vertical_label\" : \"$mygraph_title\", \"series\" : [";
-    my $jSONStrEnd = ']}';
     my $myContent = "";
+    my $mygraph_title;
+    my $jSONStrStart;
+    my $jSONStrEnd; 
 
-    
+    $mygraph_title = (($json_object->{metric_type} eq $metric_type_absolute)? $mygraph_title_absolute: $mygraph_title_percentage);
+
+    $jSONStrStart = "{\"report_name\" : \"$bstReportFile\", \"report_type\" : \"standard\", \"title\" : \"BST STATS\", \"vertical_label\" : \"$mygraph_title\", \"series\" : [";
+
+    $jSONStrEnd = ']}';
+ 
+
     open(OUT, ">$bstReportFileName") || die "Couldn't open $bstReportFileName: $!";
 
     print OUT $jSONStrStart;

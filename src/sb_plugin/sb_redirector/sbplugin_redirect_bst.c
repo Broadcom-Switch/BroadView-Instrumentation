@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -1904,27 +1905,30 @@ BVIEW_STATUS sbapi_bst_register_trigger (int asic,
 }
 
 
-/*********************************************************************
-* @brief       Get BST default buffer values 
+/************************************************************************
+* @brief  Get unicast congestion drop counter of a particular port-queue
+*                     combination       
+*           
 *
-* @param[in]     asic                  Unit number
-* @param[out]    snapshot              BST snapshot
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
 *
 * @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
 *                                     Not able to get asic type of this unit or
 *                                     BST feature is not present or
 *                                     BST south bound function has returned failure
 *
-* @retval   BVIEW_STATUS_SUCCESS      BST snapshot get is successful 
+* @retval   BVIEW_STATUS_SUCCESS      unicast congestion drop counter
+*                                     get is successful 
 *
-* @retval   BVIEW_STATUS_UNSUPPORTED  BST snapshot get functionality is 
+* @retval   BVIEW_STATUS_UNSUPPORTED  unicast congestion drop counter
+*                                     get functionality is 
 *                                     not supported on this unit
 *
-* @notes    none
-*
 *********************************************************************/
-BVIEW_STATUS sbapi_bst_default_snapshot_get (int asic,
-                                     BVIEW_BST_ASIC_SNAPSHOT_DATA_t * snapshot)
+BVIEW_STATUS sbapi_bst_port_ucast_cgs_drop_get(int asic, int port, int queue, uint64_t *dropCount)
 {
   BVIEW_SB_BST_FEATURE_t *bstFeaturePtr = NULL;
   BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
@@ -1950,18 +1954,142 @@ BVIEW_STATUS sbapi_bst_default_snapshot_get (int asic,
   if (bstFeaturePtr == NULL)
   {
     rv = BVIEW_STATUS_FAILURE;
-  }  
-  else if (bstFeaturePtr->bst_default_snapshot_get_cb == NULL)
+  }                
+  else if (bstFeaturePtr->bst_port_ucast_cgs_drop_get_cb == NULL)
   {
     rv = BVIEW_STATUS_UNSUPPORTED;
   }
   else
-  { 
-    rv = bstFeaturePtr->bst_default_snapshot_get_cb (asic, snapshot);
+  {                              
+    rv = bstFeaturePtr->bst_port_ucast_cgs_drop_get_cb (asic, port, queue, dropCount);
   }
   /* Release read lock */
   SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
   return rv;
 }
+/************************************************************************
+* @brief  Get multicast congestion drop counter of a particular port-queue
+*                     combination       
+*           
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[in]  queue                                  - Queue number
+* @param[out] dropCount                              - Drop counter value
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      multicast congestion drop counter
+*                                     get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  multicast congestion drop counter
+*                                     get functionality is 
+*                                     not supported on this unit
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_port_mcast_cgs_drop_get(int asic, int port, int queue, uint64_t *dropCount)
+{
+  BVIEW_SB_BST_FEATURE_t *bstFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType;
 
+  /* Get asic type of the unit */
+  if (sbapi_system_unit_to_asic_type_get (asic, &asicType) !=
+      BVIEW_STATUS_SUCCESS)
+  {
+    SB_REDIRECT_DEBUG_PRINT (BVIEW_LOG_ERROR,
+                             "(%s:%d) Failed to get asic type for unit %d \n",
+                             __FILE__, __LINE__, asic);
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+  /* Get best matching south bound feature functions based on Asic type */
+  bstFeaturePtr =
+    (BVIEW_SB_BST_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                               BVIEW_FEATURE_BST);
+  /* Validate feature pointer and south bound handler. 
+   * Call south bound handler                        */    
+  if (bstFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }                
+  else if (bstFeaturePtr->bst_port_mcast_cgs_drop_get_cb == NULL)
+  {
+    rv = BVIEW_STATUS_UNSUPPORTED;
+  }
+  else
+  {                              
+    rv = bstFeaturePtr->bst_port_mcast_cgs_drop_get_cb (asic, port, queue, dropCount);
+  }
+  /* Release read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+
+}
+
+
+/************************************************************************
+* @brief  Get Total congestion drop counter of a particular port
+*           
+*
+* @param[in]  asic                                   - unit
+* @param[in]  port                                   - port number
+* @param[out] dropCount                              - Drop counter value
+*
+* @retval   BVIEW_STATUS_FAILURE      Due to lock acquistion failure or 
+*                                     Not able to get asic type of this unit or
+*                                     BST feature is not present or
+*                                     BST south bound function has returned failure
+*
+* @retval   BVIEW_STATUS_SUCCESS      Total congestion drop counter
+*                                     get is successful 
+*
+* @retval   BVIEW_STATUS_UNSUPPORTED  Total congestion drop counter
+*                                     get functionality is 
+*                                     not supported on this unit
+*
+*********************************************************************/
+BVIEW_STATUS sbapi_bst_port_total_cgs_drop_get(int asic, int port, uint64_t *dropCount)
+{
+  BVIEW_SB_BST_FEATURE_t *bstFeaturePtr = NULL;
+  BVIEW_STATUS rv = BVIEW_STATUS_SUCCESS;
+  BVIEW_ASIC_TYPE asicType;
+
+  /* Get asic type of the unit */
+  if (sbapi_system_unit_to_asic_type_get (asic, &asicType) !=
+      BVIEW_STATUS_SUCCESS)
+  {
+    SB_REDIRECT_DEBUG_PRINT (BVIEW_LOG_ERROR,
+                             "(%s:%d) Failed to get asic type for unit %d \n",
+                             __FILE__, __LINE__, asic);
+    return BVIEW_STATUS_FAILURE;
+  }
+  /* Acquire Read lock */
+  SB_REDIRECT_RWLOCK_RD_LOCK (sbRedirectRWLock);
+  /* Get best matching south bound feature functions based on Asic type */
+  bstFeaturePtr =
+    (BVIEW_SB_BST_FEATURE_t *) sb_redirect_feature_handle_get (asicType,
+                                                               BVIEW_FEATURE_BST);
+  /* Validate feature pointer and south bound handler. 
+   * Call south bound handler                        */    
+  if (bstFeaturePtr == NULL)
+  {
+    rv = BVIEW_STATUS_FAILURE;
+  }                
+  else if (bstFeaturePtr->bst_port_total_cgs_drop_get_cb == NULL)
+  {
+    rv = BVIEW_STATUS_UNSUPPORTED;
+  }
+  else
+  {                              
+    rv = bstFeaturePtr->bst_port_total_cgs_drop_get_cb (asic, port, dropCount);
+  }
+  /* Release read lock */
+  SB_REDIRECT_RWLOCK_UNLOCK (sbRedirectRWLock);
+  return rv;
+}
 

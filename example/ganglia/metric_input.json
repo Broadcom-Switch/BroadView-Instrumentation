@@ -1,4 +1,5 @@
 {
+   "metric_type": "absolute",
    "metricinfo" : [
       { "metric": "bst_device_data_NONE_NONE", "shortname": "DeviceStat", "color": "33cccc"},
       { "metric": "bst_ingress-port-priority-group_um-share-buffer-count_37_7", "shortname": "ippg_umhb_37_7", "color": "335555"},

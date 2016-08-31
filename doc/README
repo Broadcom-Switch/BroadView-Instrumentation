@@ -1,16 +1,24 @@
 BroadView
 =========
 
-For documentation please open http://Broadcom-Switch.github.io/BroadView-Instrumentation/doc/html/index.html. Note: opening the files in the html
-directory directly from github.com will display HTML, use the github.io link
-to view rendered HTML.
+BroadView Reference Agent software release 3.0.2.2 follow BroadView Instrumentation Agent Specification, Revision 3. BroadView Instrumentation Agent Specification contains documentation for:
 
-This contains documentation for:
+  - Information on the BroadView API including a reference of the BroadView
+    API functions and example on how they use the BroadView API.
+
+The deviations in the BroadView Reference Agent from BroadView Instrumentation Agent Specification, Revision 3 is mentioned below:
+
+  - cancel_request API to stop previously initiated periodic reporting command in Packet Trace and Black Hole Detection features is not supported.
+  - configure-black-hole-detection-feature and get-black-hole-detection-feature API to configure or obtain BHD parameters are not supported. Instead, use the command black-hole-detection-enable and get-black-hole-detection-enable.
+
+For BroadView Reference Agent documentation, please open http://Broadcom-Switch.github.io/BroadView-Instrumentation/doc/html/index.html.
+
+Note: opening the files in the html directory directly from github.com will display HTML, use the github.io link to view rendered HTML.
+
+This link contains documentation for:
 
   - Overview of BroadView with information necessary for installing and
     configuring the environment.
-  - Information on the BroadView API including a reference of the BroadView
-    API functions and example on how they use the BroadView API.
 
 Broadcom Corporation
 5300 California Avenue

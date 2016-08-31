@@ -1,20 +1,21 @@
 #
 #/*****************************************************************************
-#*
-#* (C) Copyright Broadcom Corporation 2015
-#*
-#* Licensed under the Apache License, Version 2.0 (the "License");
-#* you may not use this file except in compliance with the License.
-#*
-#* You may obtain a copy of the License at
-#* http://www.apache.org/licenses/LICENSE-2.0
-#*
-#* Unless required by applicable law or agreed to in writing, software
-#* distributed under the License is distributed on an "AS IS" BASIS,
-#* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#* See the License for the specific language governing permissions and
-#* limitations under the License.
-#*
+#
+# Copyright © 2016 Broadcom.  The term "Broadcom" refers
+# to Broadcom Limited and/or its subsidiaries.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+#
+# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 #***************************************************************************/
 
 #
@@ -69,12 +70,26 @@ ifneq ($(OUTPATH),)
 endif
 export OUTPATH :=
 
-RELEASE_FILE = $(abspath $(OPENAPPS_BASE)/RELEASE)
+ifeq ($(TARGETOS_VARIANT),wrl_2.0)
+export CFLAGS += -Wa,-me500 -ffixed-r2 -fno-common -fno-strict-aliasing -fomit-frame-pointer -funit-at-a-time -m32 -mmultiple -mno-altivec -mno-spe -msoft-float
+
+ifeq ($(SYSROOT_PATH),)
+   SYSROOT_PATH = $(dir $(CROSS_COMPILE))../sysroot/
+endif
+
+export CFLAGS += -B$(SYSROOT_PATH)lib
+export CFLAGS += -B$(SYSROOT_PATH)usr/lib
+export CFLAGS += --sysroot=$(SYSROOT_PATH)
+
+export CFLAGS += -fPIC -mlongcall
+
+endif
+
 OPENAPPS_RELEASE = broadview-$(BCM_REL_NUM).$(BCM_VER_NUM).$(BCM_MAINT_NUM).$(BCM_BUILD_NUM)
 OPENAPPS_RELEASE_NUMBER = $(BCM_REL_NUM)$(BCM_VER_NUM)$(BCM_MAINT_NUM)$(BCM_BUILD_NUM)
 
 ifeq ($(CPU_BASE_DIR),)
-   CPU_BASE_DIR = $(abspath $(OPENAPPS_BASE)/platform/cpu/)
+   CPU_BASE_DIR = $(abspath $(OPENAPPS_BASE)/Internal/platform/cpu/)
 endif
 export CPU_BASE_DIR
 
@@ -137,7 +152,10 @@ export sb_plugin_target
 export SDK_LOCAL
 export bst_ref_app_name=BroadViewBstApp
 export pt_ref_app_name=BroadViewPacketTraceApp
+export bhd_ref_app_name=BroadViewBhdApp
 export vend_cjson_name=vend_cjson.a
+export vend_libxml2_name=vend_libxml2.a
+export libsystem_name=system.a
 export example_cfg_app_name=ExampleCfgApp
 
 
@@ -203,16 +221,23 @@ outpath_relative = $(shell $(OPENAPPS_BASE)/tools/relativepath $(OPENAPPS_BASE) 
 
 #Include files if present
 include $(OPENAPPS_BASE)/tools/Make.common.platform
--include $(OPENAPPS_BASE)/tools/Make.common.local
--include $(OPENAPPS_BASE)/tools/Make.common.sdk
--include $(OPENAPPS_BASE)/tools/Make.common.opennsl
--include $(OPENAPPS_BASE)/tools/Make.common.ovsdb
+-include $(OPENAPPS_BASE)/Internal/tools/Make.common.local
+ifeq ($(SBPLUGIN),sdk)
+  -include $(OPENAPPS_BASE)/tools/Make.common.sdk
+endif
+ifeq ($(SBPLUGIN),opennsl)
+  -include $(OPENAPPS_BASE)/tools/Make.common.opennsl
+endif
+ifeq ($(SBPLUGIN),ovsdb)
+  -include $(OPENAPPS_BASE)/tools/Make.common.ovsdb
+endif
 
 export infra_target
 infra_target += \
 	log \
 	rest \
 	modulemgr \
+	pktmux \
 	openappsdoc 
 
 
@@ -251,11 +276,21 @@ endif
 
 ifeq ($(PLATFORM), s6000)
    export CFLAGS += -DBVIEW_CHIP_TD2
+   export CFLAGS += -DBVIEW_CHIP_PLAT_S6000
+endif
+
+ifeq ($(PLATFORM), qm_svk)
+    export CFLAGS += -DBVIEW_CHIP_QUMRAN
+endif
+
+ifdef BST_DEBUG_METRICS
+    export CFLAGS += -DBST_DEBUG_METRICS
 endif
 
 ifneq (,$(filter vendor_init,$(COMPONENTS)))
    vend_target += vendorinit
-    ref_app_target += examplecfgapp
+   ref_app_target += examplecfgapp
+   del_target += clean-vendorinit clean-examplecfgapp
 endif
 
 ifneq (,$(filter bst,$(COMPONENTS)))
@@ -263,13 +298,26 @@ ifneq (,$(filter bst,$(COMPONENTS)))
     agent_app_target += bst
     ref_app_target += bviewbstapp
     app_arc += $(OPENAPPS_OUTPATH)/bst/bst.a
+
+    del_target += clean-bst clean-bviewbstapp
 endif
 
 ifneq (,$(filter pt,$(COMPONENTS)))
-    app_target += packet_trace
-    agent_app_target += packet_trace
+    app_target += packettrace
+    agent_app_target += packettrace
     ref_app_target += bviewpackettraceapp
     app_arc += $(OPENAPPS_OUTPATH)/packet_trace/packet_trace.a
+
+    del_target += clean-packettrace clean-bviewpackettraceapp
+endif
+
+ifneq (,$(filter bhd,$(COMPONENTS)))
+    app_target += bhd
+    agent_app_target += bhd
+    ref_app_target += bviewbhdapp
+    app_arc += $(OPENAPPS_OUTPATH)/bhd/bhd.a
+
+    del_target += clean-bhd clean-bviewbhdapp
 endif
 
 ifneq ($(TARGETOS_VARIANT),wrl_2.0)
@@ -283,6 +331,7 @@ static_lib += \
 	$(OPENAPPS_OUTPATH)/log/log.a \
 	$(OPENAPPS_OUTPATH)/system/system.a \
 	$(OPENAPPS_OUTPATH)/modulemgr/modulemgr.a \
+	$(OPENAPPS_OUTPATH)/pktmux/pktmux.a \
 	$(OPENAPPS_OUTPATH)/sbredirector/sbredirector.a \
 	$(OPENAPPS_OUTPATH)/vend_cjson/$(vend_cjson_name) \
 	$(OPENAPPS_OUTPATH)/rest/rest.a \
@@ -301,9 +350,21 @@ infra_target_all += \
 	log \
 	system \
 	vend_cjson \
+	vend_libxml2 \
 	rest \
 	modulemgr \
+	pktmux \
 	sbredirector
+
+del_target += \
+	clean-log \
+	clean-system \
+	clean-vend_cjson \
+	clean-vend_libxml2 \
+	clean-rest \
+	clean-modulemgr \
+	clean-pktmux \
+	clean-sbredirector
 
 export common_include_list
 common_include_list += \
@@ -322,13 +383,15 @@ all: release openapps_out_dir $(add_target) openapps $(vend_target) $(infra_targ
 			$(static_lib) \
 		-Wl,--end-group \
 		-L$(OPENAPP_DELIVERABLES_DIR) \
-		-Wl,-Bdynamic $(dynamic_lib)
+		-Wl,-Bdynamic $(dynamic_lib) \
+		-Wl,--start-group \
+		$(OPENAPPS_OUTPATH)/vend_libxml2/$(vend_libxml2_name) \
+		$(OPENAPPS_OUTPATH)/system/$(libsystem_name) \
+		-Wl,--end-group
 	cp -rf $(OPENAPPS_BUILD_DELIVERABLES_DIR)/* $(OPENAPP_DELIVERABLES_DIR) 2>/dev/null || :
-
 
 #Creates BroadViewBstApp for BST features
 bviewbstapp : release $(OPENAPP_DELIVERABLES_DIR) 
-	@echo Making bviewbstapp 
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bst_app/ $@
 	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/$(bst_ref_app_name) $(OPENAPPS_OUTPATH)/bviewbstapp/bstapp_main.o \
 	-Wl,--start-group \
@@ -339,13 +402,12 @@ bviewbstapp : release $(OPENAPP_DELIVERABLES_DIR)
 	-lpthread -lm
 
 #Cleans BroadViewBstApp
-clean-bviewbstapp debug-bviewbstapp:
+clean-bviewbstapp debug-bviewbstapp::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bst_app/ $@
 
 
 #Creates BroadViewPtApp for Packet trace features
 bviewpackettraceapp : release $(OPENAPP_DELIVERABLES_DIR) 
-	@echo Making bviewpackettraceapp 
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/packet_trace_app/ $@
 	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/$(pt_ref_app_name) $(OPENAPPS_OUTPATH)/bviewpackettraceapp/ptapp_main.o \
 	-Wl,--start-group \
@@ -356,12 +418,26 @@ bviewpackettraceapp : release $(OPENAPP_DELIVERABLES_DIR)
 	-lpthread -lm -lrt
 
 #Cleans BroadViewPtApp
-clean-bviewpackettraceapp debug-bviewpackettraceapp:
+clean-bviewpackettraceapp debug-bviewpackettraceapp::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/packet_trace_app/ $@
 
+#Creates BroadViewBhdApp for BHD features
+bviewbhdapp : release $(OPENAPP_DELIVERABLES_DIR) 
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bhd_app/ $@
+	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/$(bhd_ref_app_name) $(OPENAPPS_OUTPATH)/bviewbhdapp/bhdapp_main.o \
+	-Wl,--start-group \
+	$(OPENAPPS_OUTPATH)/vend_cjson/$(vend_cjson_name) \
+	$(OPENAPPS_OUTPATH)/bviewbhdapp/bviewbhdapp.a \
+	-Wl,--end-group \
+	-Wl,-Bdynamic \
+	-lpthread -lm -lrt
+
+#Cleans BroadViewBhdApp
+clean-bviewbhdapp debug-bviewbhdapp::
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/bhd_app/ $@
+
 #Creates ExampleCfgApp for Packet trace features
-examplecfgapp :
-	@echo Making ExampleCfgApp 
+examplecfgapp::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/example_cfg_app/ $@
 	$(CC) $(MYCFLAGS) -o $(OPENAPP_DELIVERABLES_DIR)/$(example_cfg_app_name) $(OPENAPPS_OUTPATH)/examplecfgapp/example_client.o \
 	-Wl,--start-group \
@@ -371,30 +447,34 @@ examplecfgapp :
 	-lpthread -lm -lrt
 
 #Cleans BroadViewPtApp
-clean-examplecfgapp debug-examplecfgapp:
+clean-examplecfgapp debug-examplecfgapp::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/example/example_cfg_app/ $@
 
 
 #Compiles Module Manager
-modulemgr clean-modulemgr debug-modulemgr:
-	@echo Making Module Manager
+modulemgr clean-modulemgr debug-modulemgr::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/module_mgr/ $@
 
+#Compiles Packet Multiplexer
+pktmux clean-pktmux debug-pktmux::
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/packet_multiplexer/ $@
+
 #Compiles REST
-rest clean-rest debug-rest:
-	@echo Making REST 
+rest clean-rest debug-rest::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/nb_plugin/rest/ $@
 
 #Compiles BST
-bst clean-bst debug-bst:
-	@echo Making BST
+bst clean-bst debug-bst::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/apps/bst/ $@
 
 #Compiles Packet Trace
-packet_trace clean-packet_trace debug-packet_trace:
-	@echo Making PACKET TRACE
+packettrace clean-packettrace debug-packettrace:
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/apps/packet_trace/ $@
 
+
+#Compiles BHD
+bhd clean-bhd debug-bhd::
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/apps/bhd/ $@
 
 #Creates shared library for SDK code
 $(openapps_so_library): $(OPENAPPS_BUILD_DELIVERABLES_DIR) ${SDK_LOCAL}  
@@ -410,23 +490,23 @@ endif
 openapps: $(sbdriver)
 
 #Compiles CJSON
-vend_cjson clean-vend_cjson debug-vend_cjson:
-	@echo Making CJSON
+vend_cjson clean-vend_cjson debug-vend_cjson::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/cjson/ $@
+
+#Compiles libxml2
+vend_libxml2 clean-vend_libxml2 debug-vend_libxml2::
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/libxml2/ $@
 
 #Compiles System Module
 system clean-system debug-system::
-	@echo Making System
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/system/ $@
 
 #Compiles Logging Module
-log clean-log debug-log:
-	@echo Making bviewLogging
+log clean-log debug-log::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/infrastructure/logging/ $@
 
 #Compiles Vendorinit
-vendorinit clean-vendorinit debug-vendorinit::
-	@echo Making VENDOR INIT
+vendorinit::
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/driver/ $@
 ifeq ($(TARGETOS_VARIANT),wrl_2.0)
 	$(LD) -shared -soname libvendorinit.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so.1 $(PLAT_OBJS) --whole-archive $(OPENAPPS_OUTPATH)/vendorinit/vendorinit.a --no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
@@ -434,9 +514,10 @@ else
 	$(CC) ${CFLAGS} -shared -Wl,-soname,libvendorinit.so.1 -o $(OPENAPPS_BUILD_DELIVERABLES_DIR)/libvendorinit.so.1 $(PLAT_OBJS) -Wl,--whole-archive $(OPENAPPS_OUTPATH)/vendorinit/vendorinit.a -Wl,--no-whole-archive -lc -lpthread -lm -lrt ${PLAT_LIBS}
 endif
 
+clean-vendorinit debug-vendorinit::
+	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/vendor/driver/ $@
 
 sbredirector clean-sbredirector debug-sbredirector::
-	@echo Making SB-Redirector
 	$(MAKE) $(DEBUG_PARMS) -C $(OPENAPPS_BASE)/src/sb_plugin/sb_redirector/ $@
 
 
@@ -453,24 +534,19 @@ endif
 # clean-all: cleans everything
 #
 
-clean:
-	for dir in $$(find $(OPENAPPS_OUTPATH) -maxdepth 1 -mindepth 1 -type d) ; do 	\
-		if [ "`basename $$dir`" != "sdk" ]; then 			\
-			(cd $$dir; $(RM) -rf *); 				\
-			rmdir $$dir; 						\
-		fi 								\
-	done
-	rm -f $(OPENAPPS_OUTPATH)/agent.o
-	rm -f $(OPENAPPS_OUTPATH)/version.h
+clean: $(del_target) $(del_target_object)
+	@rm -f $(OPENAPPS_OUTPATH)/agent.o
+	@rm -f $(OPENAPPS_OUTPATH)/version.h
 
-clean-all: $(del_target) $(del_target_object)
-	for dir in $$(find $(OPENAPPS_OUTPATH) -maxdepth 1 -mindepth 1 -type d) ; do 	\
-		(cd $$dir; $(RM) -rf *); 					\
-		rmdir $$dir; 							\
-	done
-	rm -f $(OPENAPPS_OUTPATH)/agent.o
-	rm -f $(OPENAPPS_OUTPATH)/version.h
-	rm -rf $(PACKAGES_DIR)
+clean-all: clean
+	@rm -f  $(OPENAPP_DELIVERABLES_DIR)/BroadView* $(OPENAPP_DELIVERABLES_DIR)/*.xml $(OPENAPP_DELIVERABLES_DIR)/ExampleCfg*   \
+		$(OPENAPP_DELIVERABLES_DIR)/*.xsd $(OPENAPP_DELIVERABLES_DIR)/*.so* $(OPENAPP_DELIVERABLES_DIR)/*.ko   \
+		$(OPENAPP_DELIVERABLES_DIR)/*.md5sum $(OPENAPP_DELIVERABLES_DIR)/*.tar.bz2 $(OPENAPP_DELIVERABLES_DIR)/RELEASE
+	@rm -f  $(OPENAPPS_LIBRARIES_DIR)/*.so* $(OPENAPPS_LIBRARIES_DIR)/*.ko $(OPENAPPS_LIBRARIES_DIR)/*.a
+	@rm -f  $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.so* $(OPENAPPS_BUILD_DELIVERABLES_DIR)/*.ko
+	@rm -f  $(PACKAGES_DIR)/*.tar.bz2
+	@rmdir $(OPENAPP_DELIVERABLES_DIR) $(OPENAPPS_LIBRARIES_DIR) $(OPENAPPS_BUILD_DELIVERABLES_DIR) $(PACKAGES_DIR) 2>/dev/null; true
+
 #
 # end of Command Line Targets
 #
@@ -545,3 +621,4 @@ dump-variables:
 	@echo OUTPATH   	    	= $(OUTPATH)
 	@echo dynamic_sb_lib   	    	= $(dynamic_sb_lib)
 	@echo common_include_list   	= $(common_include_list)
+	@echo RELEASE_FILE   	    	= $(RELEASE_FILE)

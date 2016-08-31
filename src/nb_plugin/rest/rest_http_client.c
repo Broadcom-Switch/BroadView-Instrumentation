@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -28,6 +29,9 @@
 #include "broadview.h"
 #include "rest.h"
 #include "rest_http.h"
+#include "system_utils_sock.h"
+#include "system.h"
+
 
 /******************************************************************
  * @brief  sends a HTTP 200 message to the client 
@@ -220,17 +224,45 @@ BVIEW_STATUS rest_send_async_report(REST_CONTEXT_t *rest, char *buffer, int leng
     }
     _REST_ASSERT_NET_SOCKET_ERROR((temp > 0), "Error Creating server socket",clientFd);
 
-    /* connect to the peer */
-    temp = connect(clientFd, (struct sockaddr *) &clientAddr, sizeof (clientAddr));
-    _REST_ASSERT_NET_SOCKET_ERROR((temp != -1), "Error connecting to client for sending async reports",clientFd);
+    temp = system_utils_non_block_connect(clientFd, (struct sockaddr *) &clientAddr);
+    if (temp != BVIEW_STATUS_SUCCESS)
+    {
+      close(clientFd);
+      /* Do not return error if the client is default client */
+      if ((SYSTEM_CONFIG_PROPERTY_CLIENT_PORT_DEFAULT == rest->config.clientPort) &&
+          (0 == strcmp(&rest->config.clientIp[0], SYSTEM_CONFIG_PROPERTY_CLIENT_IP_DEFAULT)))
+      {
+        return BVIEW_STATUS_SUCCESS;  
+      }
+      else
+      {
+        return BVIEW_STATUS_FAILURE;
+      }
+    }
 
-    /* send data */
-    if (0 > send(clientFd, buf, strlen(buf),MSG_MORE))
-      rv = BVIEW_STATUS_FAILURE;
+    rv = system_utils_non_block_send(clientFd, buf, strlen(buf), MSG_MORE);
+    if (rv != BVIEW_STATUS_SUCCESS)
+    {
+      close(clientFd);
+      /* Do not return error if the client is default client */
+      if ((SYSTEM_CONFIG_PROPERTY_CLIENT_PORT_DEFAULT == rest->config.clientPort) &&
+          (0 == strcmp(&rest->config.clientIp[0], SYSTEM_CONFIG_PROPERTY_CLIENT_IP_DEFAULT)))
+      {
+        return BVIEW_STATUS_SUCCESS;  
+      }
+      else
+      {
+        return BVIEW_STATUS_FAILURE;
+      }
+    }
 
-    if (0 > send(clientFd, buffer, length, 0))
-      rv = BVIEW_STATUS_FAILURE;
-    
+    rv = system_utils_non_block_send(clientFd, buffer, length, 0);    
+    if (rv != BVIEW_STATUS_SUCCESS)
+    {
+      close(clientFd);
+      return BVIEW_STATUS_FAILURE;
+    }
+
     /* close down session */
     close(clientFd);
 
@@ -290,6 +322,31 @@ BVIEW_STATUS rest_send_400_with_data(int fd, char *buffer, int length)
     return BVIEW_STATUS_SUCCESS;
 }
 
+/******************************************************************
+ * @brief  sends a HTTP 403 message to the client 
+ *
+ * @param[in]   fd    socket for sending message
+ * @param[in]   buffer  Buffer containing data to be sent
+ * @param[in]   length  number of bytes to be sent 
+ *
+ * @retval   BVIEW_STATUS_SUCCESS if send is successful
+ * 
+ * @note     
+ *********************************************************************/
+BVIEW_STATUS rest_send_403_with_data(int fd, char *buffer, int length)
+{
+    char *response = "HTTP/1.1 400 Forbidden \r\n"
+            "Server: BroadViewAgent (Unix) (Linux) \r\n\r\n"
+             "Content-Type: text/json";
+
+    if (0 > send(fd, response, strlen(response), MSG_MORE))
+      return BVIEW_STATUS_FAILURE;
+
+    if (0 > send(fd, buffer, length, 0))
+      return BVIEW_STATUS_FAILURE;
+
+    return BVIEW_STATUS_SUCCESS;
+}
 /******************************************************************
  * @brief  sends a HTTP 500 message to the client 
  *

@@ -1,6 +1,7 @@
 /*****************************************************************************
   *
-  * (C) Copyright Broadcom Corporation 2015
+  * Copyright © 2016 Broadcom.  The term "Broadcom" refers
+  * to Broadcom Limited and/or its subsidiaries.
   *
   * Licensed under the Apache License, Version 2.0 (the "License");
   * you may not use this file except in compliance with the License.
@@ -51,13 +52,27 @@ extern int sbSdkDebugFlag;
                          }
               
 
+
+#define _BVIEW_ERROR_TRACE(__errcode__)  SB_DEBUG_PRINT (BVIEW_LOG_DEBUG, "ERROR(%s, %u, %d)\n", __FILE__, __LINE__, __errcode__)
+
+#define BVIEW_ERROR_RETURN(_op) \
+  do { if (_op < 0) { _BVIEW_ERROR_TRACE(_op);  return(BVIEW_STATUS_FAILURE); } } while(0)
+
+
 /* NULL Pointer Check*/
 #define  BVIEW_NULLPTR_CHECK(_p)                \
                 if (_p == NULL)                 \
                 {                               \
                   return BVIEW_STATUS_FAILURE;  \
                 }
-   
+  
+
+
+/* ISMASKBITSET returns 0 if the interface k is not set in mask j */
+#define BVIEW_ISMASKBITSET(j, k)                                   \
+        ((j).value[((k-1)/(8*sizeof(BVIEW_MASK_BASE_UNIT)))]                    \
+                         & ( 1 << ((k-1) % (8*sizeof(BVIEW_MASK_BASE_UNIT)))) )
+ 
 /*********************************************************************
 * @brief    South bound plugin init
 *

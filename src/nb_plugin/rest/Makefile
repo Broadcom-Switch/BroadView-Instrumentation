@@ -13,6 +13,10 @@ export LIBS_REST=$(MODULE).a
 
 OBJECTS_REST := $(patsubst %.c,%.o,$(wildcard *.c))
 
+$(OUT_REST)::
+	@echo Making REST
+	@mkdir -p $(OUT_REST)
+
 $(OUT_REST)/%.o : %.c
 	@mkdir -p $(OUT_REST) 
 	$(CC) $(CFLAGS) -c  $< -o $@ 
@@ -23,11 +27,13 @@ $(OUT_REST)/$(LIBS_REST): $(patsubst %,$(OUT_REST)/%,$(subst :, ,$(OBJECTS_REST)
 #	@cd $(OUT_REST) && $(CC) $(CFLAGS) -o $(MODULE) $(OBJECTS_REST) #This line needs to be removed.
 
 #default target
-$(MODULE) all: $(OUT_REST)/$(LIBS_REST) 
+$(MODULE) all: $(OUT_REST) $(OUT_REST)/$(LIBS_REST) 
 	$(NOOP)
 
 clean-$(MODULE) clean: 
-	rm -rf $(OUT_REST)
+	@echo Cleaning REST
+	@rm -f $(OUT_REST)/*.o $(OUT_REST)/*.a
+	@rmdir $(OUT_REST) 2>/dev/null; true
 
 #target to print all exported variables
 debug-$(MODULE) dump-variables: 

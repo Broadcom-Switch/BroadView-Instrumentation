@@ -133,16 +133,15 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d4c/struct__bst__rqe__q___1_1__rqeq__data__.html">_bst_rqe_q_::_rqeq_data_</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d58/struct__switch__asic__info__.html">_switch_asic_info_</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/df7/struct__switch__properties__.html">_switch_properties_</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:ga8de7ad4eab00feda048c9d93870fd689"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga8de7ad4eab00feda048c9d93870fd689"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_ASIC_NOTATION_LEN</b>&#160;&#160;&#160;32</td></tr>
-<tr class="separator:ga8de7ad4eab00feda048c9d93870fd689"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae897ffc62dbead08e5fac47f5be049e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae897ffc62dbead08e5fac47f5be049e4"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_CPU_MASK</b>&#160;&#160;&#160;(1&lt;&lt;CPU_COUNTER)</td></tr>
+<tr class="separator:gae897ffc62dbead08e5fac47f5be049e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae1bfcdc4da550cced69719ac3653a507"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae1bfcdc4da550cced69719ac3653a507"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;DEVICE_COUNTER)</td></tr>
+<tr class="separator:gae1bfcdc4da550cced69719ac3653a507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6638383264685b0b74ff6789012ee436"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga6638383264685b0b74ff6789012ee436"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga12c096489126d06164389abff5eb81fe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_E_CPU_QUEUE_THRESHOLD_CHECK</b>(_p)</td></tr>
@@ -175,6 +174,8 @@ Macros</h2></td></tr>
 <tr class="separator:ga32b47fee04a48e2b005494ef0ad306f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae43157dc35942c4d25899ad2e1e43ac8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_RQE_QUEUE_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:gae43157dc35942c4d25899ad2e1e43ac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cb5798b4fb5e294fcda89fb0f4ff9bb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_UC_GRP_THRESHOLD_CHECK</b>(_p)</td></tr>
+<tr class="separator:ga0cb5798b4fb5e294fcda89fb0f4ff9bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga6b74378892c2ba9652cc8e2849293e54"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EGRESS_UC_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga6b74378892c2ba9652cc8e2849293e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga38074e601adf8045cd1181b2985a85d9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_EPSP_MC_SQ_THRESHOLD_CHECK</b>(_p)</td></tr>
@@ -193,6 +194,66 @@ Macros</h2></td></tr>
 <tr class="separator:ga811861e9757a4a20850a22bcea211df7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0a7ee699e966d57c572a54ff3ce95a62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_ISP_THRESHOLD_CHECK</b>(_p)</td></tr>
 <tr class="separator:ga0a7ee699e966d57c572a54ff3ce95a62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae66a48b0ef36dd83364d71e3ec73d8fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gae66a48b0ef36dd83364d71e3ec73d8fb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MC_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MC_COUNTER)</td></tr>
+<tr class="separator:gae66a48b0ef36dd83364d71e3ec73d8fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0cd1967744290e82f2de181178a34ace"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0cd1967744290e82f2de181178a34ace"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCQUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCQUEUE_COUNTER)</td></tr>
+<tr class="separator:ga0cd1967744290e82f2de181178a34ace"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0e8d50eb0f62be10d15ab068ab473395"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0e8d50eb0f62be10d15ab068ab473395"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCSHARE_COUNTER)</td></tr>
+<tr class="separator:ga0e8d50eb0f62be10d15ab068ab473395"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3d65952dfbf9b773af621fbeb2caa495"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3d65952dfbf9b773af621fbeb2caa495"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_MCSHARE_QUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;MCSHARE_QUEUE_COUNTER)</td></tr>
+<tr class="separator:ga3d65952dfbf9b773af621fbeb2caa495"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga690e8cd9988120244d4181e8a8806375"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga690e8cd9988120244d4181e8a8806375"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PG_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_PG_POS)</td></tr>
+<tr class="separator:ga690e8cd9988120244d4181e8a8806375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0fb50b84793d5d0146b4cd170e477136"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0fb50b84793d5d0146b4cd170e477136"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PG_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+3)</td></tr>
+<tr class="separator:ga0fb50b84793d5d0146b4cd170e477136"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05fdc8fb7c996d1ddd46d9ede1bd4367"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga05fdc8fb7c996d1ddd46d9ede1bd4367"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PORT_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_PORT_POS)</td></tr>
+<tr class="separator:ga05fdc8fb7c996d1ddd46d9ede1bd4367"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf19ec536adfb868c293de1271e3f0be"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacf19ec536adfb868c293de1271e3f0be"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_PORT_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+1)</td></tr>
+<tr class="separator:gacf19ec536adfb868c293de1271e3f0be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga827d9d581837befd8113502bdd9d2c88"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga827d9d581837befd8113502bdd9d2c88"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_GRP_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_QUEUE_GRP_POS)</td></tr>
+<tr class="separator:ga827d9d581837befd8113502bdd9d2c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf955e4e925db5959f7b14146cfb2cc5f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaf955e4e925db5959f7b14146cfb2cc5f"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_GRP_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+5)</td></tr>
+<tr class="separator:gaf955e4e925db5959f7b14146cfb2cc5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac4aa48bba3355f779de7e36b3ab5fa42"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gac4aa48bba3355f779de7e36b3ab5fa42"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_QUEUE_POS)</td></tr>
+<tr class="separator:gac4aa48bba3355f779de7e36b3ab5fa42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa3cb6b6f8b72fefac5083e5d312f21fb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gaa3cb6b6f8b72fefac5083e5d312f21fb"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_QUEUE_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+4)</td></tr>
+<tr class="separator:gaa3cb6b6f8b72fefac5083e5d312f21fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d227ccfde79a44114fc66474778e3ff"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga6d227ccfde79a44114fc66474778e3ff"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_REALM_MAX</b>&#160;&#160;&#160;RQE_COUNTER</td></tr>
+<tr class="separator:ga6d227ccfde79a44114fc66474778e3ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1233375c24bc84df65ebb99bc2af1f64"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1233375c24bc84df65ebb99bc2af1f64"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_RQE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;RQE_COUNTER)</td></tr>
+<tr class="separator:ga1233375c24bc84df65ebb99bc2af1f64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6f0544dc806d5cfc433aee71618772ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga6f0544dc806d5cfc433aee71618772ec"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_SP_MASK</b>&#160;&#160;&#160;(1&lt;&lt;BVIEW_BST_SP_POS)</td></tr>
+<tr class="separator:ga6f0544dc806d5cfc433aee71618772ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3a4040e537754a26978d277dc6fa13f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3a4040e537754a26978d277dc6fa13f5"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_SP_POS</b>&#160;&#160;&#160;(BVIEW_BST_REALM_MAX+2)</td></tr>
+<tr class="separator:ga3a4040e537754a26978d277dc6fa13f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacf4ff7d073d63b6f1a1adb775078a334"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gacf4ff7d073d63b6f1a1adb775078a334"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UC_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UC_COUNTER)</td></tr>
+<tr class="separator:gacf4ff7d073d63b6f1a1adb775078a334"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8c3fa9341a48d7c7932fb7d62c7da98c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga8c3fa9341a48d7c7932fb7d62c7da98c"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UCSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UCSHARE_COUNTER)</td></tr>
+<tr class="separator:ga8c3fa9341a48d7c7932fb7d62c7da98c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga14f91c4472efe735ef2ab96b037c55e0"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga14f91c4472efe735ef2ab96b037c55e0"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UMHEADROOM_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UMHEADROOM_COUNTER)</td></tr>
+<tr class="separator:ga14f91c4472efe735ef2ab96b037c55e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga16cce0fe25d919d5cccc81a061d9b335"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga16cce0fe25d919d5cccc81a061d9b335"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_UMSHARE_MASK</b>&#160;&#160;&#160;(1&lt;&lt;UMSHARE_COUNTER)</td></tr>
+<tr class="separator:ga16cce0fe25d919d5cccc81a061d9b335"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0068349606b0ba269c789b795ba3528d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0068349606b0ba269c789b795ba3528d"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_MAX_STRING_NAME_LEN</b>&#160;&#160;&#160;256</td></tr>
 <tr class="separator:ga0068349606b0ba269c789b795ba3528d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -209,6 +270,9 @@ typedef enum _bst_collection_mode_&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:ga4bfc5fe11f03df88df00fee7796ad74f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga4bfc5fe11f03df88df00fee7796ad74f"></a>
 typedef struct <a class="el" href="../../d1/d45/struct__bst__config__.html">_bst_config_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_CONFIG_t</b></td></tr>
 <tr class="separator:ga4bfc5fe11f03df88df00fee7796ad74f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad513c604b6d115b6c27442373c94ef99"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="gad513c604b6d115b6c27442373c94ef99"></a>
+typedef enum _threshold_fields_&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_COUNTER_t</b></td></tr>
+<tr class="separator:gad513c604b6d115b6c27442373c94ef99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0d117f356e8f28d586f34644d34ec70b"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga0d117f356e8f28d586f34644d34ec70b"></a>
 typedef struct <a class="el" href="../../db/ddd/struct__bst__device__.html">_bst_device_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_DEVICE_DATA_t</b></td></tr>
 <tr class="separator:ga0d117f356e8f28d586f34644d34ec70b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -293,12 +357,6 @@ typedef struct <a class="el" href="../../db/dfd/struct__bst__trigger__info__.htm
 <tr class="memitem:ga3b368d72d3cb5ac15f96fcd519f9aaf4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga3b368d72d3cb5ac15f96fcd519f9aaf4"></a>
 typedef enum _bst_trigger_type_&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_BST_TRIGGER_TYPE</b></td></tr>
 <tr class="separator:ga3b368d72d3cb5ac15f96fcd519f9aaf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga835e366f2a83c78b25776d7f12fefd2d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga835e366f2a83c78b25776d7f12fefd2d"></a>
-typedef struct <a class="el" href="../../d3/d58/struct__switch__asic__info__.html">_switch_asic_info_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_SWITCH_ASIC_INFO_t</b></td></tr>
-<tr class="separator:ga835e366f2a83c78b25776d7f12fefd2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1ce8bc03dacf64e4111c9db5fdf158e4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga1ce8bc03dacf64e4111c9db5fdf158e4"></a>
-typedef struct <a class="el" href="../../db/df7/struct__switch__properties__.html">_switch_properties_</a>&#160;</td><td class="memItemRight" valign="bottom"><b>BVIEW_SWITCH_PROPERTIES_t</b></td></tr>
-<tr class="separator:ga1ce8bc03dacf64e4111c9db5fdf158e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -311,6 +369,23 @@ Enumerations</h2></td></tr>
 <b>BVIEW_BST_TRIGGER_EGRESS</b> = (0x1 &lt;&lt; 2)
  }</td></tr>
 <tr class="separator:gabee979840b7ec9429e17a364667fb229"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf0c36edd1374ad46e116c60987b4ebcd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><b>_threshold_fields_</b> { <br/>
+&#160;&#160;<b>DEVICE_COUNTER</b> = 0, 
+<b>UMSHARE_COUNTER</b>, 
+<b>UMHEADROOM_COUNTER</b>, 
+<b>UCSHARE_COUNTER</b>, 
+<br/>
+&#160;&#160;<b>MCSHARE_COUNTER</b>, 
+<b>MCSHARE_QUEUE_COUNTER</b>, 
+<b>UC_COUNTER</b>, 
+<b>MCQUEUE_COUNTER</b>, 
+<br/>
+&#160;&#160;<b>MC_COUNTER</b>, 
+<b>CPU_COUNTER</b>, 
+<b>RQE_COUNTER</b>
+<br/>
+ }</td></tr>
+<tr class="separator:gaf0c36edd1374ad46e116c60987b4ebcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -323,6 +398,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gae7816d16c0e0a51ade5ed7ed3e2fe526">bst_app_uninit</a> ()</td></tr>
 <tr class="memdesc:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="mdescLeft">&#160;</td><td class="mdescRight">: function to clean up bst application  <a href="../../d1/d82/group__GLBVIEW.html#gae7816d16c0e0a51ade5ed7ed3e2fe526"></a><br/></td></tr>
 <tr class="separator:gae7816d16c0e0a51ade5ed7ed3e2fe526"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga79c56215416cb7fd47697d7f037d7429"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ga79c56215416cb7fd47697d7f037d7429"></a>
+BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><b>bst_cancel_request</b> (unsigned int unit, unsigned int id)</td></tr>
+<tr class="separator:ga79c56215416cb7fd47697d7f037d7429"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaf3e61c55443a5eed572344e4d67abb51"><td class="memItemLeft" align="right" valign="top">BVIEW_STATUS&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d82/group__GLBVIEW.html#gaf3e61c55443a5eed572344e4d67abb51">bst_main</a> ()</td></tr>
 <tr class="memdesc:gaf3e61c55443a5eed572344e4d67abb51"><td class="mdescLeft">&#160;</td><td class="mdescRight">: function to creathe the bst application thread.  <a href="../../d1/d82/group__GLBVIEW.html#gaf3e61c55443a5eed572344e4d67abb51"></a><br/></td></tr>
 <tr class="separator:gaf3e61c55443a5eed572344e4d67abb51"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -330,7 +408,7 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Sep 30 2015 18:57:39 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 17 2016 06:44:51 for BroadView&trade; API Guide and Reference Manual by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>
